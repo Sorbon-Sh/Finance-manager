@@ -11,11 +11,7 @@ import {
 import { useState, useRef } from "react";
 import CoinInfo from "./CoinInfo";
 import { useCrypto } from "../../../hooks/useCrypto";
-import {
-  CryptoResultItem,
-  IAssetsItems,
-  ICryptoAssets,
-} from "../../../types/types";
+import { CryptoResultItem, IAssetsItems } from "../../../types/types";
 
 const validateMessages = {
   required: "${label} is required!",

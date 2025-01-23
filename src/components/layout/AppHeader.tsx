@@ -1,80 +1,72 @@
-import { Layout, Select, Space, Button, Modal, Drawer } from "antd";
-import { CSSProperties, useState } from "react";
-import AddAssetForm from "./crypto/AddAssetForm";
-import CoinInfoModal from "./crypto/CoinInfoModal";
-import { useCrypto } from "../../hooks/useCrypto";
-import { CryptoResultItem } from "../../types/types";
+import Button from "../buttons/Button";
+import arrowTransfer from "../../assets/arrow-transfer-header.svg";
+import stroke from "../../assets/stroke.svg";
+import union from "../../assets/union.svg";
+import history from "../../assets/history.svg";
+import logo from "../../assets/logo.svg";
+const AppHeader = () => {
+  return (
+    <header className="flex justify-between bg-[#121212] text-white mb-5 py-5 items-center">
+      <div className="flex items-center">
+        <div className="w-10 h-10 rounded-full bg-slate-400 mr-2">
+          <img src={logo} />
+        </div>
+        <div className="font-medium">
+          <span className="block ml-3">Fin manager</span>
+          <details className="text-gray-400  cursor-pointer companyDetails hover:bg-gray-500/30 px-3  rounded-lg">
+            <summary className="list-none outline-none flex justify-between items-center">
+              Company name
+            </summary>
+            {/* Этот absolute должен быть left-0 по контейнету который нужно
+            задать relative */}
+            <div className="absolute w-72 mt-2 bg-white rounded-xl left-10">
+              <div className="py-2">
+                <Button className="py-3 text-start block px-3 mx-auto rounded-md hover:bg-gray-200 w-[95%]">
+                  Company name
+                </Button>
+                <hr className="my-2 bg-gray-200" />
+                <Button className="py-3 w-[95%] block mx-auto px-3 rounded-md text-green-400 text-start hover:bg-gray-200">
+                  Edit
+                </Button>
+              </div>
+            </div>
+          </details>
+        </div>
+      </div>
+      <div className="flex gap-x-6">
+        <Button className="headerButton bg-green-300/20 text-green-300">
+          <span>
+            <img src={union} />
+          </span>
+          <span>Income</span>
+        </Button>
+        <Button className="headerButton bg-red-300/20 text-red-400 ">
+          <span>
+            <img src={stroke} />
+          </span>
+          <span>Expense</span>
+        </Button>
+        <Button className="headerButton  bg-gray-600/55 ">
+          <span>
+            <img src={arrowTransfer} />
+          </span>
+          <span>Transfer</span>
+        </Button>
+      </div>
+      <div>
+        <button type="button" popoverTarget="text" className="block">
+          <img
+            src={history}
+            className="size-10 bg-gray-300 rounded-full left-0 "
+          />
+        </button>
 
-const headerStyle: CSSProperties = {
-  width: "100%",
-  textAlign: "center",
-  height: 60,
-  padding: "1rem",
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
+        <div popover="auto" id="text" className="mr-6 mt-6 w-[340px]">
+          <div className="w-[300px] mx-auto">Modal</div>
+        </div>
+      </div>
+    </header>
+  );
 };
 
-export default function AppHeader() {
-  const [select, setSelect] = useState(false);
-  const [coin, setCoin] = useState(null);
-  const [modal, setModal] = useState(false);
-  const [drawer, setDrawer] = useState(false);
-  const { crypto } = useCrypto();
-
-  function handleSelect(value: string) {
-    if (crypto) {
-      throw new Error();
-    } else {
-      setCoin(crypto.find((c: CryptoResultItem) => c.id === value));
-    }
-    setModal(true);
-  }
-
-  return (
-    <Layout.Header style={headerStyle}>
-      <Select
-        style={{
-          width: 250,
-        }}
-        open={select}
-        onSelect={handleSelect}
-        onClick={() => setSelect((prev) => !prev)}
-        value="Click to view info"
-        options={crypto.map((coin: CryptoResultItem) => ({
-          label: coin.name,
-          value: coin.id,
-          icon: coin.icon,
-        }))}
-        optionRender={(option) => (
-          <Space>
-            <img
-              style={{ width: 20 }}
-              src={option.data.icon}
-              alt={option.data.label}
-            />
-            {option.data.label}
-          </Space>
-        )}
-      />
-
-      <Button type="primary" onClick={() => setDrawer(true)}>
-        Add Asset
-      </Button>
-
-      <Modal open={modal} onCancel={() => setModal(false)} footer={null}>
-        <CoinInfoModal coin={coin} />
-      </Modal>
-
-      <Drawer
-        width={600}
-        title="Add Asset"
-        onClose={() => setDrawer(false)}
-        open={drawer}
-        destroyOnClose
-      >
-        <AddAssetForm onClose={() => setDrawer(false)} />
-      </Drawer>
-    </Layout.Header>
-  );
-}
+export default AppHeader;
