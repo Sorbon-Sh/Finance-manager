@@ -6,13 +6,13 @@ import history from "../../assets/history.svg";
 import logo from "../../assets/logo.svg";
 const AppHeader = () => {
   return (
-    <header className="flex justify-between bg-[#121212] text-white mb-5 py-5 items-center">
+    <header className="flex justify-between text-white  py-5 items-center">
       <div className="flex items-center">
         <div className="w-10 h-10 rounded-full bg-slate-400 mr-2">
           <img src={logo} />
         </div>
         <div className="font-medium">
-          <span className="block ml-3">Fin manager</span>
+          <div className="ml-3">Fin manager</div>
           <details className="text-gray-400  cursor-pointer companyDetails hover:bg-gray-500/30 px-3  rounded-lg">
             <summary className="list-none outline-none flex justify-between items-center">
               Company name
@@ -61,8 +61,12 @@ const AppHeader = () => {
           />
         </button>
 
-        <div popover="auto" id="text" className="mr-6 mt-6 w-[340px]">
-          <div className="w-[300px] mx-auto">Modal</div>
+        <div
+          popover="auto"
+          id="text"
+          className="mr-6 mt-6 w-[340px] px-5 mx-auto"
+        >
+          <div className="">Modal</div>
         </div>
       </div>
     </header>

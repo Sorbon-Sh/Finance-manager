@@ -3,15 +3,15 @@ import AppSider from "./AppSider";
 import AppHeader from "./AppHeader";
 
 const AppLayout = () => {
-  // const { loading } = useContext(CryptoContext);
+  // const { loading } = use(CryptoContext);
   // if (loading) {
   //   return <Spin fullscreen />;
   // }
 
   return (
-    <div className="w-[1320px] mx-auto">
+    <div className="container mx-auto">
       <AppHeader />
-      <div className="grid grid-cols-12 h-96 bg-white">
+      <div className="grid grid-cols-12 h-svh ">
         <AppSider />
         <AppContent />
       </div>
