@@ -1,6 +1,7 @@
 import AppContent from "./AppContent";
 import AppSider from "./AppSider";
 import AppHeader from "./AppHeader";
+import { BrowserRouter } from "react-router";
 
 const AppLayout = () => {
   // const { loading } = use(CryptoContext);
@@ -13,7 +14,10 @@ const AppLayout = () => {
       <AppHeader />
       <div className="grid grid-cols-12 h-svh ">
         <AppSider />
-        <AppContent />
+        {/* In this app all routes doings  in AppContent Component */}
+        <BrowserRouter>
+          <AppContent />
+        </BrowserRouter>
       </div>
     </div>
   );

@@ -1,10 +1,25 @@
+import { Link, Route, Routes } from "react-router";
+import Transactions from "../contentComponents/Transactions";
+import Analytic from "../contentComponents/Analytic";
+import FinPlans from "../contentComponents/FinPlans";
+import Deposits from "../contentComponents/Deposits";
+
 export default function AppContent() {
   return (
     <main className="bg-white col-start-4 col-end-13 rounded-tr-3xl px-8">
       <div className="flex gap-x-5  mb-6 mt-8 text-lg font-bold text-gray-500">
-        <div>Transactions</div>
-        <div>Analitics</div>
-        <div>Create Fin Plane</div>
+        <Link to="/">
+          <div>Transactions</div>
+        </Link>
+        <Link to="/analytic">
+          <div>Analytic</div>
+        </Link>
+        <Link to="/finplans">
+          <div>Create Fin Plans</div>
+        </Link>
+        <Link to="/deposits">
+          <div>Deposites</div>
+        </Link>
         <div>Other...</div>
       </div>
 
@@ -20,7 +35,14 @@ export default function AppContent() {
           </div>
           <div className="">Filter By</div>
         </div>
-        <div>Money info</div>
+        {/* Also can do in createBrowser */}
+        <Routes>
+          <Route path="/" element={<Transactions />} />
+          <Route path="/analytic" element={<Analytic />} />
+          <Route path="/finplans" element={<FinPlans />} />
+          <Route path="/deposits" element={<Deposits />} />
+          <Route path="*" element={<div>NO Page Found</div>} />
+        </Routes>
       </section>
     </main>
   );
