@@ -7,7 +7,7 @@ import Deposits from "../contentComponents/Deposits";
 export default function AppContent() {
   return (
     <main className="bg-white col-start-4 col-end-13 rounded-tr-3xl px-8">
-      <div className="flex gap-x-5  mb-6 mt-8 text-lg font-bold text-gray-500">
+      <menu className="flex gap-x-5  mb-6 mt-8 text-lg font-bold text-gray-500">
         <Link to="/">
           <div>Transactions</div>
         </Link>
@@ -21,7 +21,7 @@ export default function AppContent() {
           <div>Deposites</div>
         </Link>
         <div>Other...</div>
-      </div>
+      </menu>
 
       <section>
         <div className="flex mb-7">
