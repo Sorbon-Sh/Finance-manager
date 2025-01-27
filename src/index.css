@@ -1,12 +1,11 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-/* *{
-    outline: 2px solid orange;
+
+/* * {
+  outline: 2px solid orange;
 } */
 
-body{
+body {
   background-color: #121212;
 }
 
@@ -29,4 +28,48 @@ body{
 
 .companyDetails[open] summary::after {
   transform: rotate(90deg);
+  -ms-transform: rotate(90deg);
+  /* IE 9 */
+
+  -webkit-transform: rotate(90deg);
+  /* Chrome, Safari, Opera */
+}
+
+.triangleTimeFilter {
+  position: relative;
+}
+
+.triangleTimeFilter::after {
+  content: "";
+  position: absolute;
+  right: 16px; /* Позиция треугольника */
+  top: 50%; /* Центрирование по вертикали */
+  transform: translateY(-50%); /* Центрирование по вертикали */
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 5px solid #000;
+}
+
+
+.triangleFilterBy {
+  position: relative;
+}
+
+.triangleFilterBy::after {
+  content: "";
+  position: absolute;
+  right: -18px; /* Позиция треугольника */
+  top: 50%; /* Центрирование по вертикали */
+  transform: translateY(-50%); /* Центрирование по вертикали */
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 5px solid #000;
+}
+
+
+.search::placeholder{
+ background: url("assets/search-icon.svg") no-repeat;
+ display: flex;
+ background-position: 3px ;
+ padding-left: 25px;
 }

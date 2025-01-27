@@ -12,9 +12,9 @@ const AppSider: React.FC = () => {
             TJS 100.<span className="text-lg">50</span>
           </span>
         </div>
-        <hr className="bg-gray-400 h-[2px] mt-5" />
+        <hr className="border-gray-400  mt-5" />
         <div>
-          <ul className="[&>*]:flex [&>*]:justify-between mt-[18px]">
+          <ul className="[&>*]:flex [&>*]:justify-between mt-[18px] ">
             <li className="mb-6 font-bold text-sm">
               <div>Мои счета</div>
               <div>
@@ -34,12 +34,12 @@ const AppSider: React.FC = () => {
               </li>
             </div>
           </ul>
-          <Button className="text-sm text-gray-500 border-dotted border-2  py-3 w-full flex items-center justify-center mt-5 ">
+          <Button className="text-sm text-gray-500 border-dotted border-1 rounded-sm   py-3 w-full flex items-center justify-center mt-5 ">
             <img src={plus} className="mr-2" />
             <span>Добавить интеграцию</span>
           </Button>
         </div>
-        <hr className="h-[2px] bg-gray-400 mt-5" />
+        <hr className=" bg-gray-400 mt-5 border-gray-400" />
         <div className="mt-5 text-sm text-gray-500">
           Здесь будут отображаться <br /> платежи с датой в будущем 👇
         </div>

@@ -4,6 +4,7 @@ import stroke from "../../assets/stroke.svg";
 import union from "../../assets/union.svg";
 import history from "../../assets/history.svg";
 import logo from "../../assets/logo.svg";
+import ModalPopover from "../modalWindow/ModalPopover";
 const AppHeader = () => {
   return (
     <header className="flex justify-between text-white  py-5 items-center">
@@ -54,20 +55,19 @@ const AppHeader = () => {
         </Button>
       </div>
       <div>
-        <button type="button" popoverTarget="text" className="block">
+        <button type="button" popoverTarget="history" className="block">
           <img
             src={history}
             className="size-10 bg-gray-300 rounded-full left-0 "
           />
         </button>
 
-        <div
-          popover="auto"
-          id="text"
-          className="mr-6 mt-6 w-[340px] px-5 mx-auto"
+        <ModalPopover
+          id="history"
+          className="mr-6 mt-6 w-[340px] px-5 mx-auto "
         >
           <div className="">Modal</div>
-        </div>
+        </ModalPopover>
       </div>
     </header>
   );

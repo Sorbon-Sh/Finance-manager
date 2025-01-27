@@ -3,39 +3,37 @@ import Transactions from "../contentComponents/Transactions";
 import Analytic from "../contentComponents/Analytic";
 import FinPlans from "../contentComponents/FinPlans";
 import Deposits from "../contentComponents/Deposits";
-
 export default function AppContent() {
   return (
     <main className="bg-white col-start-4 col-end-13 rounded-tr-3xl px-8">
-      <menu className="flex gap-x-5  mb-6 mt-8 text-lg font-bold text-gray-500">
-        <Link to="/">
-          <div>Transactions</div>
-        </Link>
-        <Link to="/analytic">
-          <div>Analytic</div>
-        </Link>
-        <Link to="/finplans">
-          <div>Create Fin Plans</div>
-        </Link>
-        <Link to="/deposits">
-          <div>Deposites</div>
-        </Link>
-        <div>Other...</div>
-      </menu>
-
+      <nav>
+        <ul className="flex  mb-6 mt-8 text-lg font-bold text-gray-500 [&>a>li]:px-5 [&>a>li]:py-2 [&>a>li]:rounded-full">
+          <Link to="/">
+            <li className="hover:text-slate-100 hover:bg-black">
+              Transactions
+            </li>
+          </Link>
+          <Link to="/analytic">
+            <li className="hover:text-slate-100 hover:bg-black">Analytic</li>
+          </Link>
+          <Link to="/finplans">
+            <li className="hover:text-slate-100 hover:bg-black">
+              Create Fin Plans
+            </li>
+          </Link>
+          <Link to="/deposits">
+            <li className="hover:text-slate-100 hover:bg-black">Deposits</li>
+          </Link>
+        </ul>
+      </nav>
       <section>
-        <div className="flex mb-7">
-          <div>All time</div>
-          <div>
-            <input
-              type="text"
-              placeholder="Поиск по счетам, клиентам, комментариям"
-              className="w-[519px] p-2 rounded-lg bg-[#edf4f7] ml-2 mr-9"
-            />
-          </div>
-          <div className="">Filter By</div>
-        </div>
-        {/* Also can do in createBrowser */}
+        {/*
+        //* Если архитектура Routing в приложении большая, то сначала надо сверстать вёрстку,
+        //* Затем Routing, чтобы не создавать путаницу и ошибок
+         */}
+        {/*
+        //? Also can do on createBrowser in another case
+         */}
         <Routes>
           <Route path="/" element={<Transactions />} />
           <Route path="/analytic" element={<Analytic />} />
