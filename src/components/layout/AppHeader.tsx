@@ -5,7 +5,7 @@ import union from "../../assets/union.svg";
 import history from "../../assets/history.svg";
 import logo from "../../assets/logo.svg";
 import ModalPopover from "../modalWindow/ModalPopover";
-const AppHeader = () => {
+const AppHeader: React.FC = () => {
   return (
     <header className="flex justify-between text-white  py-5 items-center">
       <div className="flex items-center">

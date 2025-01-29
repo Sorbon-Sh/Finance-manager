@@ -5,7 +5,7 @@ import {
   CryptoResultItem,
   IAssetsItems,
   ICryptoAssets,
-} from "../types/types";
+} from "../types/typesCrypto";
 import { percentDifference } from "../utility/percentDefference";
 
 interface IProps {
