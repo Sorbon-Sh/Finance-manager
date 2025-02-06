@@ -5,7 +5,14 @@ import union from "../../assets/union.svg";
 import history from "../../assets/history.svg";
 import logo from "../../assets/logo.svg";
 import ModalPopover from "../modalWindow/ModalPopover";
+import IncomeModal from "../modalWindow/IncomeModal";
+import { createPortal } from "react-dom";
+import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
+import { openModal } from "../../redux/slices/modalStateSlice";
+
 const AppHeader: React.FC = () => {
+  const dispatch = useAppDispatch();
+
   return (
     <header className="flex justify-between text-white  py-5 items-center">
       <div className="flex items-center">
@@ -35,12 +42,17 @@ const AppHeader: React.FC = () => {
         </div>
       </div>
       <div className="flex gap-x-6">
-        <Button className="headerButton bg-green-300/20 text-green-300">
+        <Button
+          popoverId="income"
+          className="headerButton bg-green-300/20 text-green-300"
+          submitHandler={() => dispatch(openModal(["income", true]))}
+        >
           <span>
             <img src={union} />
           </span>
           <span>Income</span>
         </Button>
+        {createPortal(<IncomeModal />, document.body)}
         <Button className="headerButton bg-red-300/20 text-red-400 ">
           <span>
             <img src={stroke} />
@@ -55,12 +67,12 @@ const AppHeader: React.FC = () => {
         </Button>
       </div>
       <div>
-        <button type="button" popoverTarget="history" className="block">
+        <Button popoverId="history" className="block">
           <img
             src={history}
             className="size-10 bg-gray-300 rounded-full left-0 "
           />
-        </button>
+        </Button>
 
         <ModalPopover
           id="history"

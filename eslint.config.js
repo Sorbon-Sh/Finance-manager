@@ -27,5 +27,7 @@ export default tseslint.config(
       ],
       'react-compiler/react-compiler': 'error',
     },
+    
   },
+  
 )

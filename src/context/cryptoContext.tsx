@@ -1,5 +1,5 @@
 import { createContext, ReactNode, useEffect, useState } from "react";
-import { fakeFetchCrypto, fetchAssets } from "../api";
+import { fakeFetchCrypto, fetchAssets } from "../api/api";
 import {
   CryptoContextType,
   CryptoResultItem,

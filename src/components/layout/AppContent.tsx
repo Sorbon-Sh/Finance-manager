@@ -4,6 +4,7 @@ import Analytic from "../contentComponents/Analytic";
 import FinPlans from "../contentComponents/FinPlans";
 import Deposits from "../contentComponents/Assets";
 import PlanTable from "../PlanTable";
+
 const AppContent: React.FC = () => {
   return (
     <main className="bg-white col-start-4 col-end-13 rounded-tr-3xl px-8">
@@ -22,7 +23,7 @@ const AppContent: React.FC = () => {
               Create Fin Plans
             </li>
           </Link>
-          <Link to="/deposits">
+          <Link to="/assets">
             <li className="hover:text-slate-100 hover:bg-black">Assets</li>
           </Link>
         </ul>
@@ -39,7 +40,7 @@ const AppContent: React.FC = () => {
           <Route path="/" element={<Transactions />} />
           <Route path="/analytic" element={<Analytic />} />
           <Route path="/finplans" element={<FinPlans />} />
-          <Route path="/deposits" element={<Deposits />} />
+          <Route path="/assets" element={<Deposits />} />
           <Route path="/finplans/table" element={<PlanTable />} />
           <Route path="*" element={<div>NO Page Found</div>} />
         </Routes>

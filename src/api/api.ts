@@ -1,5 +1,5 @@
-import { cryptoData, cryptoAssets } from "./data";
-import { IAssetsItems, IBitCryptoData } from "./types/typesCrypto";
+import { cryptoData, cryptoAssets } from "../data";
+import { IAssetsItems, IBitCryptoData } from "../types/typesCrypto";
 
 export function fakeFetchCrypto(): Promise<IBitCryptoData> {
   return new Promise((resolve) => {
