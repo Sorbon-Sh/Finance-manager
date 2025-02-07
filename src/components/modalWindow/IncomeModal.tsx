@@ -3,21 +3,22 @@ import { openModal } from "../../redux/slices/modalStateSlice";
 import SwitchModal from "./SwitchModal";
 import closeIcon from "../../assets/closeIcon.svg";
 import history from "../../assets/history.svg";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import DatePicker from "react-multi-date-picker";
 import TimePicker from "react-multi-date-picker/plugins/time_picker";
+import { useInsertTransactionMutation } from "../../api/rtk-query/inserttoDataBase";
+import { Inputs } from "../../types/types";
 
 const IncomeModal = () => {
-  interface Inputs {
-    account: string;
-    sum: number;
-    category: string;
-    counterParty: string;
-  }
   const dispatch = useAppDispatch();
-  const { register, handleSubmit } = useForm<Inputs>();
-  const onSubmit: SubmitHandler<Inputs> = (data) => {
-    console.log(data);
+  const [insertTransaction] = useInsertTransactionMutation();
+  const { register, handleSubmit, control } = useForm<Inputs>();
+  const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    try {
+      await insertTransaction(["transactions", data]).unwrap();
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
@@ -42,11 +43,6 @@ const IncomeModal = () => {
             className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
             {...register("account")}
           />
-          <i className="fas fa-caret-down absolute right-3 top-3 text-gray-500"></i>
-          <div className="dropdown-content">
-            <div>Банк</div>
-            <div>Наличный</div>
-          </div>
         </div>
         <div className="flex space-x-2">
           <input
@@ -71,11 +67,6 @@ const IncomeModal = () => {
             className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
             {...register("category")}
           />
-          <i className="fas fa-caret-down absolute right-3 top-3 text-gray-500"></i>
-          <div className="dropdown-content">
-            <div>Зарплата</div>
-            <div>Продажа</div>
-          </div>
         </div>
         <div className="relative dropdown">
           <input
@@ -84,11 +75,6 @@ const IncomeModal = () => {
             className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
             {...register("counterParty")}
           />
-          <i className="fas fa-caret-down absolute right-3 top-3 text-gray-500"></i>
-          <div className="dropdown-content">
-            <div>Контрагент 1</div>
-            <div>Контрагент 2</div>
-          </div>
         </div>
         {/* <div className="bg-gray-100 p-4 rounded-lg flex items-center justify-between">
           <div>
@@ -97,12 +83,35 @@ const IncomeModal = () => {
           </div>
           <i className="far fa-calendar-alt text-gray-500"></i>
         </div> */}
-        <DatePicker
-          format="MM/DD/YYYY HH:mm:ss"
-          plugins={[<TimePicker position="bottom" />]}
+        <Controller
+          control={control}
+          name="date"
+          rules={{ required: true }} //optional
+          render={({
+            field: { onChange, name, value },
+
+            formState: { errors },
+          }) => (
+            <>
+              <DatePicker
+                value={value || ""}
+                onChange={(date) => {
+                  onChange(date?.isValid ? date : "");
+                }}
+                format="MM/DD/YYYY HH:mm:ss"
+                plugins={[<TimePicker position="bottom" />]}
+                containerClassName="w-full text-center text-xl bg-green-200"
+              />
+              {errors && errors[name] && errors[name].type === "required" && (
+                //if you want to show an error message
+                <span>your error message !</span>
+              )}
+            </>
+          )}
         />
+
         <div className="flex items-center space-x-2"></div>
-        <button className="w-full mt-4 py-2 bg-gradient-to-r from-blue-400 to-green-400 text-white font-semibold rounded-lg">
+        <button className="w-full mt-4 py-2 bg-gradient-to-r from-blue-400 to-green-400 text-white font-semibold rounded-lg cursor-pointer">
           Добавить доход
         </button>
       </form>
@@ -114,6 +123,9 @@ const IncomeModal = () => {
         </div>
         <i className="far fa-calendar-alt text-gray-500"></i>
       </div>
+      {/* <DatePicker
+     format="MM/DD/YYYY HH:mm:ss"
+     plugins={[<TimePicker position="bottom" />]}/> */}
     </SwitchModal>
   );
 };

@@ -43,7 +43,6 @@ const AppHeader: React.FC = () => {
       </div>
       <div className="flex gap-x-6">
         <Button
-          popoverId="income"
           className="headerButton bg-green-300/20 text-green-300"
           submitHandler={() => dispatch(openModal(["income", true]))}
         >
@@ -52,8 +51,11 @@ const AppHeader: React.FC = () => {
           </span>
           <span>Income</span>
         </Button>
-        {createPortal(<IncomeModal />, document.body)}
-        <Button className="headerButton bg-red-300/20 text-red-400 ">
+
+        <Button
+          className="headerButton bg-red-300/20 text-red-400 "
+          submitHandler={() => dispatch(openModal(["expense", true]))}
+        >
           <span>
             <img src={stroke} />
           </span>
@@ -81,6 +83,7 @@ const AppHeader: React.FC = () => {
           <div className="">Modal</div>
         </ModalPopover>
       </div>
+      {createPortal(<IncomeModal />, document.body)}
     </header>
   );
 };

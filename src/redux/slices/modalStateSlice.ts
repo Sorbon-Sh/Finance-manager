@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-type ModalState = Record<string, boolean>;
+type ModalState = Record<string, boolean | string>;
 
 const initialState: ModalState = {};
 
@@ -11,7 +11,6 @@ const initialState: ModalState = {};
 
 export const modalState = createSlice({
   name: "modal",
-
   initialState,
   reducers: {
     openModal: (state, action: PayloadAction<[string, boolean]>) => {
