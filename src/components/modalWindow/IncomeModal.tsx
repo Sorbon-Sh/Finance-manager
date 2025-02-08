@@ -6,7 +6,7 @@ import history from "../../assets/history.svg";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import DatePicker from "react-multi-date-picker";
 import TimePicker from "react-multi-date-picker/plugins/time_picker";
-import { useInsertTransactionMutation } from "../../api/rtk-query/inserttoDataBase";
+import { useInsertTransactionMutation } from "../../api/rtk-query/insertToDataBase";
 import { Inputs } from "../../types/types";
 
 const IncomeModal = () => {
@@ -17,7 +17,8 @@ const IncomeModal = () => {
     try {
       await insertTransaction(["transactions", data]).unwrap();
     } catch (err) {
-      console.log(err);
+      console.log("Error", err);
+      throw new Error(`Error to sending data to DataBase`);
     }
   };
 

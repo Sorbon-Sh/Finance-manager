@@ -1,8 +1,17 @@
+import { createPortal } from "react-dom";
+import { useGetSumQuery } from "../../api/rtk-query/insertToDataBase";
 import editAccount from "../../assets/edit-account.svg";
 import plus from "../../assets/plus-gray.svg";
 import Button from "../buttons/Button";
+import CreateAccount from "../modalWindow/CreateAccount";
+import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
+import { openModal } from "../../redux/slices/modalStateSlice";
 
 const AppSider: React.FC = () => {
+  const { data: accountsData } = useGetSumQuery("accounts");
+  const dispatch = useAppDispatch();
+  console.table(accountsData);
+
   return (
     <aside className=" col-start-1 col-end-4 bg-[#edf4f7] rounded-tl-3xl">
       <article className="w-64 mx-auto">
@@ -23,18 +32,18 @@ const AppSider: React.FC = () => {
             </li>
 
             <div className="flex-col [&>li]:flex [&>li]:cursor-pointer [&>li]:justify-between [&]:gap-y-5 text-sm text-gray-500">
-              <li>
-                <span>Bank account</span> <span>TJS 100.50</span>
-              </li>
-              <li>
-                <span>Cash</span> <span>TJS 0.0</span>
-              </li>
-              <li>
-                <span>Crypto</span> <span>TJS 0.0</span>
-              </li>
+              {accountsData &&
+                accountsData.map((account) => (
+                  <li key={account.id}>
+                    <span>{account.account}</span> <span>{account.sum}0.0</span>
+                  </li>
+                ))}
             </div>
           </ul>
-          <Button className="text-sm text-gray-500 border-dotted border-1 rounded-sm   py-3 w-full flex items-center justify-center mt-5 ">
+          <Button
+            submitHandler={() => dispatch(openModal(["createAccount", true]))}
+            className="text-sm text-gray-500 border-dotted border-1 rounded-sm cursor-pointer  py-3 w-full flex items-center justify-center mt-5 "
+          >
             <img src={plus} className="mr-2" />
             <span>Добавить интеграцию</span>
           </Button>
@@ -44,6 +53,7 @@ const AppSider: React.FC = () => {
           Здесь будут отображаться <br /> платежи с датой в будущем 👇
         </div>
       </article>
+      {createPortal(<CreateAccount />, document.body)}
     </aside>
   );
 };
