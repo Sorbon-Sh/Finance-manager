@@ -5,13 +5,20 @@ import plus from "../../assets/plus-gray.svg";
 import Button from "../buttons/Button";
 import CreateAccount from "../modalWindow/CreateAccount";
 import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
-import { openModal } from "../../redux/slices/modalStateSlice";
+import { openModal } from "../../redux/slices/StateAndData";
+import { IAccounts } from "../../types/types";
 
 const AppSider: React.FC = () => {
   const { data: accountsData } = useGetSumQuery("accounts");
   const dispatch = useAppDispatch();
-  console.table(accountsData);
+  console.log(accountsData);
 
+  // useEffect(() => {
+  //   (async () => {
+  //     await accountsData;
+  //     await dispatch(allAmount(accountsData));
+  //   })();
+  // }, [dispatch]);
   return (
     <aside className=" col-start-1 col-end-4 bg-[#edf4f7] rounded-tl-3xl">
       <article className="w-64 mx-auto">
@@ -33,9 +40,10 @@ const AppSider: React.FC = () => {
 
             <div className="flex-col [&>li]:flex [&>li]:cursor-pointer [&>li]:justify-between [&]:gap-y-5 text-sm text-gray-500">
               {accountsData &&
-                accountsData.map((account) => (
+                accountsData.map((account: IAccounts) => (
                   <li key={account.id}>
-                    <span>{account.account}</span> <span>{account.sum}0.0</span>
+                    <span>{account.account}</span>
+                    <span>{account.allAmount}.0</span>
                   </li>
                 ))}
             </div>

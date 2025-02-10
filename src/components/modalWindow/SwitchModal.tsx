@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { useAppDispatch, useAppSelector } from "../../hooks/useReduxTypedHooks";
-import { openModal } from "../../redux/slices/modalStateSlice";
+import { openModal } from "../../redux/slices/StateAndData";
 
 interface IProps {
   children: ReactNode;
@@ -9,7 +9,7 @@ interface IProps {
 }
 
 const SwitchModal = ({ children, modalID, className }: IProps) => {
-  const isOpen = useAppSelector((state) => state.modal);
+  const isOpen = useAppSelector((state) => state.stateAndData);
   const dispatch = useAppDispatch();
 
   return (

@@ -1,5 +1,5 @@
 import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
-import { openModal } from "../../redux/slices/modalStateSlice";
+import { openModal } from "../../redux/slices/StateAndData";
 import SwitchModal from "./SwitchModal";
 import closeIcon from "../../assets/closeIcon.svg";
 import { useForm, SubmitHandler } from "react-hook-form";

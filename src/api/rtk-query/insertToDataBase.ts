@@ -31,19 +31,15 @@ export const supabaseApi = createApi({
       },
     }),
     //* Переиспользуемый
-    getSum: builder.query<IAccounts[], string>({
+    getSum: builder.query({
       queryFn: async (table) => {
-        const { data: accountsData, error } = await supabase
-          .from(table)
-          .select("*");
+        const { data: sumData, error } = await supabase.from(table).select("*");
         if (error) {
           console.log(error.message);
-          throw new Error(
-            `Some think went wrong with with Fetch: ${error.message}`
-          );
+          throw new Error(`Some think went wrong with Fetch: ${error.message}`);
         }
 
-        return { data: (accountsData as IAccounts[]) || [] };
+        return { data: sumData || [] };
       },
     }),
     createAccount: builder.mutation({
@@ -60,11 +56,37 @@ export const supabaseApi = createApi({
         return { data: data || [] };
       },
     }),
+    getAccount: builder.query<IAccounts[], string>({
+      queryFn: async () => {
+        const { data: accounts, error } = await supabase
+          .from("accounts")
+          .select("*");
+        if (error) {
+          console.log(error.message);
+          throw new Error(`Some think went wrong with Fetch: ${error.message}`);
+        }
+
+        return { data: accounts || [] };
+      },
+    }),
   }),
 });
+
+const getAccount = async () => {
+  const { data: sumData, error } = await supabase.from("accounts").select("*");
+  if (error) {
+    console.log(error.message);
+    throw new Error(`Some think went wrong with Fetch: ${error.message}`);
+  }
+
+  return { data: sumData || [] };
+};
+
+export { getAccount };
 
 export const {
   useInsertTransactionMutation,
   useGetSumQuery,
+  useGetAccountQuery,
   useCreateAccountMutation,
 } = supabaseApi;

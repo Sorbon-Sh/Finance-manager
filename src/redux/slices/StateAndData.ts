@@ -1,8 +1,10 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-type ModalState = Record<string, boolean | string>;
+type IData = Record<string, unknown>;
 
-const initialState: ModalState = {};
+const initialState: IData = {
+  accounts: [],
+};
 
 // ? Аналог если TypeScript из лишне будет проверять Redux
 // const initialState = {
@@ -10,7 +12,7 @@ const initialState: ModalState = {};
 //   } as CounterState
 
 export const modalState = createSlice({
-  name: "modal",
+  name: "stateAndData",
   initialState,
   reducers: {
     openModal: (state, action: PayloadAction<[string, boolean]>) => {
@@ -19,9 +21,13 @@ export const modalState = createSlice({
       //* Создаём динамическый ключ и значение для модалок
       state[id] = open;
     },
+
+    allAmount: (state, action) => {
+      state.accounts = action.payload;
+    },
   },
 });
 
-export const { openModal } = modalState.actions;
+export const { openModal, allAmount } = modalState.actions;
 
 export default modalState.reducer;

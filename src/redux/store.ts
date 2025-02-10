@@ -1,9 +1,9 @@
 import { configureStore } from "@reduxjs/toolkit";
-import modalReducer from "./slices/modalStateSlice";
-import { supabaseApi } from "../api/rtk-query/inserttoDataBase";
+import stateAndDataReducer from "./slices/StateAndData";
+import { supabaseApi } from "../api/rtk-query/insertToDataBase";
 export const store = configureStore({
   reducer: {
-    modal: modalReducer,
+    stateAndData: stateAndDataReducer,
     [supabaseApi.reducerPath]: supabaseApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>

@@ -1,5 +1,5 @@
 import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
-import { openModal } from "../../redux/slices/modalStateSlice";
+import { openModal } from "../../redux/slices/StateAndData";
 import SwitchModal from "./SwitchModal";
 import closeIcon from "../../assets/closeIcon.svg";
 import history from "../../assets/history.svg";
@@ -12,10 +12,13 @@ import { Inputs } from "../../types/types";
 const IncomeModal = () => {
   const dispatch = useAppDispatch();
   const [insertTransaction] = useInsertTransactionMutation();
+
   const { register, handleSubmit, control } = useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     try {
       await insertTransaction(["transactions", data]).unwrap();
+      // const result = await getAccount("accounts");
+      console.log("Account: ", data.account);
     } catch (err) {
       console.log("Error", err);
       throw new Error(`Error to sending data to DataBase`);
@@ -50,7 +53,7 @@ const IncomeModal = () => {
             type="text"
             placeholder="Сумма, TJS"
             className="w-full p-3 bg-gray-200 rounded-lg border border-gray-300"
-            {...register("sum")}
+            {...register("amount")}
           />
 
           <select

@@ -8,7 +8,7 @@ import ModalPopover from "../modalWindow/ModalPopover";
 import IncomeModal from "../modalWindow/IncomeModal";
 import { createPortal } from "react-dom";
 import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
-import { openModal } from "../../redux/slices/modalStateSlice";
+import { openModal } from "../../redux/slices/StateAndData";
 
 const AppHeader: React.FC = () => {
   const dispatch = useAppDispatch();
