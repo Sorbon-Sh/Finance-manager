@@ -34,3 +34,5 @@ export interface ITransactions {
   category: string;
   date: IDate;
 }
+
+export type AccountAndTransations = IAccounts & ITransactions;

@@ -6,13 +6,18 @@ import history from "../../assets/history.svg";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import DatePicker from "react-multi-date-picker";
 import TimePicker from "react-multi-date-picker/plugins/time_picker";
-import { useInsertTransactionMutation } from "../../api/rtk-query/insertToDataBase";
-import { Inputs } from "../../types/types";
+import {
+  useGetAccountQuery,
+  useGetSumQuery,
+  useInsertTransactionMutation,
+} from "../../api/rtk-query/insertToDataBase";
+import { Inputs, ITransactions } from "../../types/types";
 
 const IncomeModal = () => {
-  const dispatch = useAppDispatch();
+  const { data: accounts } = useGetAccountQuery();
+  const { data: transData } = useGetSumQuery("transactions");
   const [insertTransaction] = useInsertTransactionMutation();
-
+  const dispatch = useAppDispatch();
   const { register, handleSubmit, control } = useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     try {
@@ -40,14 +45,24 @@ const IncomeModal = () => {
         </button>
       </div>
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
-        <div className="relative dropdown">
+        <div>
           <input
             type="text"
             placeholder="На счет"
+            list="accounts"
+            id="country"
+            autoComplete="off"
             className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
             {...register("account")}
           />
+          <datalist className=" bg-white w-16 p-2" id="accounts">
+            {accounts &&
+              accounts.map((account) => (
+                <option value={account.account} className="bg-green-300 p-1" />
+              ))}
+          </datalist>
         </div>
+
         <div className="flex space-x-2">
           <input
             type="text"
@@ -56,63 +71,81 @@ const IncomeModal = () => {
             {...register("amount")}
           />
 
-          <select
+          {/* <select
             value="TJS (TJS)"
             className="p-3 bg-gray-100 rounded-lg border border-gray-300"
           >
             <option>TJS (TJS)</option>
             <option>USD (USD)</option>
-          </select>
+          </select> */}
         </div>
-        <div className="relative dropdown">
+        <div>
           <input
             type="text"
+            list="category"
             placeholder="Категория"
             className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
             {...register("category")}
           />
+          <datalist className=" bg-white w-16 p-2" id="category">
+            {transData &&
+              transData.map((account: ITransactions) => (
+                <option value={account.category} className="bg-green-300 p-1" />
+              ))}
+          </datalist>
         </div>
-        <div className="relative dropdown">
+        <div>
           <input
             type="text"
             placeholder="Мой контрагент"
+            list="counterParty"
             className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
             {...register("counterParty")}
           />
+          <datalist className=" bg-white w-16 p-2" id="counterParty">
+            {transData &&
+              transData.map((account: ITransactions) => (
+                <option
+                  value={account.counterParty}
+                  className="bg-green-300 p-1"
+                />
+              ))}
+          </datalist>
         </div>
-        {/* <div className="bg-gray-100 p-4 rounded-lg flex items-center justify-between">
+        <div className="bg-gray-100 p-4 rounded-lg flex items-center justify-between">
           <div>
             <p className="text-xs text-gray-500">Дата поступления денег</p>
-            <p className="text-sm font-medium">Сегодня, 31.01.2025, 17:08</p>
+            <Controller
+              control={control}
+              name="date"
+              rules={{ required: true }} //optional
+              render={({
+                field: { onChange, name, value },
+
+                formState: { errors },
+              }) => (
+                <>
+                  <DatePicker
+                    value={value || ""}
+                    onChange={(date) => {
+                      onChange(date?.isValid ? date : "");
+                    }}
+                    format="MM/DD/YYYY HH:mm:ss"
+                    plugins={[<TimePicker position="bottom" />]}
+                    containerClassName="w-full text-center text-xl bg-green-200"
+                  />
+                  {errors &&
+                    errors[name] &&
+                    errors[name].type === "required" && (
+                      //if you want to show an error message
+                      <span>your error message !</span>
+                    )}
+                </>
+              )}
+            />
           </div>
           <i className="far fa-calendar-alt text-gray-500"></i>
-        </div> */}
-        <Controller
-          control={control}
-          name="date"
-          rules={{ required: true }} //optional
-          render={({
-            field: { onChange, name, value },
-
-            formState: { errors },
-          }) => (
-            <>
-              <DatePicker
-                value={value || ""}
-                onChange={(date) => {
-                  onChange(date?.isValid ? date : "");
-                }}
-                format="MM/DD/YYYY HH:mm:ss"
-                plugins={[<TimePicker position="bottom" />]}
-                containerClassName="w-full text-center text-xl bg-green-200"
-              />
-              {errors && errors[name] && errors[name].type === "required" && (
-                //if you want to show an error message
-                <span>your error message !</span>
-              )}
-            </>
-          )}
-        />
+        </div>
 
         <div className="flex items-center space-x-2"></div>
         <button className="w-full mt-4 py-2 bg-gradient-to-r from-blue-400 to-green-400 text-white font-semibold rounded-lg cursor-pointer">

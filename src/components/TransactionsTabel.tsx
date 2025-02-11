@@ -4,6 +4,7 @@ import cashIcon from "../assets/cash-icon.gif";
 import { useGetAccountsAmount } from "../hooks/useGetAccountsAmount";
 const TransactionsTabel = () => {
   const { data: transactions, isFetching } = useGetSumQuery("transactions");
+
   const allAmount = useGetAccountsAmount();
   return (
     <article className="">
@@ -47,10 +48,17 @@ const TransactionsTabel = () => {
                     <input type="checkbox" className="h-5 w-5" />
                   </td>
                   <td className="p-2">
-                    <div>25 янв. 2025</div>
-                    <div className="text-gray-500">10:51</div>
+                    <div>
+                      {transaction.date.day} {transaction.date.month.shortName}.
+                      {transaction.date.year}
+                    </div>
+                    <div className="text-gray-500">
+                      {transaction.date.hour}:{transaction.date.minute}
+                    </div>
                   </td>
-                  <td className="p-2 text-green-500">+100 TJS</td>
+                  <td className="p-2 text-green-500">
+                    +{transaction.amount}TJS
+                  </td>
                   <td className="p-2">
                     <div>{transaction.account}</div>
                     <div className="text-gray-500">
@@ -58,8 +66,8 @@ const TransactionsTabel = () => {
                       TJS
                     </div>
                   </td>
-                  <td className="p-2">bank</td>
-                  <td className="p-2">Инвестиции</td>
+                  <td className="p-2">{transaction.counterParty}</td>
+                  <td className="p-2">{transaction.category}</td>
                 </tr>
               ))}
           </tbody>

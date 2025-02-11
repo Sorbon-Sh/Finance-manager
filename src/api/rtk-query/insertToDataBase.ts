@@ -72,17 +72,15 @@ export const supabaseApi = createApi({
   }),
 });
 
-const getAccount = async () => {
-  const { data: sumData, error } = await supabase.from("accounts").select("*");
-  if (error) {
-    console.log(error.message);
-    throw new Error(`Some think went wrong with Fetch: ${error.message}`);
-  }
+// const getAccount = async () => {
+//   const { data: sumData, error } = await supabase.from("accounts").select("*");
+//   if (error) {
+//     console.log(error.message);
+//     throw new Error(`Some think went wrong with Fetch: ${error.message}`);
+//   }
 
-  return { data: sumData || [] };
-};
-
-export { getAccount };
+//   return { data: sumData || [] };
+// };
 
 export const {
   useInsertTransactionMutation,
