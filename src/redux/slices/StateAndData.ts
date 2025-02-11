@@ -21,13 +21,13 @@ export const modalState = createSlice({
       //* Создаём динамическый ключ и значение для модалок
       state[id] = open;
     },
-
-    allAmount: (state, action) => {
-      state.accounts = action.payload;
-    },
+    //? Вариант с Передачей через Redux (обдумать) можно или нет
+    // allAmount: (state, action) => {
+    //   state.accounts = action.payload;
+    // },
   },
 });
 
-export const { openModal, allAmount } = modalState.actions;
+export const { openModal } = modalState.actions;
 
 export default modalState.reducer;
