@@ -1,6 +1,7 @@
 export interface Inputs {
   account: string;
   amount: number;
+  allAmount: number;
   category: string;
   counterParty: string;
   date: string;

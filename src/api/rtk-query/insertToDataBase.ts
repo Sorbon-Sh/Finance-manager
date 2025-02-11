@@ -46,6 +46,7 @@ export const supabaseApi = createApi({
       queryFn: async (formData) => {
         const [table, account] = formData;
         const { data, error } = await supabase.from(table).insert(account);
+
         if (error) {
           console.log(error.message);
           throw new Error(

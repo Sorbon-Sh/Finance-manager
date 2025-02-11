@@ -3,7 +3,6 @@ import { openModal } from "../../redux/slices/StateAndData";
 import SwitchModal from "./SwitchModal";
 import closeIcon from "../../assets/closeIcon.svg";
 import { useForm, SubmitHandler } from "react-hook-form";
-
 import { useCreateAccountMutation } from "../../api/rtk-query/insertToDataBase";
 import { Inputs } from "../../types/types";
 
@@ -48,7 +47,7 @@ const CreateAccount = () => {
             type="text"
             placeholder="Стратовый баланс"
             className="w-full p-3 bg-gray-200 rounded-lg border border-gray-300"
-            {...register("sum")}
+            {...register("allAmount")}
           />
         </div>
 
