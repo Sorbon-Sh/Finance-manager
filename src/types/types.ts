@@ -13,7 +13,7 @@ export interface IAccounts {
   allAmount: number;
 }
 
-interface IDate {
+export interface IDate {
   day: number;
   month: {
     name: string;
@@ -25,6 +25,12 @@ interface IDate {
   year: number;
   hour: number;
   minute: number;
+  weekDay: {
+    name: string;
+    shortName: string;
+    index: number;
+    number: number;
+  };
 }
 
 export interface ITransactions {

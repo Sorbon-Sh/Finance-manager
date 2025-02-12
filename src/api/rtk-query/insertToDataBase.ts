@@ -18,6 +18,7 @@ export const supabaseApi = createApi({
             year: insertData.date.year,
             hour: insertData.date.hour,
             minute: insertData.date.minute,
+            weekDay: insertData.date.weekDay,
           },
         });
         if (error) {
@@ -70,22 +71,27 @@ export const supabaseApi = createApi({
         return { data: accounts || [] };
       },
     }),
+    getSingleDataTransactions: builder.query({
+      queryFn: async () => {
+        const { data: uniqueData, error } = await supabase.rpc(
+          "get_unique_data"
+        );
+
+        if (error) {
+          console.log(error.message);
+          throw new Error(`Some think went wrong with Fetch: ${error.message}`);
+        }
+
+        return { data: uniqueData || [] };
+      },
+    }),
   }),
 });
-
-// const getAccount = async () => {
-//   const { data: sumData, error } = await supabase.from("accounts").select("*");
-//   if (error) {
-//     console.log(error.message);
-//     throw new Error(`Some think went wrong with Fetch: ${error.message}`);
-//   }
-
-//   return { data: sumData || [] };
-// };
 
 export const {
   useInsertTransactionMutation,
   useGetSumQuery,
   useGetAccountQuery,
+  useGetSingleDataTransactionsQuery,
   useCreateAccountMutation,
 } = supabaseApi;

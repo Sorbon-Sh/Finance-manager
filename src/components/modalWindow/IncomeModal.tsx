@@ -8,22 +8,20 @@ import DatePicker from "react-multi-date-picker";
 import TimePicker from "react-multi-date-picker/plugins/time_picker";
 import {
   useGetAccountQuery,
-  useGetSumQuery,
+  useGetSingleDataTransactionsQuery,
   useInsertTransactionMutation,
 } from "../../api/rtk-query/insertToDataBase";
 import { Inputs, ITransactions } from "../../types/types";
-
 const IncomeModal = () => {
   const { data: accounts } = useGetAccountQuery();
-  const { data: transData } = useGetSumQuery("transactions");
+  const { data: uniqueData } = useGetSingleDataTransactionsQuery();
   const [insertTransaction] = useInsertTransactionMutation();
   const dispatch = useAppDispatch();
   const { register, handleSubmit, control } = useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     try {
       await insertTransaction(["transactions", data]).unwrap();
-      // const result = await getAccount("accounts");
-      console.log("Account: ", data.account);
+      console.log("Data: ", data);
     } catch (err) {
       console.log("Error", err);
       throw new Error(`Error to sending data to DataBase`);
@@ -88,9 +86,9 @@ const IncomeModal = () => {
             {...register("category")}
           />
           <datalist className=" bg-white w-16 p-2" id="category">
-            {transData &&
-              transData.map((account: ITransactions) => (
-                <option value={account.category} className="bg-green-300 p-1" />
+            {uniqueData &&
+              uniqueData.map((unique: ITransactions) => (
+                <option value={unique.category} className="bg-green-300 p-1" />
               ))}
           </datalist>
         </div>
@@ -103,44 +101,48 @@ const IncomeModal = () => {
             {...register("counterParty")}
           />
           <datalist className=" bg-white w-16 p-2" id="counterParty">
-            {transData &&
-              transData.map((account: ITransactions) => (
+            {uniqueData &&
+              uniqueData.map((unique: ITransactions) => (
                 <option
-                  value={account.counterParty}
+                  value={unique.counterParty}
                   className="bg-green-300 p-1"
                 />
               ))}
           </datalist>
         </div>
-        <div className="bg-gray-100 p-4 rounded-lg flex items-center justify-between">
+        <div>
           <div>
-            <p className="text-xs text-gray-500">Дата поступления денег</p>
             <Controller
               control={control}
               name="date"
-              rules={{ required: true }} //optional
+              rules={{ required: true }}
               render={({
                 field: { onChange, name, value },
-
                 formState: { errors },
               }) => (
-                <>
+                <div className="bg-gray-100 rounded-lg ">
+                  <p className="text-xs text-gray-500">
+                    Дата поступления денег
+                  </p>
                   <DatePicker
-                    value={value || ""}
+                    value={value || new Date()}
                     onChange={(date) => {
                       onChange(date?.isValid ? date : "");
                     }}
-                    format="MM/DD/YYYY HH:mm:ss"
+                    format="MM.DD.YYYY, HH:mm:ss"
                     plugins={[<TimePicker position="bottom" />]}
-                    containerClassName="w-full text-center text-xl bg-green-200"
+                    style={{ border: "0", width: "100%" }}
+                    inputClass="p-4 flex items-center justify-between"
+                    containerClassName="w-full "
                   />
+
                   {errors &&
                     errors[name] &&
                     errors[name].type === "required" && (
                       //if you want to show an error message
-                      <span>your error message !</span>
+                      <span>Введите дата и время</span>
                     )}
-                </>
+                </div>
               )}
             />
           </div>

@@ -2,14 +2,17 @@ import { useGetSumQuery } from "../api/rtk-query/insertToDataBase";
 import { ITransactions } from "../types/types";
 import cashIcon from "../assets/cash-icon.gif";
 import { useGetAccountsAmount } from "../hooks/useGetAccountsAmount";
+import { useCapitalize } from "../hooks/useCapitalize";
+
 const TransactionsTabel = () => {
   const { data: transactions, isFetching } = useGetSumQuery("transactions");
-
   const allAmount = useGetAccountsAmount();
+  const { toLowerCase } = useCapitalize();
+
   return (
     <article className="">
       {isFetching ? (
-        <img src={cashIcon} className="mx-auto my-auto" />
+        <img src={cashIcon} className="mx-auto" />
       ) : (
         <table className="w-full border-collapse">
           <thead>
@@ -25,22 +28,6 @@ const TransactionsTabel = () => {
             </tr>
           </thead>
           <tbody>
-            {/* <tr className="border-b">
-            <td className="p-2">
-              <input type="checkbox" className="h-5 w-5" />
-            </td>
-            <td className="p-2">
-              <div>25 янв. 2025</div>
-              <div className="text-gray-500">10:51</div>
-            </td>
-            <td className="p-2 text-green-500">+100 TJS</td>
-            <td className="p-2">
-              <div>Crypto</div>
-              <div className="text-gray-500">200 TJS</div>
-            </td>
-            <td className="p-2">bank</td>
-            <td className="p-2">Инвестиции</td>
-          </tr> */}
             {transactions &&
               transactions.map((transaction: ITransactions) => (
                 <tr className="border-b" key={transaction.id}>
@@ -49,11 +36,13 @@ const TransactionsTabel = () => {
                   </td>
                   <td className="p-2">
                     <div>
-                      {transaction.date.day} {transaction.date.month.shortName}.
+                      {transaction.date.day}{" "}
+                      {toLowerCase(transaction.date.month.shortName)}.{" "}
                       {transaction.date.year}
                     </div>
                     <div className="text-gray-500">
-                      {transaction.date.hour}:{transaction.date.minute}
+                      {transaction.date.weekDay.name},{transaction.date.hour}:
+                      {transaction.date.minute}
                     </div>
                   </td>
                   <td className="p-2 text-green-500">
