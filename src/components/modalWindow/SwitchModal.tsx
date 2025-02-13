@@ -17,7 +17,7 @@ const SwitchModal = ({ children, modalID, className }: IProps) => {
       className={`grid place-content-center h-screen bg-black/40 fixed top-0 left-0 w-full ${
         !isOpen[modalID] && "hidden"
       }`}
-      onClick={() => dispatch(openModal(["income", false]))}
+      onClick={() => dispatch(openModal([modalID, false]))}
     >
       <div className={className} onClick={(event) => event.stopPropagation()}>
         {children}

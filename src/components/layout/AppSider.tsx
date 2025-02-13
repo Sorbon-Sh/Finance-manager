@@ -11,14 +11,6 @@ import { IAccounts } from "../../types/types";
 const AppSider: React.FC = () => {
   const { data: accountsData } = useGetSumQuery("accounts");
   const dispatch = useAppDispatch();
-  console.log(accountsData);
-
-  // useEffect(() => {
-  //   (async () => {
-  //     await accountsData;
-  //     await dispatch(allAmount(accountsData));
-  //   })();
-  // }, [dispatch]);
   return (
     <aside className=" col-start-1 col-end-4 bg-[#edf4f7] rounded-tl-3xl">
       <article className="w-64 mx-auto">

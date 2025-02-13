@@ -3,21 +3,20 @@ import { openModal } from "../../redux/slices/StateAndData";
 import SwitchModal from "./SwitchModal";
 import closeIcon from "../../assets/closeIcon.svg";
 import history from "../../assets/history.svg";
-import { useForm, SubmitHandler, Controller } from "react-hook-form";
-import DatePicker from "react-multi-date-picker";
-import TimePicker from "react-multi-date-picker/plugins/time_picker";
+import { useForm, SubmitHandler } from "react-hook-form";
 import {
   useGetAccountQuery,
   useGetSingleDataTransactionsQuery,
   useInsertTransactionMutation,
 } from "../../api/rtk-query/insertToDataBase";
 import { Inputs, ITransactions } from "../../types/types";
+import DateComponent from "../DateComponent";
 const IncomeModal = () => {
   const { data: accounts } = useGetAccountQuery();
   const { data: uniqueData } = useGetSingleDataTransactionsQuery();
   const [insertTransaction] = useInsertTransactionMutation();
   const dispatch = useAppDispatch();
-  const { register, handleSubmit, control } = useForm<Inputs>();
+  const { register, handleSubmit } = useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     try {
       await insertTransaction(["transactions", data]).unwrap();
@@ -110,43 +109,9 @@ const IncomeModal = () => {
               ))}
           </datalist>
         </div>
-        <div>
-          <div>
-            <Controller
-              control={control}
-              name="date"
-              rules={{ required: true }}
-              render={({
-                field: { onChange, name, value },
-                formState: { errors },
-              }) => (
-                <div className="bg-gray-100 rounded-lg ">
-                  <p className="text-xs text-gray-500">
-                    Дата поступления денег
-                  </p>
-                  <DatePicker
-                    value={value || new Date()}
-                    onChange={(date) => {
-                      onChange(date?.isValid ? date : "");
-                    }}
-                    format="MM.DD.YYYY, HH:mm:ss"
-                    plugins={[<TimePicker position="bottom" />]}
-                    style={{ border: "0", width: "100%" }}
-                    inputClass="p-4 flex items-center justify-between"
-                    containerClassName="w-full "
-                  />
 
-                  {errors &&
-                    errors[name] &&
-                    errors[name].type === "required" && (
-                      //if you want to show an error message
-                      <span>Введите дата и время</span>
-                    )}
-                </div>
-              )}
-            />
-          </div>
-          <i className="far fa-calendar-alt text-gray-500"></i>
+        <div>
+          <DateComponent />
         </div>
 
         <div className="flex items-center space-x-2"></div>
@@ -162,9 +127,6 @@ const IncomeModal = () => {
         </div>
         <i className="far fa-calendar-alt text-gray-500"></i>
       </div>
-      {/* <DatePicker
-     format="MM/DD/YYYY HH:mm:ss"
-     plugins={[<TimePicker position="bottom" />]}/> */}
     </SwitchModal>
   );
 };
