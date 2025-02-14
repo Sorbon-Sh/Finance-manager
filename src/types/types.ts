@@ -5,11 +5,22 @@ export interface Inputs {
   category: string;
   counterParty: string;
   date: string;
+  currency: string;
+  mainCurrency: string;
+  companyName: string;
 }
 
 export interface IAccounts {
   id: string;
   account: string;
+  allAmount: number;
+  currency: string;
+}
+
+export interface ICompnay {
+  id: string;
+  name: string;
+  currency: string;
   allAmount: number;
 }
 

@@ -1,23 +1,32 @@
 import { createPortal } from "react-dom";
-import { useGetSumQuery } from "../../api/rtk-query/insertToDataBase";
+import { useGetAccountQuery } from "../../api/rtk-query/insertToDataBase";
 import editAccount from "../../assets/edit-account.svg";
 import plus from "../../assets/plus-gray.svg";
 import Button from "../buttons/Button";
 import CreateAccount from "../modalWindow/CreateAccount";
 import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
 import { openModal } from "../../redux/slices/StateAndData";
-import { IAccounts } from "../../types/types";
+import { IAccounts, ICompnay } from "../../types/types";
+interface IProps {
+  companyData: ICompnay[];
+}
+const AppSider = ({ companyData }: IProps) => {
+  const { data: accountsData } = useGetAccountQuery();
+  const companyCurrency =
+    companyData && companyData.map((company) => company.currency);
+  const companyAllAmount =
+    companyData && companyData.map((company) => company.allAmount);
+  console.log(companyData);
 
-const AppSider: React.FC = () => {
-  const { data: accountsData } = useGetSumQuery("accounts");
   const dispatch = useAppDispatch();
+
   return (
     <aside className=" col-start-1 col-end-4 bg-[#edf4f7] rounded-tl-3xl">
       <article className="w-64 mx-auto">
         <div className="flex justify-between flex-col mt-[22px] ">
           <span className="mb-1 text-sm text-gray-500">Всего на счетах </span>
           <span className="text-3xl font-bold">
-            TJS 100.<span className="text-lg">50</span>
+            {companyCurrency} {companyAllAmount}
           </span>
         </div>
         <hr className="border-gray-400  mt-5" />

@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import supabase from "../supabaseClient";
-import { IAccounts } from "../../types/types";
+import { IAccounts, ICompnay } from "../../types/types";
 
 export const supabaseApi = createApi({
   reducerPath: "supabaseApi",
@@ -32,6 +32,7 @@ export const supabaseApi = createApi({
       },
     }),
     //* Переиспользуемый
+    //! Нужно переименовать!
     getSum: builder.query({
       queryFn: async (table) => {
         const { data: sumData, error } = await supabase.from(table).select("*");
@@ -85,6 +86,19 @@ export const supabaseApi = createApi({
         return { data: uniqueData || [] };
       },
     }),
+    getCompanyData: builder.query<ICompnay[], string>({
+      queryFn: async () => {
+        const { data: company, error } = await supabase
+          .from("company")
+          .select("*");
+        if (error) {
+          console.log(error.message);
+          throw new Error(`Some think went wrong with Fetch: ${error.message}`);
+        }
+
+        return { data: company || [] };
+      },
+    }),
   }),
 });
 
@@ -92,6 +106,8 @@ export const {
   useInsertTransactionMutation,
   useGetSumQuery,
   useGetAccountQuery,
+  useGetCompanyDataQuery,
+
   useGetSingleDataTransactionsQuery,
   useCreateAccountMutation,
 } = supabaseApi;

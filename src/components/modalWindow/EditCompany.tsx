@@ -2,22 +2,20 @@ import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
 import { openModal } from "../../redux/slices/StateAndData";
 import SwitchModal from "./SwitchModal";
 import closeIcon from "../../assets/closeIcon.svg";
-import attentionIcon from "../../assets/attention-icon.svg";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { useCreateAccountMutation } from "../../api/rtk-query/insertToDataBase";
 import { Inputs } from "../../types/types";
+import { useUpdateCompanyMutation } from "../../api/rtk-query/updateData";
+import { useGetCompanyDataQuery } from "../../api/rtk-query/insertToDataBase";
 
-const CreateAccount = () => {
+const EditCompany = () => {
   const dispatch = useAppDispatch();
-  const [createAccount] = useCreateAccountMutation();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<Inputs>();
+  const [updateCompany] = useUpdateCompanyMutation();
+  const { data: companyId } = useGetCompanyDataQuery();
+  const id = companyId && companyId.map((company) => company.id);
+  const { register, handleSubmit } = useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     try {
-      await createAccount(["accounts", data]).unwrap();
+      await updateCompany([data, id]);
     } catch (err) {
       console.log("Error: ", err);
       throw new Error(`Error to sending data to DataBase`);
@@ -26,14 +24,14 @@ const CreateAccount = () => {
 
   return (
     <SwitchModal
-      modalID="createAccount"
+      modalID="editCompany"
       className="bg-white rounded-4xl h-[463px] w-[480px]  pt-6 px-8"
     >
       <div className="flex justify-between items-center mb-4 ">
-        <h2 className="text-3xl font-bold">Добавление нового счета</h2>
+        <h2 className="text-3xl font-bold">Редактировать</h2>
         <button
           className="cursor-pointer"
-          onClick={() => dispatch(openModal(["createAccount", false]))}
+          onClick={() => dispatch(openModal(["editCompany", false]))}
         >
           <img src={closeIcon} />
         </button>
@@ -44,43 +42,28 @@ const CreateAccount = () => {
         autoComplete="off"
       >
         <div>
-          <select
-            className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
-            {...(register("currency"), { require: "Choose currency" })}
-          >
-            <option value="Валюта">Валюта</option>
-          </select>
-        </div>
-        <div>
           <input
             type="text"
-            placeholder="Имя счета"
+            placeholder="Название компании"
             className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
-            {...(register("account"), { require: "Write account name" })}
+            {...register("companyName")}
           />
         </div>
         <div className="flex space-x-2">
           <input
             type="text"
-            placeholder="Стратовый баланс"
+            placeholder="Основная валюта"
             className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
-            {...(register("allAmount"), { require: "Inter start amount" })}
+            {...register("mainCurrency")}
           />
         </div>
 
-        <div className="flex items-baseline gap-x-2">
-          <img src={attentionIcon} />
-          <span className="text-gray-400">
-            Это сумма, которая есть на счете на момент его добавления в Fin
-            manager
-          </span>
-        </div>
         <button className="w-full  py-4 bg-gradient-to-r from-blue-400 to-green-400  font-semibold rounded-lg cursor-pointer">
-          Добавить счет
+          Изменить
         </button>
       </form>
     </SwitchModal>
   );
 };
 
-export default CreateAccount;
+export default EditCompany;

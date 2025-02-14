@@ -9,9 +9,15 @@ import IncomeModal from "../modalWindow/IncomeModal";
 import { createPortal } from "react-dom";
 import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
 import { openModal } from "../../redux/slices/StateAndData";
-
-const AppHeader: React.FC = () => {
+import { ICompnay } from "../../types/types";
+import EditCompany from "../modalWindow/EditCompany";
+interface IProps {
+  companyData: ICompnay[];
+}
+const AppHeader = ({ companyData }: IProps) => {
   const dispatch = useAppDispatch();
+  const companyName = companyData && companyData.map((company) => company.name);
+  console.log(companyData);
 
   return (
     <header className="flex justify-between text-white  py-5 items-center">
@@ -23,17 +29,22 @@ const AppHeader: React.FC = () => {
           <div className="ml-3">Fin manager</div>
           <details className="text-gray-400  cursor-pointer companyDetails hover:bg-gray-500/30 px-3  rounded-lg">
             <summary className="list-none outline-none flex justify-between items-center">
-              Company name
+              {companyName}
             </summary>
             {/* Этот absolute должен быть left-0 по контейнету который нужно
             задать relative */}
             <div className="absolute w-72 mt-2 bg-white rounded-xl left-10">
               <div className="py-2">
                 <Button className="py-3 text-start block px-3 mx-auto rounded-md hover:bg-gray-200 w-[95%]">
-                  Company name
+                  {companyName}
                 </Button>
                 <hr className="my-2 bg-gray-200" />
-                <Button className="py-3 w-[95%] block mx-auto px-3 rounded-md text-green-400 text-start hover:bg-gray-200">
+                <Button
+                  submitHandler={() =>
+                    dispatch(openModal(["editCompany", true]))
+                  }
+                  className="py-3 w-[95%] block mx-auto px-3 rounded-md text-green-400 text-start hover:bg-gray-200"
+                >
                   Edit
                 </Button>
               </div>
@@ -84,6 +95,7 @@ const AppHeader: React.FC = () => {
         </ModalPopover>
       </div>
       {createPortal(<IncomeModal />, document.body)}
+      {createPortal(<EditCompany />, document.body)}
     </header>
   );
 };

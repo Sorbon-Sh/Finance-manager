@@ -16,7 +16,11 @@ const IncomeModal = () => {
   const { data: uniqueData } = useGetSingleDataTransactionsQuery();
   const [insertTransaction] = useInsertTransactionMutation();
   const dispatch = useAppDispatch();
-  const { register, handleSubmit } = useForm<Inputs>();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     try {
       await insertTransaction(["transactions", data]).unwrap();
@@ -43,6 +47,7 @@ const IncomeModal = () => {
       </div>
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
         <div>
+          <span>{errors.account && errors.account.message}</span>
           <input
             type="text"
             placeholder="На счет"
@@ -50,7 +55,7 @@ const IncomeModal = () => {
             id="country"
             autoComplete="off"
             className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
-            {...register("account")}
+            {...register("account", { required: "Choose your account" })}
           />
           <datalist className=" bg-white w-16 p-2" id="accounts">
             {accounts &&
@@ -60,12 +65,13 @@ const IncomeModal = () => {
           </datalist>
         </div>
 
-        <div className="flex space-x-2">
+        <div className="">
+          <span className="">{errors.amount && errors.amount.message}</span>
           <input
             type="text"
             placeholder="Сумма, TJS"
             className="w-full p-3 bg-gray-200 rounded-lg border border-gray-300"
-            {...register("amount")}
+            {...register("amount", { required: "Inter amount" })}
           />
 
           {/* <select
@@ -76,13 +82,15 @@ const IncomeModal = () => {
             <option>USD (USD)</option>
           </select> */}
         </div>
+
         <div>
+          <span> {errors.category && errors.category.message}</span>
           <input
             type="text"
             list="category"
             placeholder="Категория"
             className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
-            {...register("category")}
+            {...register("category", { required: "Create category" })}
           />
           <datalist className=" bg-white w-16 p-2" id="category">
             {uniqueData &&
@@ -92,12 +100,13 @@ const IncomeModal = () => {
           </datalist>
         </div>
         <div>
+          <span>{errors.counterParty && errors.counterParty.message}</span>
           <input
             type="text"
             placeholder="Мой контрагент"
             list="counterParty"
             className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
-            {...register("counterParty")}
+            {...register("counterParty", { required: "Creeate counterparty" })}
           />
           <datalist className=" bg-white w-16 p-2" id="counterParty">
             {uniqueData &&
@@ -113,7 +122,6 @@ const IncomeModal = () => {
         <div>
           <DateComponent />
         </div>
-
         <div className="flex items-center space-x-2"></div>
         <button className="w-full mt-4 py-2 bg-gradient-to-r from-blue-400 to-green-400 text-white font-semibold rounded-lg cursor-pointer">
           Добавить доход

@@ -1,4 +1,5 @@
 import { useGetAccountQuery } from "../api/rtk-query/insertToDataBase";
+import { AccountAmountOnly, IAccounts } from "../types/types";
 
 export const useGetAccountsAmount = () => {
   const { data: accounts } = useGetAccountQuery();
@@ -9,5 +10,27 @@ export const useGetAccountsAmount = () => {
       .filter((acc) => (acc.account === check ? acc.allAmount : 0))
       .map((amount) => amount.allAmount);
   };
-  return allAmount;
+
+  const accountAmountSliced = (
+    accounts: IAccounts[] | undefined,
+    amounts: AccountAmountOnly[] | undefined
+  ) => {
+    if (accounts && amounts) {
+      const result = [];
+      for (const account of accounts) {
+        for (const amount of amounts) {
+          if (account.id === amount.id) {
+            result.push({
+              id: account.id,
+              account: account.account,
+              amount: amount.allAmount,
+            });
+          }
+        }
+      }
+
+      return result;
+    }
+  };
+  return { allAmount, accountAmountSliced };
 };

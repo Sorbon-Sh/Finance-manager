@@ -6,8 +6,8 @@ import { useCapitalize } from "../hooks/useCapitalize";
 
 const TransactionsTabel = () => {
   const { data: transactions, isFetching } = useGetSumQuery("transactions");
-  const allAmount = useGetAccountsAmount();
-  const { toLowerCase } = useCapitalize();
+  const { allAmount } = useGetAccountsAmount();
+  const { toLowerCase, toUpperCase } = useCapitalize();
 
   return (
     <article className="">
@@ -41,8 +41,8 @@ const TransactionsTabel = () => {
                       {transaction.date.year}
                     </div>
                     <div className="text-gray-500">
-                      {transaction.date.weekDay.name},{transaction.date.hour}:
-                      {transaction.date.minute}
+                      {transaction.date.weekDay.shortName},
+                      {transaction.date.hour}:{transaction.date.minute}
                     </div>
                   </td>
                   <td className="p-2 text-green-500">
@@ -55,8 +55,10 @@ const TransactionsTabel = () => {
                       TJS
                     </div>
                   </td>
-                  <td className="p-2">{transaction.counterParty}</td>
-                  <td className="p-2">{transaction.category}</td>
+                  <td className="p-2">
+                    {toUpperCase(transaction.counterParty)}
+                  </td>
+                  <td className="p-2">{toUpperCase(transaction.category)}</td>
                 </tr>
               ))}
           </tbody>
