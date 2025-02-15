@@ -44,12 +44,11 @@ const CreateAccount = () => {
         autoComplete="off"
       >
         <div>
-          <select
+          <input
+            placeholder="Валюта"
             className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
             {...(register("currency"), { require: "Choose currency" })}
-          >
-            <option value="Валюта">Валюта</option>
-          </select>
+          />
         </div>
         <div>
           <input

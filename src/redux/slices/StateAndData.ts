@@ -2,7 +2,9 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 type IData = Record<string, unknown>;
 
-const initialState: IData = {};
+const initialState: IData = {
+  accountId: "",
+};
 
 // ? Аналог если TypeScript из лишне будет проверять Redux
 // const initialState = {
@@ -19,9 +21,12 @@ export const modalState = createSlice({
       //* Создаём динамическый ключ и значение для модалок
       state[id] = open;
     },
+    accountId: (state, action: PayloadAction<string>) => {
+      state.accountId = action.payload;
+    },
   },
 });
 
-export const { openModal } = modalState.actions;
+export const { openModal, accountId } = modalState.actions;
 
 export default modalState.reducer;

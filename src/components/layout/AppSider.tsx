@@ -7,6 +7,7 @@ import CreateAccount from "../modalWindow/CreateAccount";
 import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
 import { openModal } from "../../redux/slices/StateAndData";
 import { IAccounts, ICompnay } from "../../types/types";
+import EditAccount from "../modalWindow/EditAccount";
 interface IProps {
   companyData: ICompnay[];
 }
@@ -35,7 +36,11 @@ const AppSider = ({ companyData }: IProps) => {
             <li className="mb-6 font-bold text-sm">
               <div>Мои счета</div>
               <div>
-                <img src={editAccount} className="cursor-pointer" />
+                <img
+                  src={editAccount}
+                  className="cursor-pointer"
+                  onClick={() => dispatch(openModal(["editAccount", true]))}
+                />
               </div>
             </li>
 
@@ -63,6 +68,7 @@ const AppSider = ({ companyData }: IProps) => {
         </div>
       </article>
       {createPortal(<CreateAccount />, document.body)}
+      {createPortal(<EditAccount />, document.body)}
     </aside>
   );
 };

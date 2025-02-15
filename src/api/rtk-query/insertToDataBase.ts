@@ -23,9 +23,7 @@ export const supabaseApi = createApi({
         });
         if (error) {
           console.log(error.message);
-          throw new Error(
-            `Some think went wrong with with Fetch: ${error.message}`
-          );
+          throw new Error(error.message);
         }
 
         return { data: data || [] };
@@ -38,7 +36,7 @@ export const supabaseApi = createApi({
         const { data: sumData, error } = await supabase.from(table).select("*");
         if (error) {
           console.log(error.message);
-          throw new Error(`Some think went wrong with Fetch: ${error.message}`);
+          throw new Error(error.message);
         }
 
         return { data: sumData || [] };
@@ -51,9 +49,7 @@ export const supabaseApi = createApi({
 
         if (error) {
           console.log(error.message);
-          throw new Error(
-            `Some think went wrong with with Fetch: ${error.message}`
-          );
+          throw new Error(error.message);
         }
 
         return { data: data || [] };
@@ -66,7 +62,7 @@ export const supabaseApi = createApi({
           .select("*");
         if (error) {
           console.log(error.message);
-          throw new Error(`Some think went wrong with Fetch: ${error.message}`);
+          throw new Error(error.message);
         }
 
         return { data: accounts || [] };
@@ -80,7 +76,7 @@ export const supabaseApi = createApi({
 
         if (error) {
           console.log(error.message);
-          throw new Error(`Some think went wrong with Fetch: ${error.message}`);
+          throw new Error(error.message);
         }
 
         return { data: uniqueData || [] };
@@ -93,7 +89,7 @@ export const supabaseApi = createApi({
           .select("*");
         if (error) {
           console.log(error.message);
-          throw new Error(`Some think went wrong with Fetch: ${error.message}`);
+          throw new Error(error.message);
         }
 
         return { data: company || [] };
@@ -107,7 +103,6 @@ export const {
   useGetSumQuery,
   useGetAccountQuery,
   useGetCompanyDataQuery,
-
   useGetSingleDataTransactionsQuery,
   useCreateAccountMutation,
 } = supabaseApi;

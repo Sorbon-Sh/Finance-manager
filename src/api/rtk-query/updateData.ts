@@ -8,7 +8,7 @@ export const supabaseApi = createApi({
     updateCompany: builder.mutation({
       queryFn: async (company) => {
         const [companyData, id] = company;
-        const { data: accounts, error } = await supabase
+        const { data, error } = await supabase
           .from("company")
           .update({
             name: companyData.companyName,
@@ -17,13 +17,33 @@ export const supabaseApi = createApi({
           .eq("id", id);
         if (error) {
           console.log(error.message);
-          throw new Error(`Some think went wrong with Fetch: ${error.message}`);
+          throw new Error(error.message);
         }
 
-        return { data: accounts || [] };
+        return { data: data || [] };
+      },
+    }),
+    updateAccount: builder.mutation({
+      queryFn: async (account) => {
+        const [accountData, id] = account;
+        console.log(accountData);
+        const { data, error } = await supabase
+          .from("accounts")
+          .update({
+            account: accountData.account,
+            allAmount: accountData.allAmount,
+          })
+          .eq("id", id);
+        if (error) {
+          console.log(error.message);
+          throw new Error(error.message);
+        }
+
+        return { data: data || [] };
       },
     }),
   }),
 });
 
-export const { useUpdateCompanyMutation } = supabaseApi;
+export const { useUpdateCompanyMutation, useUpdateAccountMutation } =
+  supabaseApi;
