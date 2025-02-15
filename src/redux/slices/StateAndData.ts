@@ -21,12 +21,12 @@ export const modalState = createSlice({
       //* Создаём динамическый ключ и значение для модалок
       state[id] = open;
     },
-    accountId: (state, action: PayloadAction<string>) => {
+    setAccountId: (state, action: PayloadAction<string>) => {
       state.accountId = action.payload;
     },
   },
 });
 
-export const { openModal, accountId } = modalState.actions;
+export const { openModal, setAccountId } = modalState.actions;
 
 export default modalState.reducer;

@@ -1,4 +1,7 @@
-import { useGetSumQuery } from "../api/rtk-query/insertToDataBase";
+import {
+  useGetAccountQuery,
+  useGetSumQuery,
+} from "../api/rtk-query/insertToDataBase";
 import { ITransactions } from "../types/types";
 import cashIcon from "../assets/cash-icon.gif";
 import { useGetAccountsAmount } from "../hooks/useGetAccountsAmount";
@@ -7,8 +10,16 @@ import { useCapitalize } from "../hooks/useCapitalize";
 const TransactionsTabel = () => {
   const { data: transactions, isFetching } = useGetSumQuery("transactions");
   const { allAmount } = useGetAccountsAmount();
+
   const { toLowerCase, toUpperCase } = useCapitalize();
 
+  //! Проблема с задержкой загрузки данных!
+  const accountAmount = (accountName: string) => {
+    //? Записать такой метод Деструктуризации
+    const [data] = allAmount(accountName);
+
+    return data;
+  };
   return (
     <article className="">
       {isFetching ? (
@@ -51,8 +62,8 @@ const TransactionsTabel = () => {
                   <td className="p-2">
                     <div>{transaction.account}</div>
                     <div className="text-gray-500">
-                      {allAmount(transaction.account)}
-                      TJS
+                      {accountAmount(transaction.account).amount}{" "}
+                      {accountAmount(transaction.account).currency}
                     </div>
                   </td>
                   <td className="p-2">

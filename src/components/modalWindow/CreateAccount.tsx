@@ -10,11 +10,7 @@ import { Inputs } from "../../types/types";
 const CreateAccount = () => {
   const dispatch = useAppDispatch();
   const [createAccount] = useCreateAccountMutation();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<Inputs>();
+  const { register, handleSubmit } = useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     try {
       await createAccount(["accounts", data]).unwrap();
@@ -47,7 +43,7 @@ const CreateAccount = () => {
           <input
             placeholder="Валюта"
             className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
-            {...(register("currency"), { require: "Choose currency" })}
+            {...register("currency")}
           />
         </div>
         <div>
@@ -55,7 +51,7 @@ const CreateAccount = () => {
             type="text"
             placeholder="Имя счета"
             className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
-            {...(register("account"), { require: "Write account name" })}
+            {...register("account")}
           />
         </div>
         <div className="flex space-x-2">
@@ -63,7 +59,7 @@ const CreateAccount = () => {
             type="text"
             placeholder="Стратовый баланс"
             className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
-            {...(register("allAmount"), { require: "Inter start amount" })}
+            {...register("allAmount")}
           />
         </div>
 

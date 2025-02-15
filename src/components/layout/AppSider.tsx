@@ -8,18 +8,22 @@ import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
 import { openModal } from "../../redux/slices/StateAndData";
 import { IAccounts, ICompnay } from "../../types/types";
 import EditAccount from "../modalWindow/EditAccount";
+import { useState } from "react";
 interface IProps {
   companyData: ICompnay[];
 }
 const AppSider = ({ companyData }: IProps) => {
+  const [clicked, setClicked] = useState("");
   const { data: accountsData } = useGetAccountQuery();
   const companyCurrency =
     companyData && companyData.map((company) => company.currency);
   const companyAllAmount =
     companyData && companyData.map((company) => company.allAmount);
-  console.log(companyData);
-
   const dispatch = useAppDispatch();
+
+  const selectAccount = (id: string) => {
+    setClicked(id);
+  };
 
   return (
     <aside className=" col-start-1 col-end-4 bg-[#edf4f7] rounded-tl-3xl">
@@ -47,9 +51,17 @@ const AppSider = ({ companyData }: IProps) => {
             <div className="flex-col [&>li]:flex [&>li]:cursor-pointer [&>li]:justify-between [&]:gap-y-5 text-sm text-gray-500">
               {accountsData &&
                 accountsData.map((account: IAccounts) => (
-                  <li key={account.id}>
+                  <li
+                    key={account.id}
+                    className={`${
+                      clicked === account.id && "border-l-2 border-l-green-400"
+                    }`}
+                    onClick={() => selectAccount(account.id)}
+                  >
                     <span>{account.account}</span>
-                    <span>{account.allAmount}.0</span>
+                    <span>
+                      {account.currency} {account.allAmount}.0
+                    </span>
                   </li>
                 ))}
             </div>

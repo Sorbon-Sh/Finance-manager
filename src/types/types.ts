@@ -14,6 +14,7 @@ export interface IAccounts {
   id: string;
   account: string;
   allAmount: number;
+  currency: string;
 }
 
 export interface ICompnay {

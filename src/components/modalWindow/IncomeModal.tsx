@@ -3,7 +3,7 @@ import { openModal } from "../../redux/slices/StateAndData";
 import SwitchModal from "./SwitchModal";
 import closeIcon from "../../assets/closeIcon.svg";
 import history from "../../assets/history.svg";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import {
   useGetAccountQuery,
   useGetSingleDataTransactionsQuery,
@@ -11,6 +11,8 @@ import {
 } from "../../api/rtk-query/insertToDataBase";
 import { Inputs, ITransactions } from "../../types/types";
 import DateComponent from "../DateComponent";
+import TimePicker from "react-multi-date-picker/plugins/time_picker";
+import DatePicker from "react-multi-date-picker";
 const IncomeModal = () => {
   const { data: accounts } = useGetAccountQuery();
   const { data: uniqueData } = useGetSingleDataTransactionsQuery();
@@ -20,11 +22,12 @@ const IncomeModal = () => {
     register,
     handleSubmit,
     formState: { errors },
+    control,
   } = useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    console.log("Data: ", data);
     try {
       await insertTransaction(["transactions", data]).unwrap();
-      console.log("Data: ", data);
     } catch (err) {
       console.log("Error", err);
       throw new Error(`Error to sending data to DataBase`);
@@ -120,7 +123,35 @@ const IncomeModal = () => {
         </div>
 
         <div>
-          <DateComponent />
+          <Controller
+            control={control}
+            name="date"
+            rules={{ required: true }}
+            render={({
+              field: { onChange, name, value },
+              formState: { errors },
+            }) => (
+              <div className="bg-gray-100 rounded-lg ">
+                <p className="text-xs text-gray-500">Дата поступления денег</p>
+                <DatePicker
+                  value={value || new Date()}
+                  onChange={(date) => {
+                    onChange(date?.isValid ? date : "");
+                  }}
+                  format="MM.DD.YYYY, HH:mm:ss"
+                  plugins={[<TimePicker position="bottom" />]}
+                  style={{ border: "0", width: "100%" }}
+                  inputClass="p-4 flex items-center justify-between"
+                  containerClassName="w-full "
+                />
+
+                {errors && errors[name] && errors[name].type === "required" && (
+                  //if you want to show an error message
+                  <span>Введите дата и время</span>
+                )}
+              </div>
+            )}
+          />
         </div>
         <div className="flex items-center space-x-2"></div>
         <button className="w-full mt-4 py-2 bg-gradient-to-r from-blue-400 to-green-400 text-white font-semibold rounded-lg cursor-pointer">

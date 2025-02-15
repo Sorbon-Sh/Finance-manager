@@ -1,5 +1,5 @@
 import { useAppDispatch, useAppSelector } from "../../hooks/useReduxTypedHooks";
-import { openModal } from "../../redux/slices/StateAndData";
+import { openModal, setAccountId } from "../../redux/slices/StateAndData";
 import SwitchModal from "./SwitchModal";
 import closeIcon from "../../assets/closeIcon.svg";
 import { useForm, SubmitHandler } from "react-hook-form";
@@ -13,8 +13,17 @@ const EditAccount = () => {
   const [updateAccount] = useUpdateAccountMutation();
   const { data: account } = useGetAccountQuery();
   const accountId = useAppSelector((state) => state.stateAndData.accountId);
-  console.log(accountId);
-
+  const { register, handleSubmit, reset } = useForm<Inputs>();
+  const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    try {
+      await updateAccount([data, accountId]);
+      reset();
+      dispatch(setAccountId(""));
+    } catch (err) {
+      console.log("Error: ", err);
+      throw new Error(`Error to sending data to DataBase`);
+    }
+  };
   const accountName = () => {
     if (account) {
       return account
@@ -22,15 +31,11 @@ const EditAccount = () => {
         .map((name) => name.account);
     }
   };
+  console.log(accountName());
 
-  const { register, handleSubmit } = useForm<Inputs>();
-  const onSubmit: SubmitHandler<Inputs> = async (data) => {
-    try {
-      await updateAccount([data, accountId]);
-    } catch (err) {
-      console.log("Error: ", err);
-      throw new Error(`Error to sending data to DataBase`);
-    }
+  const onClose = () => {
+    dispatch(openModal(["editAccount", false]));
+    dispatch(setAccountId(""));
   };
 
   return (
@@ -42,10 +47,7 @@ const EditAccount = () => {
         <section>
           <div className="flex justify-between items-center mb-4 ">
             <h2 className="text-3xl font-bold">Редактирование</h2>
-            <button
-              className="cursor-pointer"
-              onClick={() => dispatch(openModal(["editAccount", false]))}
-            >
+            <button className="cursor-pointer" onClick={onClose}>
               <img src={closeIcon} />
             </button>
           </div>
