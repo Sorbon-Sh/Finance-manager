@@ -1,17 +1,27 @@
 import { useGetAccountQuery } from "../api/rtk-query/insertToDataBase";
+
 export const useGetAccountsAmount = () => {
-  const { data: accounts } = useGetAccountQuery();
+  const { data: accounts } = useGetAccountQuery("accounts");
 
   const allAmount = (check: string) => {
-    if (accounts && check) {
-      return accounts
-        .filter((acc) => acc.account === check)
-        .map((amount) => {
-          return { amount: amount.allAmount, currency: amount.currency };
-        });
-    } else {
-      //* Возврашаем пустой массив если undefined для безопасности в TypeScript
-      return [];
+    try {
+      if (accounts) {
+        return accounts
+          .filter((acc) => acc.account === check)
+          .map((amount) => {
+            return {
+              amount: amount.allAmount,
+              currency: amount.currency,
+            };
+          });
+      } else {
+        //* Возврашаем пустой массив если undefined для безопасности в TypeScript
+        return [];
+      }
+    } catch (err) {
+      console.log(err);
+
+      throw new Error("Error fetch account amount");
     }
   };
 

@@ -56,9 +56,9 @@ export const supabaseApi = createApi({
       },
     }),
     getAccount: builder.query<IAccounts[], string>({
-      queryFn: async () => {
+      queryFn: async (table) => {
         const { data: accounts, error } = await supabase
-          .from("accounts")
+          .from(table)
           .select("*");
         if (error) {
           console.log(error.message);
@@ -69,10 +69,8 @@ export const supabaseApi = createApi({
       },
     }),
     getSingleDataTransactions: builder.query({
-      queryFn: async () => {
-        const { data: uniqueData, error } = await supabase.rpc(
-          "get_unique_data"
-        );
+      queryFn: async (sqlFn) => {
+        const { data: uniqueData, error } = await supabase.rpc(sqlFn);
 
         if (error) {
           console.log(error.message);

@@ -1,7 +1,4 @@
-import {
-  useGetAccountQuery,
-  useGetSumQuery,
-} from "../api/rtk-query/insertToDataBase";
+import { useGetSumQuery } from "../api/rtk-query/insertToDataBase";
 import { ITransactions } from "../types/types";
 import cashIcon from "../assets/cash-icon.gif";
 import { useGetAccountsAmount } from "../hooks/useGetAccountsAmount";
@@ -9,17 +6,19 @@ import { useCapitalize } from "../hooks/useCapitalize";
 
 const TransactionsTabel = () => {
   const { data: transactions, isFetching } = useGetSumQuery("transactions");
-  const { allAmount } = useGetAccountsAmount();
 
+  const { allAmount } = useGetAccountsAmount();
   const { toLowerCase, toUpperCase } = useCapitalize();
 
   //! Проблема с задержкой загрузки данных!
   const accountAmount = (accountName: string) => {
     //? Записать такой метод Деструктуризации
     const [data] = allAmount(accountName);
+    if (!data) return { amount: 0, currency: "" };
 
     return data;
   };
+
   return (
     <article className="">
       {isFetching ? (

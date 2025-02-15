@@ -11,7 +11,7 @@ import AccountList from "../AccountItems";
 const EditAccount = () => {
   const dispatch = useAppDispatch();
   const [updateAccount] = useUpdateAccountMutation();
-  const { data: account } = useGetAccountQuery();
+  const { data: account } = useGetAccountQuery("accounts");
   const accountId = useAppSelector((state) => state.stateAndData.accountId);
   const { register, handleSubmit, reset } = useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = async (data) => {

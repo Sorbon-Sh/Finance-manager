@@ -14,7 +14,7 @@ interface IProps {
 }
 const AppSider = ({ companyData }: IProps) => {
   const [clicked, setClicked] = useState("");
-  const { data: accountsData } = useGetAccountQuery();
+  const { data: accountsData } = useGetAccountQuery("accounts");
   const companyCurrency =
     companyData && companyData.map((company) => company.currency);
   const companyAllAmount =

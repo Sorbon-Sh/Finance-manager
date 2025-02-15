@@ -10,12 +10,13 @@ import {
   useInsertTransactionMutation,
 } from "../../api/rtk-query/insertToDataBase";
 import { Inputs, ITransactions } from "../../types/types";
-import DateComponent from "../DateComponent";
+
 import TimePicker from "react-multi-date-picker/plugins/time_picker";
 import DatePicker from "react-multi-date-picker";
 const IncomeModal = () => {
-  const { data: accounts } = useGetAccountQuery();
-  const { data: uniqueData } = useGetSingleDataTransactionsQuery();
+  const { data: accounts } = useGetAccountQuery("accounts");
+  const { data: uniqueData } =
+    useGetSingleDataTransactionsQuery("get_unique_data");
   const [insertTransaction] = useInsertTransactionMutation();
   const dispatch = useAppDispatch();
   const {
