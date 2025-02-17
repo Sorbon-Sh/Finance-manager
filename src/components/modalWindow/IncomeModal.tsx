@@ -49,7 +49,11 @@ const IncomeModal = () => {
           <img src={closeIcon} />
         </button>
       </div>
-      <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+      <form
+        className="space-y-4"
+        onSubmit={handleSubmit(onSubmit)}
+        autoComplete="off"
+      >
         <div>
           <span>{errors.account && errors.account.message}</span>
           <input
@@ -57,24 +61,27 @@ const IncomeModal = () => {
             placeholder="На счет"
             list="accounts"
             id="country"
-            autoComplete="off"
             className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
             {...register("account", { required: "Choose your account" })}
           />
           <datalist className=" bg-white w-16 p-2" id="accounts">
             {accounts &&
               accounts.map((account) => (
-                <option value={account.account} className="bg-green-300 p-1" />
+                <option
+                  key={account.id}
+                  value={account.account}
+                  className="bg-green-300 p-1"
+                />
               ))}
           </datalist>
         </div>
 
         <div className="">
-          <span className="">{errors.amount && errors.amount.message}</span>
+          <span>{errors.amount && errors.amount.message}</span>
           <input
             type="text"
             placeholder="Сумма, TJS"
-            className="w-full p-3 bg-gray-200 rounded-lg border border-gray-300"
+            className="w-full p-3 bg-gray-200 rounded-lg border border-gray-300 mb-4"
             {...register("amount", { required: "Inter amount" })}
           />
 

@@ -1,5 +1,8 @@
 import { createPortal } from "react-dom";
-import { useGetAccountQuery } from "../../api/rtk-query/insertToDataBase";
+import {
+  useGetAccountQuery,
+  useGetSumQuery,
+} from "../../api/rtk-query/insertToDataBase";
 import editAccount from "../../assets/edit-account.svg";
 import plus from "../../assets/plus-gray.svg";
 import Button from "../buttons/Button";
@@ -13,16 +16,35 @@ interface IProps {
   companyData: ICompnay[];
 }
 const AppSider = ({ companyData }: IProps) => {
-  const [clicked, setClicked] = useState("");
+  const [clicked, setClicked] = useState<string>();
   const { data: accountsData } = useGetAccountQuery("accounts");
   const companyCurrency =
     companyData && companyData.map((company) => company.currency);
   const companyAllAmount =
     companyData && companyData.map((company) => company.allAmount);
   const dispatch = useAppDispatch();
-
   const selectAccount = (id: string) => {
     setClicked(id);
+  };
+
+  const { data: amountData } = useGetSumQuery("transactions");
+
+  const reduceAmount = (accountData: IAccounts) => {
+    // Группируем транзакции по аккаунту и суммируем
+    const transactionsSummary: Record<string, number> =
+      amountData &&
+      amountData.reduce((acc, tran) => {
+        const account = tran.account;
+        acc[account] = (acc[account] || 0) + tran.amount;
+        return acc;
+      }, {});
+
+    const accounts = [accountData];
+    // Обновляем аккаунты с новыми суммами
+    return accounts.map((acc) => ({
+      ...acc,
+      allAmount: acc.allAmount + (transactionsSummary[acc.account] || 0),
+    }));
   };
 
   return (
@@ -60,7 +82,8 @@ const AppSider = ({ companyData }: IProps) => {
                   >
                     <span>{account.account}</span>
                     <span>
-                      {account.currency} {account.allAmount}.0
+                      {account.currency}{" "}
+                      {reduceAmount(account).map((elem) => elem.allAmount)}.0
                     </span>
                   </li>
                 ))}

@@ -5,19 +5,17 @@ export const useGetAccountsAmount = () => {
 
   const allAmount = (check: string) => {
     try {
-      if (accounts) {
-        return accounts
-          .filter((acc) => acc.account === check)
-          .map((amount) => {
-            return {
-              amount: amount.allAmount,
-              currency: amount.currency,
-            };
-          });
-      } else {
-        //* Возврашаем пустой массив если undefined для безопасности в TypeScript
-        return [];
-      }
+      //* Возврашаем пустой массив если undefined для безопасности в TypeScript
+      if (!accounts) return [];
+
+      return accounts
+        .filter((acc) => acc.account === check)
+        .map((amount) => {
+          return {
+            amount: amount.allAmount,
+            currency: amount.currency,
+          };
+        });
     } catch (err) {
       console.log(err);
 

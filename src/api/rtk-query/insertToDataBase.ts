@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import supabase from "../supabaseClient";
-import { IAccounts, ICompnay } from "../../types/types";
+import { IAccounts, ICompnay, ITransactions } from "../../types/types";
 
 export const supabaseApi = createApi({
   reducerPath: "supabaseApi",
@@ -31,7 +31,7 @@ export const supabaseApi = createApi({
     }),
     //* Переиспользуемый
     //! Нужно переименовать!
-    getSum: builder.query({
+    getSum: builder.query<ITransactions[], string>({
       queryFn: async (table) => {
         const { data: sumData, error } = await supabase.from(table).select("*");
         if (error) {
