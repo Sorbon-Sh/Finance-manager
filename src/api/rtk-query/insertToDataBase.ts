@@ -81,10 +81,11 @@ export const supabaseApi = createApi({
       },
     }),
     getCompanyData: builder.query<ICompnay[], string>({
-      queryFn: async () => {
-        const { data: company, error } = await supabase
-          .from("company")
-          .select("*");
+      queryFn: async (table) => {
+        if (!table) {
+          throw new Error("Table name is undefined");
+        }
+        const { data: company, error } = await supabase.from(table).select("*");
         if (error) {
           console.log(error.message);
           throw new Error(error.message);

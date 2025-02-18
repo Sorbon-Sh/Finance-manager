@@ -5,7 +5,11 @@ import { useGetAccountsAmount } from "../hooks/useGetAccountsAmount";
 import { useCapitalize } from "../hooks/useCapitalize";
 
 const TransactionsTabel = () => {
-  const { data: transactions, isFetching } = useGetSumQuery("transactions");
+  const {
+    data: transactions,
+    isFetching,
+    isSuccess,
+  } = useGetSumQuery("transactions");
 
   const { allAmount } = useGetAccountsAmount();
   const { toLowerCase, toUpperCase } = useCapitalize();
@@ -23,6 +27,8 @@ const TransactionsTabel = () => {
     <article className="">
       {isFetching ? (
         <img src={cashIcon} className="mx-auto" />
+      ) : !isSuccess ? (
+        <div>{"Ошибка запроса"}</div>
       ) : (
         <table className="w-full border-collapse">
           <thead>

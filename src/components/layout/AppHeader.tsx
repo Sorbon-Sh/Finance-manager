@@ -11,13 +11,13 @@ import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
 import { openModal } from "../../redux/slices/StateAndData";
 import { ICompnay } from "../../types/types";
 import EditCompany from "../modalWindow/EditCompany";
-interface IProps {
-  companyData: ICompnay[];
-}
-const AppHeader = ({ companyData }: IProps) => {
+import { useGetCompanyDataQuery } from "../../api/rtk-query/insertToDataBase";
+const AppHeader = () => {
+  const { data: company } = useGetCompanyDataQuery("company");
   const dispatch = useAppDispatch();
-  const companyName = companyData && companyData.map((company) => company.name);
-  console.log(companyData);
+  const companyName = company
+    ? company.map((company: ICompnay) => company.name)
+    : null;
 
   return (
     <header className="flex justify-between text-white  py-5 items-center">

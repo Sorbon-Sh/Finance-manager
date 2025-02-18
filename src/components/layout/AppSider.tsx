@@ -1,6 +1,7 @@
 import { createPortal } from "react-dom";
 import {
   useGetAccountQuery,
+  useGetCompanyDataQuery,
   useGetSumQuery,
 } from "../../api/rtk-query/insertToDataBase";
 import editAccount from "../../assets/edit-account.svg";
@@ -9,29 +10,28 @@ import Button from "../buttons/Button";
 import CreateAccount from "../modalWindow/CreateAccount";
 import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
 import { openModal } from "../../redux/slices/StateAndData";
-import { IAccounts, ICompnay } from "../../types/types";
+import { IAccounts } from "../../types/types";
 import EditAccount from "../modalWindow/EditAccount";
 import { useState } from "react";
-interface IProps {
-  companyData: ICompnay[];
-}
-const AppSider = ({ companyData }: IProps) => {
+
+const AppSider = () => {
+  type TranSummary = {
+    [key: string]: number;
+  };
+
+  const { data: company } = useGetCompanyDataQuery("company");
   const [clicked, setClicked] = useState<string>();
-  const { data: accountsData } = useGetAccountQuery("accounts");
-  const companyCurrency =
-    companyData && companyData.map((company) => company.currency);
-  const companyAllAmount =
-    companyData && companyData.map((company) => company.allAmount);
+  const { data: accountsData, isSuccess } = useGetAccountQuery("accounts");
   const dispatch = useAppDispatch();
   const selectAccount = (id: string) => {
     setClicked(id);
   };
-
+  //*==================================================================
   const { data: amountData } = useGetSumQuery("transactions");
-
   const reduceAmount = (accountData: IAccounts) => {
+    if (!amountData) return [{ allAmount: 0 }];
     // Группируем транзакции по аккаунту и суммируем
-    const transactionsSummary: Record<string, number> =
+    const transactionsSummary: TranSummary =
       amountData &&
       amountData.reduce((acc, tran) => {
         const account = tran.account;
@@ -46,15 +46,19 @@ const AppSider = ({ companyData }: IProps) => {
       allAmount: acc.allAmount + (transactionsSummary[acc.account] || 0),
     }));
   };
-
+  //*=============================================================================
   return (
     <aside className=" col-start-1 col-end-4 bg-[#edf4f7] rounded-tl-3xl">
       <article className="w-64 mx-auto">
         <div className="flex justify-between flex-col mt-[22px] ">
           <span className="mb-1 text-sm text-gray-500">Всего на счетах </span>
-          <span className="text-3xl font-bold">
-            {companyCurrency} {companyAllAmount}
-          </span>
+          {company
+            ? company.map((company) => (
+                <span className="text-3xl font-bold" key={company.id}>
+                  {company.currency} {company.allAmount}
+                </span>
+              ))
+            : 0}
         </div>
         <hr className="border-gray-400  mt-5" />
         <div>
@@ -71,22 +75,24 @@ const AppSider = ({ companyData }: IProps) => {
             </li>
 
             <div className="flex-col [&>li]:flex [&>li]:cursor-pointer [&>li]:justify-between [&]:gap-y-5 text-sm text-gray-500">
-              {accountsData &&
-                accountsData.map((account: IAccounts) => (
-                  <li
-                    key={account.id}
-                    className={`${
-                      clicked === account.id && "border-l-2 border-l-green-400"
-                    }`}
-                    onClick={() => selectAccount(account.id)}
-                  >
-                    <span>{account.account}</span>
-                    <span>
-                      {account.currency}{" "}
-                      {reduceAmount(account).map((elem) => elem.allAmount)}.0
-                    </span>
-                  </li>
-                ))}
+              {isSuccess
+                ? accountsData.map((account: IAccounts) => (
+                    <li
+                      key={account.id}
+                      className={`${
+                        clicked === account.id &&
+                        "border-l-2 border-l-green-400"
+                      }`}
+                      onClick={() => selectAccount(account.id)}
+                    >
+                      <span>{account.account}</span>
+                      <span>
+                        {account.currency}{" "}
+                        {reduceAmount(account).map((elem) => elem.allAmount)}.0
+                      </span>
+                    </li>
+                  ))
+                : "No accounts found"}
             </div>
           </ul>
           <Button

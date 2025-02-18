@@ -10,7 +10,7 @@ import { useGetCompanyDataQuery } from "../../api/rtk-query/insertToDataBase";
 const EditCompany = () => {
   const dispatch = useAppDispatch();
   const [updateCompany] = useUpdateCompanyMutation();
-  const { data: companyId } = useGetCompanyDataQuery();
+  const { data: companyId } = useGetCompanyDataQuery("company");
   const id = companyId && companyId.map((company) => company.id);
   const { register, handleSubmit } = useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
