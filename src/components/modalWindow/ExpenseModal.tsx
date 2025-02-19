@@ -1,9 +1,5 @@
-import { useAppDispatch, useAppSelector } from "../../hooks/useReduxTypedHooks";
-import {
-  isIncomeButtonClicked,
-  openModal,
-  setTransactionAccount,
-} from "../../redux/slices/StateAndData";
+import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
+import { openModal } from "../../redux/slices/StateAndData";
 import SwitchModal from "./SwitchModal";
 import closeIcon from "../../assets/closeIcon.svg";
 import history from "../../assets/history.svg";
@@ -17,14 +13,11 @@ import { Inputs, ITransactions } from "../../types/types";
 
 import TimePicker from "react-multi-date-picker/plugins/time_picker";
 import DatePicker from "react-multi-date-picker";
-const IncomeModal = () => {
+const ExpenseModal = () => {
   const { data: accounts } = useGetAccountQuery("accounts");
   const { data: uniqueData } =
     useGetSingleDataTransactionsQuery("get_unique_data");
   const [insertTransaction] = useInsertTransactionMutation();
-  const incomeButtonState = useAppSelector(
-    (state) => state.stateAndData.incomeButton
-  );
   const dispatch = useAppDispatch();
   const {
     register,
@@ -33,10 +26,9 @@ const IncomeModal = () => {
     control,
   } = useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    console.log("Data: ", data);
     try {
       await insertTransaction(["transactions", data]).unwrap();
-      dispatch(isIncomeButtonClicked(!incomeButtonState));
-      dispatch(setTransactionAccount(data.account));
     } catch (err) {
       console.log("Error", err);
       throw new Error(`Error to sending data to DataBase`);
@@ -45,14 +37,14 @@ const IncomeModal = () => {
 
   return (
     <SwitchModal
-      modalID="income"
+      modalID="expense"
       className="bg-white rounded-4xl h-[535px] w-[480px]  overflow-y-scroll pt-6 pb-6  px-8 min-w-md"
     >
       <div className="flex justify-between items-center mb-4 ">
-        <h2 className="text-3xl font-bold">Новый доход</h2>
+        <h2 className="text-3xl font-bold">Новый расход</h2>
         <button
           className="cursor-pointer"
-          onClick={() => dispatch(openModal(["income", false]))}
+          onClick={() => dispatch(openModal(["expense", false]))}
         >
           <img src={closeIcon} />
         </button>
@@ -66,7 +58,7 @@ const IncomeModal = () => {
           <span>{errors.account && errors.account.message}</span>
           <input
             type="text"
-            placeholder="На счет"
+            placeholder="Со счета"
             list="accounts"
             id="country"
             className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
@@ -186,4 +178,4 @@ const IncomeModal = () => {
   );
 };
 
-export default IncomeModal;
+export default ExpenseModal;

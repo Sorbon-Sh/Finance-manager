@@ -4,6 +4,8 @@ type IData = Record<string, unknown>;
 
 const initialState: IData = {
   accountId: "",
+  transationAccount: "",
+  incomeButton: false,
 };
 
 // ? Аналог если TypeScript из лишне будет проверять Redux
@@ -24,9 +26,23 @@ export const modalState = createSlice({
     setAccountId: (state, action: PayloadAction<string>) => {
       state.accountId = action.payload;
     },
+
+    setTransactionAccount: (state, action: PayloadAction<string>) => {
+      state.transactionAccount = action.payload;
+    },
+
+    isIncomeButtonClicked: (state, action: PayloadAction<boolean>) => {
+      state.incomeButton = action.payload;
+    },
   },
 });
 
-export const { openModal, setAccountId } = modalState.actions;
+export const {
+  openModal,
+  setAccountId,
+
+  setTransactionAccount,
+  isIncomeButtonClicked,
+} = modalState.actions;
 
 export default modalState.reducer;

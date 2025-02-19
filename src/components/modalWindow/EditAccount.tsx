@@ -31,7 +31,6 @@ const EditAccount = () => {
         .map((name) => name.account);
     }
   };
-  console.log(accountName());
 
   const onClose = () => {
     dispatch(openModal(["editAccount", false]));

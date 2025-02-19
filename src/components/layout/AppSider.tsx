@@ -8,11 +8,12 @@ import editAccount from "../../assets/edit-account.svg";
 import plus from "../../assets/plus-gray.svg";
 import Button from "../buttons/Button";
 import CreateAccount from "../modalWindow/CreateAccount";
-import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
-import { openModal } from "../../redux/slices/StateAndData";
+import { useAppDispatch, useAppSelector } from "../../hooks/useReduxTypedHooks";
+import { openModal, setAccountAmount } from "../../redux/slices/StateAndData";
 import { IAccounts } from "../../types/types";
 import EditAccount from "../modalWindow/EditAccount";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useUpdateAmountAccountMutation } from "../../api/rtk-query/updateData";
 
 const AppSider = () => {
   type TranSummary = {
@@ -21,32 +22,105 @@ const AppSider = () => {
 
   const { data: company } = useGetCompanyDataQuery("company");
   const [clicked, setClicked] = useState<string>();
-  const { data: accountsData, isSuccess } = useGetAccountQuery("accounts");
+  const {
+    data: accountsData,
+    isSuccess,
+    refetch: accountRefetch,
+  } = useGetAccountQuery("accounts");
   const dispatch = useAppDispatch();
+  const [updateAmountAccount] = useUpdateAmountAccountMutation();
+  const incomeButton = useAppSelector(
+    (state) => state.stateAndData.incomeButton
+  );
+  const transactionAccount = useAppSelector(
+    (state) => state.stateAndData.transactionAccount
+  );
+
+  console.log("Tran Account: ", transactionAccount);
+
   const selectAccount = (id: string) => {
     setClicked(id);
   };
-  //*==================================================================
-  const { data: amountData } = useGetSumQuery("transactions");
-  const reduceAmount = (accountData: IAccounts) => {
-    if (!amountData) return [{ allAmount: 0 }];
-    // Группируем транзакции по аккаунту и суммируем
-    const transactionsSummary: TranSummary =
-      amountData &&
-      amountData.reduce((acc, tran) => {
-        const account = tran.account;
-        acc[account] = (acc[account] || 0) + tran.amount;
-        return acc;
-      }, {});
 
-    const accounts = [accountData];
-    // Обновляем аккаунты с новыми суммами
-    return accounts.map((acc) => ({
-      ...acc,
-      allAmount: acc.allAmount + (transactionsSummary[acc.account] || 0),
-    }));
-  };
+  //*==================================================================
+  const { data: transactions, refetch } = useGetSumQuery("transactions");
+  // const reduceAmount = (accountData: IAccounts[]) => {
+  //   if (!amountData || amountData.length === 0)
+  //     return accountData.map((acc) => ({ ...acc, allAmount: 0 }));
+
+  //   // Группируем транзакции по аккаунту и суммируем
+  //   const transactionsSummary: TranSummary = amountData.reduce((acc, tran) => {
+  //     acc[tran.account] = (acc[tran.account] || 0) + tran.amount;
+  //     return acc;
+  //   }, {} as TranSummary);
+
+  //   // Обновляем аккаунты с новыми суммами
+  //   return accountData.map((acc) => ({
+  //     ...acc,
+  //     allAmount: acc.allAmount + (transactionsSummary[acc.account] || 0),
+  //   }));
+  // };
+
   //*=============================================================================
+  // * Триггер для запуска функции
+  const reduceAmount = (accountData) => {
+    const account: IAccounts[] = [accountData];
+    if (!transactions) return account.map((acc) => ({ ...acc, allAmount: 0 }));
+
+    // Найти последние транзакции для каждого аккаунта
+    const lastTransactions: Record<string, any> = {};
+
+    transactions.forEach((tran) => {
+      lastTransactions[tran.account] = tran; // Перезаписываем, остаётся последняя запись
+    });
+
+    // Группируем суммы только последних транзакций
+    const transactionsSummary: TranSummary = Object.values(
+      lastTransactions
+    ).reduce((acc, tran) => {
+      acc[tran.account] = (acc[tran.account] || 0) + tran.amount;
+      return acc;
+    }, {} as TranSummary);
+
+    // Обновляем аккаунты с новыми суммами
+    const data = account.map((acc) => ({
+      ...acc,
+      allAmount: (acc.allAmount || 0) + (transactionsSummary[acc.account] || 0),
+    }));
+
+    return data;
+  };
+
+  const updatedAccounts =
+    accountsData &&
+    accountsData.flatMap((account) => reduceAmount(account, transactions));
+  // console.log("Data Update: ", updatedAccounts);
+
+  useEffect(() => {
+    const send = async () => {
+      if (isSuccess) {
+        await refetch();
+        await accountRefetch();
+        // Собираем все amounts в один массив
+        const allAmounts = () => {
+          return updatedAccounts
+            ? updatedAccounts.filter(
+                (elem) => elem.account === transactionAccount
+              )
+            : null;
+        };
+
+        const data = allAmounts();
+        console.log("allAmounts", data && data.map((elem) => elem.allAmount));
+
+        // console.log("Data: ", data);
+
+        await updateAmountAccount(data);
+      }
+    };
+    send();
+  }, [incomeButton]);
+
   return (
     <aside className=" col-start-1 col-end-4 bg-[#edf4f7] rounded-tl-3xl">
       <article className="w-64 mx-auto">
@@ -88,7 +162,8 @@ const AppSider = () => {
                       <span>{account.account}</span>
                       <span>
                         {account.currency}{" "}
-                        {reduceAmount(account).map((elem) => elem.allAmount)}.0
+                        {reduceAmount(account).map((elem) => elem.allAmount)}
+                        .0
                       </span>
                     </li>
                   ))

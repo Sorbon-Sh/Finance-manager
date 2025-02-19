@@ -12,6 +12,7 @@ import { openModal } from "../../redux/slices/StateAndData";
 import { ICompnay } from "../../types/types";
 import EditCompany from "../modalWindow/EditCompany";
 import { useGetCompanyDataQuery } from "../../api/rtk-query/insertToDataBase";
+import ExpenseModal from "../modalWindow/ExpenseModal";
 const AppHeader = () => {
   const { data: company } = useGetCompanyDataQuery("company");
   const dispatch = useAppDispatch();
@@ -95,6 +96,7 @@ const AppHeader = () => {
         </ModalPopover>
       </div>
       {createPortal(<IncomeModal />, document.body)}
+      {createPortal(<ExpenseModal />, document.body)}
       {createPortal(<EditCompany />, document.body)}
     </header>
   );

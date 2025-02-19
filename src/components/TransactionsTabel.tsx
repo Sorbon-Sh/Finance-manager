@@ -1,8 +1,9 @@
 import { useGetSumQuery } from "../api/rtk-query/insertToDataBase";
 import { ITransactions } from "../types/types";
 import cashIcon from "../assets/cash-icon.gif";
-import { useGetAccountsAmount } from "../hooks/useGetAccountsAmount";
 import { useCapitalize } from "../hooks/useCapitalize";
+import { useAppDispatch } from "../hooks/useReduxTypedHooks";
+import { setTransactionAccount } from "../redux/slices/StateAndData";
 
 const TransactionsTabel = () => {
   const {
@@ -10,19 +11,8 @@ const TransactionsTabel = () => {
     isFetching,
     isSuccess,
   } = useGetSumQuery("transactions");
-
-  const { allAmount } = useGetAccountsAmount();
   const { toLowerCase, toUpperCase } = useCapitalize();
-
-  //! Проблема с задержкой загрузки данных!
-  const accountAmount = (accountName: string) => {
-    //? Записать такой метод Деструктуризации
-    const [data] = allAmount(accountName);
-    if (!data) return { amount: 0, currency: "" };
-
-    return data;
-  };
-
+  const dispatch = useAppDispatch();
   return (
     <article className="">
       {isFetching ? (
@@ -38,7 +28,7 @@ const TransactionsTabel = () => {
               </th>
               <th className="p-2 text-left">Дата</th>
               <th className="p-2 text-left">Сумма</th>
-              <th className="p-2 text-left">Счет/остаток</th>
+              <th className="p-2 text-left">Счет</th>
               <th className="p-2 text-left">Контрагент</th>
               <th className="p-2 text-left">Категория</th>
             </tr>
@@ -46,7 +36,13 @@ const TransactionsTabel = () => {
           <tbody>
             {transactions &&
               transactions.map((transaction: ITransactions) => (
-                <tr className="border-b" key={transaction.id}>
+                <tr
+                  className="border-b"
+                  key={transaction.id}
+                  onClick={() =>
+                    dispatch(setTransactionAccount(transaction.account))
+                  }
+                >
                   <td className="p-2">
                     <input type="checkbox" className="h-5 w-5" />
                   </td>
@@ -66,10 +62,6 @@ const TransactionsTabel = () => {
                   </td>
                   <td className="p-2">
                     <div>{transaction.account}</div>
-                    <div className="text-gray-500">
-                      {accountAmount(transaction.account).amount}{" "}
-                      {accountAmount(transaction.account).currency}
-                    </div>
                   </td>
                   <td className="p-2">
                     {toUpperCase(transaction.counterParty)}

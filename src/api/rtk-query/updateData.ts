@@ -42,8 +42,31 @@ export const supabaseApi = createApi({
         return { data: data || [] };
       },
     }),
+    updateAmountAccount: builder.mutation({
+      queryFn: async (accountData) => {
+        console.log("updateData: ", accountData);
+        const [accountAmount] = accountData;
+
+        const { data, error } = await supabase
+          .from("accounts")
+          .update({
+            allAmount: accountAmount.allAmount,
+          })
+          .eq("id", accountAmount.id);
+
+        if (error) {
+          console.log(error.message);
+          throw new Error(error.message);
+        }
+
+        return { data: data || [] };
+      },
+    }),
   }),
 });
 
-export const { useUpdateCompanyMutation, useUpdateAccountMutation } =
-  supabaseApi;
+export const {
+  useUpdateCompanyMutation,
+  useUpdateAccountMutation,
+  useUpdateAmountAccountMutation,
+} = supabaseApi;
