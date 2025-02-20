@@ -18,10 +18,6 @@ import { useEffect, useState } from "react";
 import { useUpdateAmountAccountMutation } from "../../api/rtk-query/updateData";
 
 const AppSider = () => {
-  type TranSummary = {
-    [key: string]: number;
-  };
-  const [accData, setAccData] = useState();
   const { data: company } = useGetCompanyDataQuery("company");
   const [clicked, setClicked] = useState<string>();
   const {
@@ -29,7 +25,7 @@ const AppSider = () => {
     isSuccess,
     refetch: accountRefetch,
   } = useGetAccountQuery("accounts");
-  const [getAccount, { isSuccess: accoutSucces }] = useLazyGetAccountQuery();
+  const [getAccount] = useLazyGetAccountQuery();
   const { refetch: tranRefetch } = useGetSumQuery("transactions");
   const dispatch = useAppDispatch();
   const [updateAmountAccount] = useUpdateAmountAccountMutation();
@@ -44,13 +40,8 @@ const AppSider = () => {
     setClicked(id);
   };
 
-  const middle = (accountData) => {
-    return 0;
-  };
-
   //*==================================================================
-  const [getTransactions, { isSuccess: tranSuccess }] =
-    useLazyGetTransactionsQuery();
+  const [getTransactions] = useLazyGetTransactionsQuery();
 
   useEffect(() => {
     const send = async () => {

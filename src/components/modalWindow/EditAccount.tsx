@@ -13,24 +13,22 @@ const EditAccount = () => {
   const [updateAccount] = useUpdateAccountMutation();
   const { data: account } = useGetAccountQuery("accounts");
   const accountId = useAppSelector((state) => state.stateAndData.accountId);
-  const { register, handleSubmit, reset } = useForm<Inputs>();
+  const { register, handleSubmit, reset, setValue } = useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     try {
       await updateAccount([data, accountId]);
-      reset();
       dispatch(setAccountId(""));
+      dispatch(openModal(["editAccount", false]));
+      reset();
     } catch (err) {
       console.log("Error: ", err);
       throw new Error(`Error to sending data to DataBase`);
     }
   };
-  const accountName = () => {
-    if (account) {
-      return account
-        .filter((account) => account.id === accountId)
-        .map((name) => name.account);
-    }
-  };
+
+  const accountName =
+    account && account.find((account) => account.id === accountId);
+  setValue("account", accountName ? accountName.account : "");
 
   const onClose = () => {
     dispatch(openModal(["editAccount", false]));
@@ -59,7 +57,6 @@ const EditAccount = () => {
               <input
                 type="text"
                 placeholder="Имя счета"
-                value={accountName()}
                 className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
                 {...register("account")}
               />

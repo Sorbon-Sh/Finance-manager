@@ -31,12 +31,15 @@ const IncomeModal = () => {
     handleSubmit,
     formState: { errors },
     control,
+    reset,
   } = useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     try {
       await insertTransaction(["transactions", data]).unwrap();
       dispatch(isIncomeButtonClicked(!incomeButtonState));
       dispatch(setTransactionAccount(data.account));
+      dispatch(openModal(["income", false]));
+      reset();
     } catch (err) {
       console.log("Error", err);
       throw new Error(`Error to sending data to DataBase`);
