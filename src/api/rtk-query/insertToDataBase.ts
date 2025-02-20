@@ -42,6 +42,19 @@ export const supabaseApi = createApi({
         return { data: sumData || [] };
       },
     }),
+    getTransactions: builder.query<ITransactions[], void>({
+      queryFn: async () => {
+        const { data: sumData, error } = await supabase
+          .from("transactions")
+          .select("*");
+        if (error) {
+          console.log(error.message);
+          throw new Error(error.message);
+        }
+
+        return { data: sumData || [] };
+      },
+    }),
     createAccount: builder.mutation({
       queryFn: async (formData) => {
         const [table, account] = formData;
@@ -100,8 +113,10 @@ export const supabaseApi = createApi({
 export const {
   useInsertTransactionMutation,
   useGetSumQuery,
+  useLazyGetTransactionsQuery,
   useGetAccountQuery,
   useGetCompanyDataQuery,
   useGetSingleDataTransactionsQuery,
   useCreateAccountMutation,
+  useLazyGetAccountQuery,
 } = supabaseApi;

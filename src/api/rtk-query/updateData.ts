@@ -43,16 +43,26 @@ export const supabaseApi = createApi({
       },
     }),
     updateAmountAccount: builder.mutation({
-      queryFn: async (accountData) => {
-        console.log("updateData: ", accountData);
-        const [accountAmount] = accountData;
+      queryFn: async (tranAndAcc) => {
+        const [tran, acc] = tranAndAcc;
+        const [accountData] = acc;
+        console.log("TranAndAcc: ", "acc", accountData);
+
+        console.log("TranAndAcc: ", "tran: ", tran);
+
+        if (!accountData || !accountData.id || tran.amount === undefined) {
+          console.error("❌ Ошибка: Некорректные данные!", accountData);
+          throw new Error("Некорректные данные для обновления!");
+        } else {
+          console.log("Данне получены: ", accountData.id, tran.amount);
+        }
 
         const { data, error } = await supabase
           .from("accounts")
           .update({
-            allAmount: accountAmount.allAmount,
+            allAmount: tran.amount + accountData.allAmount,
           })
-          .eq("id", accountAmount.id);
+          .eq("id", accountData.id);
 
         if (error) {
           console.log(error.message);
