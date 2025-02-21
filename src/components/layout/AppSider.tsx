@@ -39,7 +39,9 @@ const AppSider = () => {
   const selectAccount = (id: string) => {
     setClicked(id);
   };
-
+  const transactionId = useAppSelector(
+    (state) => state.stateAndData.transactionId
+  );
   //*==================================================================
   const [getTransactions] = useLazyGetTransactionsQuery();
 
@@ -56,17 +58,22 @@ const AppSider = () => {
         return;
       }
 
-      const data = tranData
+      const tranLastData = tranData
         ? tranData.findLast((elem) => elem.account === elem.account)
         : null;
 
-      const other = accData.filter(
+      const account = accData.filter(
         (name) => name.account === transactionAccount
       );
 
-      if (data) {
-        console.log("✅ Отправка данных на обновление:", data);
-        await updateAmountAccount([data, other]);
+      if (tranLastData) {
+        console.log("✅ Отправка данных на обновление:", tranLastData);
+        await updateAmountAccount([
+          tranLastData,
+          account,
+          transactionId,
+          tranData,
+        ]);
       } else {
         console.error(
           "❌ Ошибка: не найдено подходящих данных для обновления!"

@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import supabase from "../supabaseClient";
+import { ITransactions } from "../../types/types";
 
 export const supabaseApi = createApi({
   reducerPath: "supabaseApi",
@@ -44,25 +45,61 @@ export const supabaseApi = createApi({
     }),
     updateAmountAccount: builder.mutation({
       queryFn: async (tranAndAcc) => {
-        const [tran, acc] = tranAndAcc;
+        const [tranLastData, acc, tranId, tranData] = tranAndAcc;
         const [accountData] = acc;
-        console.log("TranAndAcc: ", "acc", accountData);
-
-        console.log("TranAndAcc: ", "tran: ", tran);
-
-        if (!accountData || !accountData.id || tran.amount === undefined) {
-          console.error("❌ Ошибка: Некорректные данные!", accountData);
-          throw new Error("Некорректные данные для обновления!");
-        } else {
-          console.log("Данне получены: ", accountData.id, tran.amount);
-        }
+        const filter = tranData.find(
+          (elem: ITransactions) => elem.id === tranId
+        );
+        console.log("filter: ", filter);
 
         const { data, error } = await supabase
           .from("accounts")
           .update({
-            allAmount: tran.amount + accountData.allAmount,
+            allAmount: tranLastData.amount + accountData.allAmount,
           })
           .eq("id", accountData.id);
+
+        if (error) {
+          console.log(error.message);
+          throw new Error(error.message);
+        }
+        if (
+          !accountData ||
+          !accountData.id ||
+          tranLastData.amount === undefined
+        ) {
+          console.error("❌ Ошибка: Некорректные данные!", accountData);
+          throw new Error("Некорректные данные для обновления!");
+        } else {
+          console.log("Данне получены: ", accountData.id, tranLastData.amount);
+        }
+
+        return { data: data || [] };
+      },
+    }),
+    updateTransaction: builder.mutation({
+      queryFn: async (tranById) => {
+        const [tranData, id] = tranById;
+        if (!tranData) {
+          console.error("❌ Ошибка: Некорректные данные!", tranById);
+          throw new Error("Некорректные данные для обновления!");
+        } else {
+          console.log("Данне получены: ", tranById.id);
+        }
+        const { data, error } = await supabase
+          .from("transactions")
+          .update({
+            ...tranData,
+            date: {
+              day: tranData.date.day,
+              month: tranData.date.month,
+              year: tranData.date.year,
+              hour: tranData.date.hour,
+              minute: tranData.date.minute,
+              weekDay: tranData.date.weekDay,
+            },
+          })
+          .eq("id", id);
 
         if (error) {
           console.log(error.message);
@@ -78,5 +115,6 @@ export const supabaseApi = createApi({
 export const {
   useUpdateCompanyMutation,
   useUpdateAccountMutation,
+  useUpdateTransactionMutation,
   useUpdateAmountAccountMutation,
 } = supabaseApi;

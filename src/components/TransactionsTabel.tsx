@@ -3,7 +3,7 @@ import { ITransactions } from "../types/types";
 import cashIcon from "../assets/cash-icon.gif";
 import { useCapitalize } from "../hooks/useCapitalize";
 import { useAppDispatch } from "../hooks/useReduxTypedHooks";
-import { setTransactionAccount } from "../redux/slices/StateAndData";
+import { openModal, setTransactionId } from "../redux/slices/StateAndData";
 
 const TransactionsTabel = () => {
   const {
@@ -13,6 +13,10 @@ const TransactionsTabel = () => {
   } = useGetSumQuery("transactions");
   const { toLowerCase, toUpperCase } = useCapitalize();
   const dispatch = useAppDispatch();
+  const editTable = (id: string) => {
+    dispatch(setTransactionId(id));
+    dispatch(openModal(["income", true]));
+  };
   return (
     <article className="">
       {isFetching ? (
@@ -39,9 +43,7 @@ const TransactionsTabel = () => {
                 <tr
                   className="border-b"
                   key={transaction.id}
-                  onClick={() =>
-                    dispatch(setTransactionAccount(transaction.account))
-                  }
+                  onClick={() => editTable(transaction.id)}
                 >
                   <td className="p-2">
                     <input type="checkbox" className="h-5 w-5" />

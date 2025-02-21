@@ -3,6 +3,7 @@ import {
   isIncomeButtonClicked,
   openModal,
   setTransactionAccount,
+  setTransactionId,
 } from "../../redux/slices/StateAndData";
 import SwitchModal from "./SwitchModal";
 import closeIcon from "../../assets/closeIcon.svg";
@@ -11,20 +12,25 @@ import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import {
   useGetAccountQuery,
   useGetSingleDataTransactionsQuery,
+  useGetSumQuery,
   useInsertTransactionMutation,
 } from "../../api/rtk-query/insertToDataBase";
 import { Inputs, ITransactions } from "../../types/types";
 
 import TimePicker from "react-multi-date-picker/plugins/time_picker";
 import DatePicker from "react-multi-date-picker";
+import { useUpdateTransactionMutation } from "../../api/rtk-query/updateData";
 const IncomeModal = () => {
   const { data: accounts } = useGetAccountQuery("accounts");
+  const { data: transactions } = useGetSumQuery("transactions");
   const { data: uniqueData } =
     useGetSingleDataTransactionsQuery("get_unique_data");
   const [insertTransaction] = useInsertTransactionMutation();
+  const [updateTransaction] = useUpdateTransactionMutation();
   const incomeButtonState = useAppSelector(
     (state) => state.stateAndData.incomeButton
   );
+  const tranId = useAppSelector((state) => state.stateAndData.transactionId);
   const dispatch = useAppDispatch();
   const {
     register,
@@ -32,12 +38,19 @@ const IncomeModal = () => {
     formState: { errors },
     control,
     reset,
+    setValue,
   } = useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     try {
-      await insertTransaction(["transactions", data]).unwrap();
+      if (tranId) {
+        await updateTransaction([data, tranId]);
+      } else {
+        await insertTransaction(["transactions", data]).unwrap();
+      }
+
       dispatch(isIncomeButtonClicked(!incomeButtonState));
       dispatch(setTransactionAccount(data.account));
+      dispatch(setTransactionId(""));
       dispatch(openModal(["income", false]));
       reset();
     } catch (err) {
@@ -45,7 +58,14 @@ const IncomeModal = () => {
       throw new Error(`Error to sending data to DataBase`);
     }
   };
+  const tranData = tranId
+    ? transactions && transactions.find((elem) => elem.id === tranId)
+    : "no data";
 
+  setValue("account", tranData && tranData.account);
+  setValue("amount", tranData && tranData.amount);
+  setValue("category", tranData && tranData.category);
+  setValue("counterParty", tranData && tranData.counterParty);
   return (
     <SwitchModal
       modalID="income"
