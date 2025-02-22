@@ -14,42 +14,92 @@ import {
   useGetSingleDataTransactionsQuery,
   useGetSumQuery,
   useInsertTransactionMutation,
+  useLazyGetAccountQuery,
+  useLazyGetTransactionsQuery,
 } from "../../api/rtk-query/insertToDataBase";
 import { Inputs, ITransactions } from "../../types/types";
 
 import TimePicker from "react-multi-date-picker/plugins/time_picker";
 import DatePicker from "react-multi-date-picker";
-import { useUpdateTransactionMutation } from "../../api/rtk-query/updateData";
+import {
+  useUpdateAmountAccountMutation,
+  useUpdateTransactionMutation,
+} from "../../api/rtk-query/updateData";
 const IncomeModal = () => {
-  const { data: accounts } = useGetAccountQuery("accounts");
-  const { data: transactions } = useGetSumQuery("transactions");
+  const { data: accounts, refetch: accountRefetch } =
+    useGetAccountQuery("accounts");
+  const { data: transactions, refetch: tranRefetch } =
+    useGetSumQuery("transactions");
   const { data: uniqueData } =
     useGetSingleDataTransactionsQuery("get_unique_data");
   const [insertTransaction] = useInsertTransactionMutation();
   const [updateTransaction] = useUpdateTransactionMutation();
+  const [getTransactions] = useLazyGetTransactionsQuery();
+  const [getAccount] = useLazyGetAccountQuery();
+  const [updateAmountAccount] = useUpdateAmountAccountMutation();
   const incomeButtonState = useAppSelector(
     (state) => state.stateAndData.incomeButton
   );
+
   const tranId = useAppSelector((state) => state.stateAndData.transactionId);
   const dispatch = useAppDispatch();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    control,
-    reset,
-    setValue,
-  } = useForm<Inputs>();
+  const { register, handleSubmit, control, reset, setValue } =
+    useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     try {
+      const updateAccount = async () => {
+        const { data: tranData } = await getTransactions();
+        const { data: accData } = await getAccount("accounts");
+        if (!tranData || tranData.length === 0) {
+          console.error("❌ Ошибка: данные транзакций пустые!");
+          return;
+        }
+        if (!accData || accData.length === 0) {
+          console.error("❌ Ошибка: данные аккаунтов пустые!");
+          return;
+        }
+        console.log("accData: ", accData);
+
+        //*========================================================================
+        const tranLastData = tranData
+          ? tranData.findLast((elem) => elem.account === elem.account)
+          : null;
+
+        const account = accData
+          ? accData.find((elem) => elem.account === data.account)
+          : null;
+
+        console.log("account: ", account);
+
+        if (tranLastData) {
+          console.log("✅ Отправка данных на обновление:", tranLastData);
+          await updateAmountAccount([
+            tranLastData,
+            account,
+            tranId,
+            tranData,
+            data,
+          ]);
+        }
+        await tranRefetch();
+        accountRefetch();
+      };
+      //*===========================================================================
+      // if (tranId) {
+      //   await updateTransaction([data, tranId]);
+      //   updateAccount();
+      // } else {
+
+      // }
+      // await updateTransaction([data, tranId]);
       if (tranId) {
         await updateTransaction([data, tranId]);
-      } else {
+      }
+      if (!tranId) {
         await insertTransaction(["transactions", data]).unwrap();
       }
+      await updateAccount();
 
-      dispatch(isIncomeButtonClicked(!incomeButtonState));
-      dispatch(setTransactionAccount(data.account));
       dispatch(setTransactionId(""));
       dispatch(openModal(["income", false]));
       reset();
@@ -86,14 +136,13 @@ const IncomeModal = () => {
         autoComplete="off"
       >
         <div>
-          <span>{errors.account && errors.account.message}</span>
           <input
             type="text"
             placeholder="На счет"
             list="accounts"
             id="country"
             className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
-            {...register("account", { required: "Choose your account" })}
+            {...register("account")}
           />
           <datalist className=" bg-white w-16 p-2" id="accounts">
             {accounts &&
@@ -108,7 +157,6 @@ const IncomeModal = () => {
         </div>
 
         <div className="">
-          <span>{errors.amount && errors.amount.message}</span>
           <input
             type="text"
             placeholder="Сумма, TJS"
@@ -126,13 +174,12 @@ const IncomeModal = () => {
         </div>
 
         <div>
-          <span> {errors.category && errors.category.message}</span>
           <input
             type="text"
             list="category"
             placeholder="Категория"
             className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
-            {...register("category", { required: "Create category" })}
+            {...register("category")}
           />
           <datalist className=" bg-white w-16 p-2" id="category">
             {uniqueData &&
@@ -142,13 +189,12 @@ const IncomeModal = () => {
           </datalist>
         </div>
         <div>
-          <span>{errors.counterParty && errors.counterParty.message}</span>
           <input
             type="text"
             placeholder="Мой контрагент"
             list="counterParty"
             className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
-            {...register("counterParty", { required: "Creeate counterparty" })}
+            {...register("counterParty")}
           />
           <datalist className=" bg-white w-16 p-2" id="counterParty">
             {uniqueData &&

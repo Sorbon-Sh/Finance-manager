@@ -45,46 +45,46 @@ const AppSider = () => {
   //*==================================================================
   const [getTransactions] = useLazyGetTransactionsQuery();
 
-  useEffect(() => {
-    const send = async () => {
-      const { data: tranData } = await getTransactions();
-      const { data: accData } = await getAccount("accounts");
-      if (!tranData || tranData.length === 0) {
-        console.error("❌ Ошибка: данные транзакций пустые!");
-        return;
-      }
-      if (!accData || accData.length === 0) {
-        console.error("❌ Ошибка: данные аккаунтов пустые!");
-        return;
-      }
+  // useEffect(() => {
+  //   const send = async () => {
+  //     const { data: tranData } = await getTransactions();
+  //     const { data: accData } = await getAccount("accounts");
+  //     if (!tranData || tranData.length === 0) {
+  //       console.error("❌ Ошибка: данные транзакций пустые!");
+  //       return;
+  //     }
+  //     if (!accData || accData.length === 0) {
+  //       console.error("❌ Ошибка: данные аккаунтов пустые!");
+  //       return;
+  //     }
 
-      const tranLastData = tranData
-        ? tranData.findLast((elem) => elem.account === elem.account)
-        : null;
+  //     const tranLastData = tranData
+  //       ? tranData.findLast((elem) => elem.account === elem.account)
+  //       : null;
 
-      const account = accData.filter(
-        (name) => name.account === transactionAccount
-      );
+  //     const account = accData.filter(
+  //       (name) => name.account === transactionAccount
+  //     );
 
-      if (tranLastData) {
-        console.log("✅ Отправка данных на обновление:", tranLastData);
-        await updateAmountAccount([
-          tranLastData,
-          account,
-          transactionId,
-          tranData,
-        ]);
-      } else {
-        console.error(
-          "❌ Ошибка: не найдено подходящих данных для обновления!"
-        );
-      }
-      await tranRefetch();
-      await accountRefetch();
-    };
+  //     if (tranLastData) {
+  //       console.log("✅ Отправка данных на обновление:", tranLastData);
+  //       await updateAmountAccount([
+  //         tranLastData,
+  //         account,
+  //         transactionId,
+  //         tranData,
+  //       ]);
+  //     } else {
+  //       console.error(
+  //         "❌ Ошибка: не найдено подходящих данных для обновления!"
+  //       );
+  //     }
+  //     await tranRefetch();
+  //     await accountRefetch();
+  //   };
 
-    send();
-  }, [incomeButton]);
+  //   send();
+  // }, [incomeButton]);
 
   return (
     <aside className=" col-start-1 col-end-4 bg-[#edf4f7] rounded-tl-3xl">
