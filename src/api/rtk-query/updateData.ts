@@ -47,17 +47,17 @@ export const supabaseApi = createApi({
       queryFn: async (tranAndAcc) => {
         const [tranLastData, acc, tranId, tranData, modalData] = tranAndAcc;
 
-        // const filter = tranId
-        //   tranData.find((elem: ITransactions) => elem.id === tranId)
-        //   : null;
+        const filter =
+          tranId && tranData.find((elem: ITransactions) => elem.id === tranId);
 
-        const delta = modalData.amount - tranLastData.amount; // -20
-        const result = delta + acc.allAmount; // 150 + -20 = 130
+        const delta = tranId ? modalData.amount - filter.amount : null; // -20
+        const result = tranId ? delta + acc.allAmount : null; // -20 + 150  = 130
+        console.log("result Delta: ", result);
 
         const { data, error } = await supabase
           .from("accounts")
           .update({
-            allAmount: tranId ? result : tranLastData.amount + acc.allAmount,
+            allAmount: tranId ? result : acc.allAmount + tranLastData.amount,
           })
           .eq("id", acc.id);
 

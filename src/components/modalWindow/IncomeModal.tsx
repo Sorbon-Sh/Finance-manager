@@ -97,6 +97,8 @@ const IncomeModal = () => {
       }
 
       dispatch(setTransactionId(""));
+      console.log("tranId Пустой?: ", tranId);
+
       dispatch(openModal(["income", false]));
       reset();
     } catch (err) {
