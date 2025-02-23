@@ -47,58 +47,17 @@ export const supabaseApi = createApi({
       queryFn: async (tranAndAcc) => {
         const [tranLastData, acc, tranId, tranData, modalData] = tranAndAcc;
 
-        const filter = tranId
-          ? tranData.find((elem: ITransactions) => elem.id === tranId)
-          : null;
-        console.log("tranLastData: ", tranLastData);
-        console.log("acc: ", acc);
-        console.log("tranId: ", tranId);
-        console.log("tranData: ", tranData);
-        console.log("modalData: ", modalData);
+        // const filter = tranId
+        //   tranData.find((elem: ITransactions) => elem.id === tranId)
+        //   : null;
 
-        // console.log("filter: ", filter);
-
-        // if (!tranLastData || !acc || !tranId || !tranData || modalData) {
-        //   console.error(
-        //     "❌ Ошибка: Некорректные данные!",
-        //     "tranLastData: ",
-        //     tranLastData.amount
-        //   );
-        //   console.error(
-        //     "❌ Ошибка: Некорректные данные!",
-        //     "acc: ",
-        //     acc.allAmount
-        //   );
-        //   console.error("❌ Ошибка: Некорректные данные!", "tranId: ", tranId);
-        //   console.error(
-        //     "❌ Ошибка: Некорректные данные!",
-        //     "tranData: ",
-        //     tranData
-        //   );
-        //   console.error(
-        //     "❌ Ошибка: Некорректные данные!",
-        //     "modalData: ",
-        //     modalData
-        //   );
-        //   const result = tranLastData.amount + acc.allAmount;
-        //   console.log("result:", result);
-        //   throw new Error("Некорректные данные для обновления!");
-        // } else {
-        //   console.log("Данне получены: ", "tranLastData: ", tranLastData);
-        //   console.log("Данне получены: ", "acc: ", acc);
-        //   console.log("Данне получены: ", "tranId: ", tranId);
-        //   console.log("Данне получены: ", "tranData: ", tranData);
-        //   console.log("Данне получены: ", "modalData: ", modalData);
-        // }
+        const delta = modalData.amount - tranLastData.amount; // -20
+        const result = delta + acc.allAmount; // 150 + -20 = 130
 
         const { data, error } = await supabase
           .from("accounts")
           .update({
-            allAmount: !tranId
-              ? tranLastData.amount + acc.allAmount
-              : modalData.amount < acc.allAmount
-              ? acc.allAmount + tranLastData.amount
-              : modalData.amount + acc.allAmount,
+            allAmount: tranId ? result : tranLastData.amount + acc.allAmount,
           })
           .eq("id", acc.id);
 

@@ -58,18 +58,18 @@ const IncomeModal = () => {
           console.error("❌ Ошибка: данные аккаунтов пустые!");
           return;
         }
-        console.log("accData: ", accData);
+        console.log("Modal Data Amount: ", data.amount);
 
         //*========================================================================
         const tranLastData = tranData
           ? tranData.findLast((elem) => elem.account === elem.account)
           : null;
-
+        console.log("Последние данные массива: ", tranLastData);
         const account = accData
           ? accData.find((elem) => elem.account === data.account)
           : null;
 
-        console.log("account: ", account);
+        console.log("Аккаунт по названию: ", account);
 
         if (tranLastData) {
           console.log("✅ Отправка данных на обновление:", tranLastData);
@@ -81,24 +81,20 @@ const IncomeModal = () => {
             data,
           ]);
         }
-        await tranRefetch();
-        accountRefetch();
+        await accountRefetch();
+        tranRefetch();
       };
       //*===========================================================================
-      // if (tranId) {
-      //   await updateTransaction([data, tranId]);
-      //   updateAccount();
-      // } else {
 
-      // }
-      // await updateTransaction([data, tranId]);
       if (tranId) {
+        //* Обработаывать страные данные журнала и отправить их в accounts перед изменить их в transactions
+        await updateAccount();
         await updateTransaction([data, tranId]);
       }
       if (!tranId) {
         await insertTransaction(["transactions", data]).unwrap();
+        updateAccount();
       }
-      await updateAccount();
 
       dispatch(setTransactionId(""));
       dispatch(openModal(["income", false]));
