@@ -7,19 +7,20 @@ import cashIcon from "../assets/cash-icon.gif";
 import { useCapitalize } from "../hooks/useCapitalize";
 import { useAppDispatch } from "../hooks/useReduxTypedHooks";
 import { openModal, setTransactionId } from "../redux/slices/StateAndData";
-import deleteTransaction from "../api/rtk-query/deleteData";
+import { useDeleteTransactionMutation } from "../api/rtk-query/deleteData";
 import { useState } from "react";
 
 const TransactionsTabel = () => {
-  const [isId, setIsId] = useState<string>("");
+  const [isId, setIsId] = useState<string[]>([]);
   const [count, setCount] = useState<number>(0);
   const {
     data: transactions,
     isFetching,
     isSuccess,
   } = useGetSumQuery("transactions");
-  const account = useGetAccountQuery("accounts");
+  // const account = useGetAccountQuery("accounts");
   const { toLowerCase, toUpperCase } = useCapitalize();
+  const [deleteTransaction] = useDeleteTransactionMutation();
   const dispatch = useAppDispatch();
   const editTable = (id: string) => {
     dispatch(setTransactionId(id));
@@ -28,9 +29,20 @@ const TransactionsTabel = () => {
 
   const onCheckRow = (event, id: string) => {
     event.stopPropagation();
+    setIsId((prev) => {
+      const newState = prev.includes(id)
+        ? prev.filter((elem) => elem !== id)
+        : [...prev, id];
+      return newState;
+    });
     setCount((prev) => (event.target.checked ? prev + 1 : prev - 1));
     console.log("Row is checked!", "id: ", id);
     console.log("Count: ", count);
+    console.log("Ids: ", isId);
+  };
+
+  const deleteTran = () => {
+    deleteTransaction(isId);
   };
 
   return (
@@ -43,12 +55,13 @@ const TransactionsTabel = () => {
         <section>
           <div>
             {count !== 0 && (
-              <div
-                onClick={() => deleteTransaction(isId)}
-                className="bg-green-300 p-2 font-bold"
-              >
-                {count <= 1 && <span>Изменить,</span>}
-                <span>Удалить, </span>
+              <div className="bg-green-300 p-2 font-bold">
+                {count <= 1 && (
+                  <span onClick={() => dispatch(openModal(["income", true]))}>
+                    Изменить,
+                  </span>
+                )}
+                <span onClick={() => deleteTran()}>Удалить, </span>
                 <span>Выбрано {count},</span>
               </div>
             )}

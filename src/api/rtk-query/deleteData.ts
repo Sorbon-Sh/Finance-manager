@@ -1,16 +1,27 @@
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import supabase from "../supabaseClient";
 
-const deleteTransaction = async (id: string) => {
-  const { error } = await supabase
-    .from("transactions") // Укажи свою таблицу
-    .delete()
-    .eq("id", id); // Фильтр по `id`
+export const supabaseApi = createApi({
+  reducerPath: "supabaseApi",
+  baseQuery: fetchBaseQuery({}),
+  endpoints: (builder) => ({
+    deleteTransaction: builder.mutation({
+      queryFn: async (ids) => {
+        console.log("deleteTransaction ids: ", ids);
 
-  if (error) {
-    console.error("Ошибка удаления:", error.message);
-  } else {
-    console.log("Запись удалена");
-  }
-};
+        const { data, error } = await supabase
+          .from("transactions")
+          .delete()
+          .in("id", ids);
+        if (error) {
+          console.log(error.message);
+          throw new Error(error.message);
+        }
 
-export default deleteTransaction;
+        return { data: data || [] };
+      },
+    }),
+  }),
+});
+
+export const { useDeleteTransactionMutation } = supabaseApi;
