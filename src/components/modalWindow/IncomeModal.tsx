@@ -46,6 +46,7 @@ const IncomeModal = () => {
   const { register, handleSubmit, control, reset, setValue } =
     useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    dispatch(openModal(["income", false]));
     try {
       const updateAccount = async () => {
         const { data: tranData } = await getTransactions();
@@ -81,8 +82,6 @@ const IncomeModal = () => {
             data,
           ]);
         }
-        await accountRefetch();
-        tranRefetch();
       };
       //*===========================================================================
 
@@ -96,10 +95,10 @@ const IncomeModal = () => {
         updateAccount();
       }
 
+      await accountRefetch();
+      tranRefetch();
       dispatch(setTransactionId(""));
       console.log("tranId Пустой?: ", tranId);
-
-      dispatch(openModal(["income", false]));
       reset();
     } catch (err) {
       console.log("Error", err);

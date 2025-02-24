@@ -1,4 +1,7 @@
-import { useGetSumQuery } from "../api/rtk-query/insertToDataBase";
+import {
+  useGetAccountQuery,
+  useGetSumQuery,
+} from "../api/rtk-query/insertToDataBase";
 import { ITransactions } from "../types/types";
 import cashIcon from "../assets/cash-icon.gif";
 import { useCapitalize } from "../hooks/useCapitalize";
@@ -11,12 +14,14 @@ const TransactionsTabel = () => {
     isFetching,
     isSuccess,
   } = useGetSumQuery("transactions");
+  const account = useGetAccountQuery("accounts");
   const { toLowerCase, toUpperCase } = useCapitalize();
   const dispatch = useAppDispatch();
   const editTable = (id: string) => {
     dispatch(setTransactionId(id));
     dispatch(openModal(["income", true]));
   };
+
   return (
     <article className="">
       {isFetching ? (

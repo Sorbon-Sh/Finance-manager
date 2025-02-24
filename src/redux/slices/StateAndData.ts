@@ -4,6 +4,7 @@ type IData = Record<string, unknown>;
 
 const initialState: IData = {
   accountId: "",
+  choosedAccount: [],
   transationAccount: "",
   transactionId: "",
   incomeButton: false,
@@ -38,6 +39,9 @@ export const modalState = createSlice({
     setTransactionId: (state, action: PayloadAction<string>) => {
       state.transactionId = action.payload;
     },
+    choosedAccount: (state, action: PayloadAction<string[]>) => {
+      state.choosedAccount = action.payload;
+    },
   },
 });
 
@@ -47,6 +51,7 @@ export const {
   setTransactionId,
   setTransactionAccount,
   isIncomeButtonClicked,
+  choosedAccount,
 } = modalState.actions;
 
 export default modalState.reducer;

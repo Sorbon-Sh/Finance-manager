@@ -51,13 +51,17 @@ export const supabaseApi = createApi({
           tranId && tranData.find((elem: ITransactions) => elem.id === tranId);
 
         const delta = tranId ? modalData.amount - filter.amount : null; // -20
-        const result = tranId ? delta + acc.allAmount : null; // -20 + 150  = 130
-        console.log("result Delta: ", result);
+        const deltaResult = tranId ? delta + acc.allAmount : null; // -20 + 150  = 130
+        console.log("result Delta: ", deltaResult);
 
+        const result = tranId
+          ? deltaResult
+          : acc.allAmount + tranLastData.amount;
+        console.log("result: ", result);
         const { data, error } = await supabase
           .from("accounts")
           .update({
-            allAmount: tranId ? result : acc.allAmount + tranLastData.amount,
+            allAmount: result,
           })
           .eq("id", acc.id);
 

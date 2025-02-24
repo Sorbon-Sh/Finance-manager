@@ -2,89 +2,26 @@ import { createPortal } from "react-dom";
 import {
   useGetAccountQuery,
   useGetCompanyDataQuery,
-  useGetSumQuery,
-  useLazyGetAccountQuery,
-  useLazyGetTransactionsQuery,
 } from "../../api/rtk-query/insertToDataBase";
 import editAccount from "../../assets/edit-account.svg";
 import plus from "../../assets/plus-gray.svg";
 import Button from "../buttons/Button";
 import CreateAccount from "../modalWindow/CreateAccount";
-import { useAppDispatch, useAppSelector } from "../../hooks/useReduxTypedHooks";
+import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
 import { openModal } from "../../redux/slices/StateAndData";
 import { IAccounts } from "../../types/types";
 import EditAccount from "../modalWindow/EditAccount";
-import { useEffect, useState } from "react";
-import { useUpdateAmountAccountMutation } from "../../api/rtk-query/updateData";
+import { useState } from "react";
 
 const AppSider = () => {
+  //* Хук useState обновляется Асинхронно
   const { data: company } = useGetCompanyDataQuery("company");
   const [clicked, setClicked] = useState<string>();
-  const {
-    data: accountsData,
-    isSuccess,
-    refetch: accountRefetch,
-  } = useGetAccountQuery("accounts");
-  const [getAccount] = useLazyGetAccountQuery();
-  const { refetch: tranRefetch } = useGetSumQuery("transactions");
+  const { data: accountsData, isSuccess } = useGetAccountQuery("accounts");
   const dispatch = useAppDispatch();
-  const [updateAmountAccount] = useUpdateAmountAccountMutation();
-  const incomeButton = useAppSelector(
-    (state) => state.stateAndData.incomeButton
-  );
-  const transactionAccount = useAppSelector(
-    (state) => state.stateAndData.transactionAccount
-  );
-
-  const selectAccount = (id: string) => {
-    setClicked(id);
+  const handleClickAccount = (account: string) => {
+    setClicked(account);
   };
-  const transactionId = useAppSelector(
-    (state) => state.stateAndData.transactionId
-  );
-  //*==================================================================
-  const [getTransactions] = useLazyGetTransactionsQuery();
-
-  // useEffect(() => {
-  //   const send = async () => {
-  //     const { data: tranData } = await getTransactions();
-  //     const { data: accData } = await getAccount("accounts");
-  //     if (!tranData || tranData.length === 0) {
-  //       console.error("❌ Ошибка: данные транзакций пустые!");
-  //       return;
-  //     }
-  //     if (!accData || accData.length === 0) {
-  //       console.error("❌ Ошибка: данные аккаунтов пустые!");
-  //       return;
-  //     }
-
-  //     const tranLastData = tranData
-  //       ? tranData.findLast((elem) => elem.account === elem.account)
-  //       : null;
-
-  //     const account = accData.filter(
-  //       (name) => name.account === transactionAccount
-  //     );
-
-  //     if (tranLastData) {
-  //       console.log("✅ Отправка данных на обновление:", tranLastData);
-  //       await updateAmountAccount([
-  //         tranLastData,
-  //         account,
-  //         transactionId,
-  //         tranData,
-  //       ]);
-  //     } else {
-  //       console.error(
-  //         "❌ Ошибка: не найдено подходящих данных для обновления!"
-  //       );
-  //     }
-  //     await tranRefetch();
-  //     await accountRefetch();
-  //   };
-
-  //   send();
-  // }, [incomeButton]);
 
   return (
     <aside className=" col-start-1 col-end-4 bg-[#edf4f7] rounded-tl-3xl">
@@ -122,7 +59,7 @@ const AppSider = () => {
                         clicked === account.id &&
                         "border-l-2 border-l-green-400"
                       }`}
-                      onClick={() => selectAccount(account.id)}
+                      onClick={() => handleClickAccount(account.account)}
                     >
                       <span>{account.account}</span>
                       <span>
