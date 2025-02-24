@@ -1,23 +1,22 @@
 import { ReactNode } from "react";
-import { useAppDispatch, useAppSelector } from "../../hooks/useReduxTypedHooks";
-import { openModal } from "../../redux/slices/StateAndData";
+import { useAppSelector } from "../../hooks/useReduxTypedHooks";
 
 interface IProps {
   children: ReactNode;
   modalID: string;
   className: string;
+  handleClick?: () => void;
 }
 
-const SwitchModal = ({ children, modalID, className }: IProps) => {
+const SwitchModal = ({ children, modalID, className, handleClick }: IProps) => {
   const isOpen = useAppSelector((state) => state.stateAndData);
-  const dispatch = useAppDispatch();
 
   return (
     <div
       className={`grid place-content-center h-screen bg-black/40 fixed top-0 left-0 w-full ${
         !isOpen[modalID] && "hidden"
       }`}
-      onClick={() => dispatch(openModal([modalID, false]))}
+      onClick={handleClick}
     >
       <div className={className} onClick={(event) => event.stopPropagation()}>
         {children}

@@ -1,10 +1,5 @@
 import { useAppDispatch, useAppSelector } from "../../hooks/useReduxTypedHooks";
-import {
-  isIncomeButtonClicked,
-  openModal,
-  setTransactionAccount,
-  setTransactionId,
-} from "../../redux/slices/StateAndData";
+import { openModal, setTransactionId } from "../../redux/slices/StateAndData";
 import SwitchModal from "./SwitchModal";
 import closeIcon from "../../assets/closeIcon.svg";
 import history from "../../assets/history.svg";
@@ -37,10 +32,6 @@ const IncomeModal = () => {
   const [getTransactions] = useLazyGetTransactionsQuery();
   const [getAccount] = useLazyGetAccountQuery();
   const [updateAmountAccount] = useUpdateAmountAccountMutation();
-  const incomeButtonState = useAppSelector(
-    (state) => state.stateAndData.incomeButton
-  );
-
   const tranId = useAppSelector((state) => state.stateAndData.transactionId);
   const dispatch = useAppDispatch();
   const { register, handleSubmit, control, reset, setValue } =
@@ -90,6 +81,7 @@ const IncomeModal = () => {
         await updateAccount();
         await updateTransaction([data, tranId]);
       }
+      //* Суммировать последние  данные если не редактируем транзакции
       if (!tranId) {
         await insertTransaction(["transactions", data]).unwrap();
         updateAccount();
@@ -113,17 +105,21 @@ const IncomeModal = () => {
   setValue("amount", tranData && tranData.amount);
   setValue("category", tranData && tranData.category);
   setValue("counterParty", tranData && tranData.counterParty);
+
+  const onClose = () => {
+    dispatch(openModal(["income", false]));
+    dispatch(setTransactionId(""));
+  };
+
   return (
     <SwitchModal
+      handleClick={onClose}
       modalID="income"
       className="bg-white rounded-4xl h-[535px] w-[480px]  overflow-y-scroll pt-6 pb-6  px-8 min-w-md"
     >
       <div className="flex justify-between items-center mb-4 ">
         <h2 className="text-3xl font-bold">Новый доход</h2>
-        <button
-          className="cursor-pointer"
-          onClick={() => dispatch(openModal(["income", false]))}
-        >
+        <button className="cursor-pointer" onClick={onClose}>
           <img src={closeIcon} />
         </button>
       </div>
