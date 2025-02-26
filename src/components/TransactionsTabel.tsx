@@ -9,6 +9,7 @@ import { useAppDispatch } from "../hooks/useReduxTypedHooks";
 import { openModal, setTransactionId } from "../redux/slices/StateAndData";
 import { useDeleteTransactionMutation } from "../api/rtk-query/deleteData";
 import { useState } from "react";
+import GridExample from "./AgGrids";
 
 const TransactionsTabel = () => {
   const [isId, setIsId] = useState<string[]>([]);
@@ -16,9 +17,11 @@ const TransactionsTabel = () => {
   const {
     data: transactions,
     isFetching,
-    isSuccess,
+    isSuccess: tranisSuccess,
+    refetch: tranRefetch,
   } = useGetSumQuery("transactions");
-  // const account = useGetAccountQuery("accounts");
+  const { refetch: accountRefetch, isSuccess: accountisSuccess } =
+    useGetAccountQuery("accounts");
   const { toLowerCase, toUpperCase } = useCapitalize();
   const [deleteTransaction] = useDeleteTransactionMutation();
   const dispatch = useAppDispatch();
@@ -45,24 +48,36 @@ const TransactionsTabel = () => {
     deleteTransaction(isId);
   };
 
+  const refetchData = async () => {
+    await tranRefetch();
+    accountRefetch();
+  };
+
   return (
     <article className="">
-      {isFetching ? (
+      {/* {isFetching ? (
         <img src={cashIcon} className="mx-auto" />
-      ) : !isSuccess ? (
-        <div>{"Ошибка запроса"}</div>
+      ) : !tranisSuccess || !accountisSuccess ? (
+        <div className="grid place-content-center">
+          <span>Ошибка запроса</span>
+          <div onClick={() => refetchData()} className="bg-green-400">
+            Повторите попытку
+          </div>
+        </div>
       ) : (
         <section>
           <div>
             {count !== 0 && (
-              <div className="bg-green-300 p-2 font-bold">
-                {count <= 1 && (
-                  <span onClick={() => dispatch(openModal(["income", true]))}>
-                    Изменить,
-                  </span>
-                )}
-                <span onClick={() => deleteTran()}>Удалить, </span>
-                <span>Выбрано {count},</span>
+              <div className="bg-[#00b28e] py-2 font-bold text-xs text-white flex justify-between">
+                <div>
+                  {count <= 1 && (
+                    <span onClick={() => dispatch(openModal(["income", true]))}>
+                      Изменить данные,
+                    </span>
+                  )}
+                  <span onClick={() => deleteTran()}>Удалить, </span>
+                </div>
+                <span>Доход * {count}платежа * Сумма, валюта</span>
               </div>
             )}
           </div>
@@ -72,7 +87,22 @@ const TransactionsTabel = () => {
                 <th className="p-2 text-left">
                   <input type="checkbox" className="h-5 w-5" />
                 </th>
-                <th className="p-2 text-left">Дата</th>
+                <th className="p-2 text-left">
+                  {count !== 0 ? (
+                    <div onClick={() => deleteTran()}>
+                      <span>Удалить,</span>
+                      {count <= 1 && (
+                        <span
+                          onClick={() => dispatch(openModal(["income", true]))}
+                        >
+                          Изменить данные,
+                        </span>
+                      )}
+                    </div>
+                  ) : (
+                    <span>Дата</span>
+                  )}
+                </th>
                 <th className="p-2 text-left">Сумма</th>
                 <th className="p-2 text-left">Счет</th>
                 <th className="p-2 text-left">Контрагент</th>
@@ -121,7 +151,8 @@ const TransactionsTabel = () => {
             </tbody>
           </table>
         </section>
-      )}
+      )} */}
+      <GridExample />
     </article>
   );
 };

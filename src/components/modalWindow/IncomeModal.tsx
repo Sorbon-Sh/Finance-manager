@@ -2,7 +2,6 @@ import { useAppDispatch, useAppSelector } from "../../hooks/useReduxTypedHooks";
 import { openModal, setTransactionId } from "../../redux/slices/StateAndData";
 import SwitchModal from "./SwitchModal";
 import closeIcon from "../../assets/closeIcon.svg";
-import history from "../../assets/history.svg";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import {
   useGetAccountQuery,
@@ -42,14 +41,13 @@ const IncomeModal = () => {
       const updateAccount = async () => {
         const { data: tranData } = await getTransactions();
         const { data: accData } = await getAccount("accounts");
-        if (!tranData || tranData.length === 0) {
+        //* Для дебага
+        if (!tranData || tranData.length === 0)
           console.error("❌ Ошибка: данные транзакций пустые!");
-          return;
-        }
-        if (!accData || accData.length === 0) {
+        //* Для дебага
+        if (!accData || accData.length === 0)
           console.error("❌ Ошибка: данные аккаунтов пустые!");
-          return;
-        }
+
         console.log("Modal Data Amount: ", data.amount);
 
         //*========================================================================
@@ -82,13 +80,13 @@ const IncomeModal = () => {
         await updateTransaction([data, tranId]);
       }
       //* Суммировать последние  данные если не редактируем транзакции
+      //*
       if (!tranId) {
         await insertTransaction(["transactions", data]).unwrap();
-        updateAccount();
+        await updateAccount();
       }
-
-      await accountRefetch();
       tranRefetch();
+      accountRefetch();
       dispatch(setTransactionId(""));
       console.log("tranId Пустой?: ", tranId);
       reset();
@@ -115,7 +113,7 @@ const IncomeModal = () => {
     <SwitchModal
       handleClick={onClose}
       modalID="income"
-      className="bg-white rounded-4xl h-[535px] w-[480px]  overflow-y-scroll pt-6 pb-6  px-8 min-w-md"
+      className="bg-white rounded-4xl h-[535px] w-[480px]   pt-6 pb-6  px-8 min-w-md"
     >
       <div className="flex justify-between items-center mb-4 ">
         <h2 className="text-3xl font-bold">Новый доход</h2>
@@ -194,6 +192,7 @@ const IncomeModal = () => {
               uniqueData.map((unique: ITransactions) => (
                 <option
                   value={unique.counterParty}
+                  key={unique.counterParty}
                   className="bg-green-300 p-1"
                 />
               ))}
@@ -236,14 +235,6 @@ const IncomeModal = () => {
           Добавить доход
         </button>
       </form>
-      <div className="bg-gray-100 p-4 rounded-lg flex items-center justify-between">
-        <div className="flex gap-x-2">
-          <img src={history} alt="" />
-          <p className="text-sm font-medium">Сделать повторяющим</p>
-          <p className="text-sm font-medium text-red-500">Под вопросом!</p>
-        </div>
-        <i className="far fa-calendar-alt text-gray-500"></i>
-      </div>
     </SwitchModal>
   );
 };

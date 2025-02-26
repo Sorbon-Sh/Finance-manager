@@ -23,26 +23,5 @@ export const useGetAccountsAmount = () => {
     }
   };
 
-  // const accountAmountSliced = (
-  //   accounts: IAccounts[] | undefined,
-  //   amounts: AccountAmountOnly[] | undefined
-  // ) => {
-  //   if (accounts && amounts) {
-  //     const result = [];
-  //     for (const account of accounts) {
-  //       for (const amount of amounts) {
-  //         if (account.id === amount.id) {
-  //           result.push({
-  //             id: account.id,
-  //             account: account.account,
-  //             amount: amount.allAmount,
-  //           });
-  //         }
-  //       }
-  //     }
-
-  //     return result;
-  //   }
-  // };
   return { allAmount };
 };

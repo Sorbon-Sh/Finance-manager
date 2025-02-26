@@ -4,6 +4,7 @@ import {
   useGetCompanyDataQuery,
 } from "../../api/rtk-query/insertToDataBase";
 import editAccount from "../../assets/edit-account.svg";
+import plusAccount from "../../assets/plus-account.svg";
 import plus from "../../assets/plus-gray.svg";
 import Button from "../buttons/Button";
 import CreateAccount from "../modalWindow/CreateAccount";
@@ -41,7 +42,12 @@ const AppSider = () => {
           <ul className="[&>*]:flex [&>*]:justify-between mt-[18px] ">
             <li className="mb-6 font-bold text-sm">
               <div>Мои счета</div>
-              <div>
+              <div className="flex gap-x-2">
+                <img
+                  src={plusAccount}
+                  className="cursor-pointer"
+                  onClick={() => dispatch(openModal(["createAccount", true]))}
+                />
                 <img
                   src={editAccount}
                   className="cursor-pointer"
