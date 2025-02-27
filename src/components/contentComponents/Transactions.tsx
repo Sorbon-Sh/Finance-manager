@@ -1,9 +1,9 @@
-import GridExample from "../AgGrids";
+import TransactionsTable from "../TransactionsTabel";
 
 const Transactions = () => {
   return (
     <section>
-      <GridExample />
+      <TransactionsTable />
     </section>
   );
 };

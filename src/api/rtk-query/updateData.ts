@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import supabase from "../supabaseClient";
-import { ITransactions } from "../../types/types";
+import { IAccounts, ITransactions } from "../../types/types";
 
 export const supabaseApi = createApi({
   reducerPath: "supabaseApi",
@@ -45,34 +45,87 @@ export const supabaseApi = createApi({
     }),
     updateAmountAccount: builder.mutation({
       queryFn: async (tranAndAcc) => {
-        const [tranLastData, acc, tranId, tranData, modalData] = tranAndAcc;
+        const [tranLastData, accData, tranId, tranData, modalData] = tranAndAcc;
 
-        const filter =
-          tranId && tranData.find((elem: ITransactions) => elem.id === tranId);
+        if (!accData) return { error: "Account data is missing" };
 
-        const delta = tranId ? modalData.amount - filter.amount : null; // -20
-        const deltaResult = tranId ? delta + acc.allAmount : null; // -20 + 150  = 130
-        console.log("result Delta: ", deltaResult);
+        //* Текущая транзакция (если это редактирование)
+        const oldTransaction = tranId
+          ? tranData.find((t: ITransactions) => t.id === tranId)
+          : null;
 
-        const result = tranId
-          ? deltaResult
-          : acc.allAmount + tranLastData.amount;
-        console.log("result: ", result);
-        const { data, error } = await supabase
-          .from("accounts")
-          .update({
-            allAmount: result,
-          })
-          .eq("id", acc.id);
+        //* Определяем старый и новый аккаунты
+        const oldAccount = oldTransaction
+          ? accData.find((a: IAccounts) => a.account === oldTransaction.account)
+          : null;
+        const newAccount = accData.find(
+          (a: IAccounts) => a.account === modalData.account
+        );
 
-        if (error) {
-          console.log(error.message);
-          throw new Error(error.message);
+        if (!newAccount) return { error: "New account not found" };
+
+        //* Флаг, поменялся ли аккаунт
+        const isAccountChanged =
+          oldTransaction && oldTransaction.account !== modalData.account;
+
+        const updates = [];
+
+        //* Если транзакция существовала (редактирование)
+        if (oldTransaction) {
+          const delta = modalData.amount - oldTransaction.amount; //* Разница между новой и старой суммой
+
+          //! Для разных сценариев лучше делать для них отдельные запросы изменение данных
+          //* Назавём это условия выполнение запроса
+          if (isAccountChanged && oldAccount) {
+            //* 1. Вычитаем сумму из старого аккаунта
+            updates.push(
+              supabase
+                .from("accounts")
+                .update({
+                  allAmount: oldAccount.allAmount - oldTransaction.amount,
+                })
+                .eq("id", oldAccount.id)
+            );
+
+            //* 2. Добавляем сумму в новый аккаунт
+            updates.push(
+              supabase
+                .from("accounts")
+                .update({ allAmount: newAccount.allAmount + modalData.amount })
+                .eq("id", newAccount.id)
+            );
+          } else {
+            //* Если аккаунт не менялся, просто обновляем сумму
+            updates.push(
+              supabase
+                .from("accounts")
+                .update({ allAmount: newAccount.allAmount + delta })
+                .eq("id", newAccount.id)
+            );
+          }
+        } else {
+          //* Если это новая транзакция (добавление дохода)
+          updates.push(
+            supabase
+              .from("accounts")
+              .update({ allAmount: newAccount.allAmount + tranLastData.amount })
+              .eq("id", newAccount.id)
+          );
         }
 
-        return { data: data || [] };
+        //* Выполняем все обновления
+        const results = await Promise.all(updates);
+        const errors = results.filter((r) => r.error);
+
+        if (errors.length) {
+          console.log(errors.map((e) => e.error).join("\n"));
+          return { error: errors.map((e) => e.error).join("\n") };
+        }
+
+        return { data: "Accounts updated successfully" };
       },
     }),
+
     updateTransaction: builder.mutation({
       queryFn: async (tranById) => {
         const [tranData, id] = tranById;

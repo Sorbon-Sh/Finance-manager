@@ -55,17 +55,12 @@ const IncomeModal = () => {
           ? tranData.findLast((elem) => elem.account === elem.account)
           : null;
         console.log("Последние данные массива: ", tranLastData);
-        const account = accData
-          ? accData.find((elem) => elem.account === data.account)
-          : null;
-
-        console.log("Аккаунт по названию: ", account);
 
         if (tranLastData) {
           console.log("✅ Отправка данных на обновление:", tranLastData);
           await updateAmountAccount([
             tranLastData,
-            account,
+            accData,
             tranId,
             tranData,
             data,
@@ -175,7 +170,11 @@ const IncomeModal = () => {
           <datalist className=" bg-white w-16 p-2" id="category">
             {uniqueData &&
               uniqueData.map((unique: ITransactions) => (
-                <option value={unique.category} className="bg-green-300 p-1" />
+                <option
+                  key={unique.category}
+                  value={unique.category}
+                  className="bg-green-300 p-1"
+                />
               ))}
           </datalist>
         </div>

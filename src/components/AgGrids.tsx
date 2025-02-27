@@ -63,7 +63,14 @@ const GridExample = () => {
           : "";
       },
     },
-    { field: "amount", headerName: "Сумма" },
+    {
+      field: "amount",
+      headerName: "Сумма",
+      valueFormatter: (params) => "+" + params.value,
+      cellStyle: () => ({
+        color: "green",
+      }),
+    },
     { field: "account", headerName: "Счет" },
     { field: "counterParty", headerName: "Контрагент" },
     { field: "category", headerName: "Категория" },
@@ -72,8 +79,21 @@ const GridExample = () => {
     return {
       flex: 1,
       minWidth: 100,
+      cellClass: "cursor-pointer",
     };
   }, []);
+  const myTheme = themeQuartz.withParams({
+    wrapperBorder: false,
+    headerRowBorder: true,
+    headerFontSize: "14px",
+    headerBackgroundColor: "white",
+    headerTextColor: "gray",
+    rowBorder: { style: "solid", width: 2, color: "#e3e6e8" },
+    columnBorder: { style: "none" },
+    rowHeight: "74px",
+    rowHoverColor: "#edf4f7",
+  });
+
   const rowSelection = useMemo(() => {
     return {
       mode: "multiRow",
@@ -102,22 +122,7 @@ const GridExample = () => {
   const handleRowClick = useCallback((event) => {
     if (event.data.id) editTable(event.data.id);
   }, []);
-  const myTheme = themeQuartz.withParams({
-    wrapperBorder: false,
-    headerRowBorder: true,
-    headerFontSize: "14px",
-    headerBackgroundColor: "white",
-    headerTextColor: "gray",
-    rowBorder: { style: "solid", width: 2, color: "#e3e6e8" },
-    columnBorder: { style: "none" },
-    rowHeight: "74px",
-    rowHoverColor: "#edf4f7",
-  });
 
-  console.log(
-    "SelecAllRows: ",
-    selectRows.map((elem) => elem.id)
-  );
   const deleteTran = () => {
     const ids = selectRows.map((elem) => elem.id);
     deleteTransaction(ids);
@@ -137,7 +142,7 @@ const GridExample = () => {
     <section>
       <div style={containerStyle}>
         <div className="">
-          <div className="grid grid-cols-5 mb-7 gap-x-10  justify-between ">
+          <div className="grid grid-cols-5 mb-7 gap-x-10   justify-between ">
             <input
               type="text"
               id="filter-text-box"
@@ -153,22 +158,18 @@ const GridExample = () => {
             </button>
           </div>
           <div>
-            {selectRows.length !== 0 ? (
-              <div
-                className={`bg-[#00b28e] w-full px-5 py-2 ease-in-out transition-all duration-700 ${
-                  selectRows.length !== 0
-                    ? "max-h-20 opacity-100"
-                    : "max-h-0 opacity-0"
-                } font-bold text-[15px] text-slate-100 flex justify-between  rounded-xl`}
-              >
-                <span onClick={deleteTran}>Удалить запись,</span>
-                {selectRows.length <= 1 && <span>Изменить,</span>}
-                <span>
-                  Доход * {selectRows.length} платеж *{" "}
-                  {selectRows.reduce((acc, amount) => acc + amount.amount, 0)}
-                </span>
-              </div>
-            ) : null}
+            <div
+              className={`bg-[#00b28e] w-full px-5  ease-in-out transition-all duration-700 ${
+                selectRows.length !== 0 ? "h-9" : "h-0"
+              } font-bold text-[15px] text-slate-100 flex justify-between  items-center rounded-xl`}
+            >
+              <span onClick={deleteTran}>Удалить запись,</span>
+              {selectRows.length <= 1 && <span>Изменить,</span>}
+              <span>
+                Доход * {selectRows.length} платеж *{" "}
+                {selectRows.reduce((acc, amount) => acc + amount.amount, 0)}
+              </span>
+            </div>
           </div>
         </div>
         <div style={gridStyle}>

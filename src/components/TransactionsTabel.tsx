@@ -1,160 +1,193 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
+import { AgGridReact } from "ag-grid-react";
 import {
-  useGetAccountQuery,
-  useGetSumQuery,
-} from "../api/rtk-query/insertToDataBase";
-import { ITransactions } from "../types/types";
-import cashIcon from "../assets/cash-icon.gif";
-import { useCapitalize } from "../hooks/useCapitalize";
+  ClientSideRowModelModule,
+  ColDef,
+  GridApi,
+  GridReadyEvent,
+  ModuleRegistry,
+  RowSelectionModule,
+  themeQuartz,
+  ValidationModule,
+} from "ag-grid-community";
+import {
+  ColumnMenuModule,
+  ColumnsToolPanelModule,
+  ContextMenuModule,
+  RowGroupingModule,
+  AllEnterpriseModule,
+  ExcelExportModule,
+  QuickFilterModule,
+} from "ag-grid-enterprise";
+import { IOlympicData, ITransactions } from "../types/types";
+import { useGetSumQuery } from "../api/rtk-query/insertToDataBase";
 import { useAppDispatch } from "../hooks/useReduxTypedHooks";
 import { openModal, setTransactionId } from "../redux/slices/StateAndData";
 import { useDeleteTransactionMutation } from "../api/rtk-query/deleteData";
-import { useState } from "react";
-import GridExample from "./AgGrids";
+ModuleRegistry.registerModules([
+  RowSelectionModule,
+  ClientSideRowModelModule,
+  ColumnsToolPanelModule,
+  ColumnMenuModule,
+  ContextMenuModule,
+  AllEnterpriseModule,
+  ExcelExportModule,
+  RowGroupingModule,
+  QuickFilterModule,
+  ValidationModule /* Development Only */,
+]);
 
-const TransactionsTabel = () => {
-  const [isId, setIsId] = useState<string[]>([]);
-  const [count, setCount] = useState<number>(0);
-  const {
-    data: transactions,
-    isFetching,
-    isSuccess: tranisSuccess,
-    refetch: tranRefetch,
-  } = useGetSumQuery("transactions");
-  const { refetch: accountRefetch, isSuccess: accountisSuccess } =
-    useGetAccountQuery("accounts");
-  const { toLowerCase, toUpperCase } = useCapitalize();
-  const [deleteTransaction] = useDeleteTransactionMutation();
+const TransactionsTable = () => {
   const dispatch = useAppDispatch();
+  const gridRef = useRef(null);
+  const [deleteTransaction] = useDeleteTransactionMutation();
+  const [selectRows, setSelecRows] = useState<ITransactions[]>([]);
+  const containerStyle = useMemo(() => ({ width: "100%", height: "100%" }), []);
+  const gridStyle = useMemo(() => ({ height: "500px", width: "100%" }), []);
+  const { data: transactions } = useGetSumQuery("transactions");
+  const [gridApi, setGridApi] = useState<GridApi | null>(null);
+
+  const onGridReady = useCallback((params: GridReadyEvent) => {
+    setGridApi(params.api);
+  }, []);
+
+  const [columnDefs, setColumnDefs] = useState<ColDef[]>([
+    {
+      field: "date",
+      headerName: "Дата",
+      valueFormatter: (params) => {
+        const date = params.value;
+        return date
+          ? `${date.day}.${date.month.shortName}.${date.year} ${date.hour}:${date.minute}`
+          : "";
+      },
+    },
+    {
+      field: "amount",
+      headerName: "Сумма",
+      valueFormatter: (params) => "+" + params.value,
+      cellStyle: () => ({
+        color: "green",
+      }),
+    },
+    { field: "account", headerName: "Счет" },
+    { field: "counterParty", headerName: "Контрагент" },
+    { field: "category", headerName: "Категория" },
+  ]);
+  const defaultColDef = useMemo<ColDef>(() => {
+    return {
+      flex: 1,
+      minWidth: 100,
+      cellClass: "cursor-pointer",
+    };
+  }, []);
+  const myTheme = themeQuartz.withParams({
+    wrapperBorder: false,
+    headerRowBorder: true,
+    headerFontSize: "14px",
+    headerBackgroundColor: "white",
+    headerTextColor: "gray",
+    rowBorder: { style: "solid", width: 2, color: "#e3e6e8" },
+    columnBorder: { style: "none" },
+    rowHeight: "74px",
+    rowHoverColor: "#edf4f7",
+  });
+
+  const rowSelection = useMemo(() => {
+    return {
+      mode: "multiRow",
+    };
+  }, []);
+
+  const onSelectionChanged = useCallback(() => {
+    if (gridRef.current) {
+      const selectedData = gridRef.current.api.getSelectedRows();
+      setSelecRows(selectedData);
+      // Здесь вы можете обновить состояние или выполнить другие действия с выбранными данными
+    }
+  }, []);
+
+  useEffect(() => {
+    if (gridApi && transactions) {
+      gridApi.setGridOption("rowData", transactions);
+    }
+  }, [transactions, gridApi]);
+
   const editTable = (id: string) => {
     dispatch(setTransactionId(id));
     dispatch(openModal(["income", true]));
   };
 
-  const onCheckRow = (event, id: string) => {
-    event.stopPropagation();
-    setIsId((prev) => {
-      const newState = prev.includes(id)
-        ? prev.filter((elem) => elem !== id)
-        : [...prev, id];
-      return newState;
-    });
-    setCount((prev) => (event.target.checked ? prev + 1 : prev - 1));
-    console.log("Row is checked!", "id: ", id);
-    console.log("Count: ", count);
-    console.log("Ids: ", isId);
-  };
+  const handleRowClick = useCallback((event) => {
+    if (event.data.id) editTable(event.data.id);
+  }, []);
 
   const deleteTran = () => {
-    deleteTransaction(isId);
+    const ids = selectRows.map((elem) => elem.id);
+    deleteTransaction(ids);
   };
-
-  const refetchData = async () => {
-    await tranRefetch();
-    accountRefetch();
+  const onFilterTextBoxChanged = useCallback(() => {
+    gridRef.current!.api.setGridOption(
+      "quickFilterText",
+      (document.getElementById("filter-text-box") as HTMLInputElement).value
+    );
+  }, []);
+  const onExportClick = () => {
+    gridRef.current?.api.exportDataAsExcel({
+      fileName: "FinManager.xlsx",
+    });
   };
-
   return (
-    <article className="">
-      {/* {isFetching ? (
-        <img src={cashIcon} className="mx-auto" />
-      ) : !tranisSuccess || !accountisSuccess ? (
-        <div className="grid place-content-center">
-          <span>Ошибка запроса</span>
-          <div onClick={() => refetchData()} className="bg-green-400">
-            Повторите попытку
+    <section>
+      <div style={containerStyle}>
+        <div className="">
+          <div className="grid grid-cols-5 mb-7 gap-x-10   justify-between ">
+            <input
+              type="text"
+              id="filter-text-box"
+              onInput={onFilterTextBoxChanged}
+              placeholder="Поиск по счетам, контрагентам, категориям"
+              className="py-2 rounded-xl col-span-4  bg-[#edf4f7] ml-2 mr-9 outline-green-300 pl-4 search"
+            />
+            <button
+              onClick={onExportClick}
+              className="bg-green-600 cursor-pointer rounded-xl text-white font-medium"
+            >
+              Экспорт в Excel
+            </button>
+          </div>
+          <div>
+            <div
+              className={`bg-[#00b28e] w-full px-5  ease-in-out transition-all duration-700 ${
+                selectRows.length !== 0 ? "h-9" : "h-0"
+              } font-bold text-[15px] text-slate-100 flex justify-between  items-center rounded-xl`}
+            >
+              <span onClick={deleteTran}>Удалить запись,</span>
+              {selectRows.length <= 1 && <span>Изменить,</span>}
+              <span>
+                Доход * {selectRows.length} платеж *{" "}
+                {selectRows.reduce((acc, amount) => acc + amount.amount, 0)}
+              </span>
+            </div>
           </div>
         </div>
-      ) : (
-        <section>
-          <div>
-            {count !== 0 && (
-              <div className="bg-[#00b28e] py-2 font-bold text-xs text-white flex justify-between">
-                <div>
-                  {count <= 1 && (
-                    <span onClick={() => dispatch(openModal(["income", true]))}>
-                      Изменить данные,
-                    </span>
-                  )}
-                  <span onClick={() => deleteTran()}>Удалить, </span>
-                </div>
-                <span>Доход * {count}платежа * Сумма, валюта</span>
-              </div>
-            )}
-          </div>
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="border-b">
-                <th className="p-2 text-left">
-                  <input type="checkbox" className="h-5 w-5" />
-                </th>
-                <th className="p-2 text-left">
-                  {count !== 0 ? (
-                    <div onClick={() => deleteTran()}>
-                      <span>Удалить,</span>
-                      {count <= 1 && (
-                        <span
-                          onClick={() => dispatch(openModal(["income", true]))}
-                        >
-                          Изменить данные,
-                        </span>
-                      )}
-                    </div>
-                  ) : (
-                    <span>Дата</span>
-                  )}
-                </th>
-                <th className="p-2 text-left">Сумма</th>
-                <th className="p-2 text-left">Счет</th>
-                <th className="p-2 text-left">Контрагент</th>
-                <th className="p-2 text-left">Категория</th>
-              </tr>
-            </thead>
-            <tbody>
-              {transactions &&
-                transactions.map((transaction: ITransactions) => (
-                  <tr
-                    className="border-b cursor-pointer hover:bg-gray-100"
-                    key={transaction.id}
-                    onClick={() => editTable(transaction.id)}
-                  >
-                    <td className="p-2">
-                      <input
-                        type="checkbox"
-                        className="h-5 w-5"
-                        onClick={(event) => onCheckRow(event, transaction.id)}
-                      />
-                    </td>
-
-                    <td className="p-2">
-                      <div>
-                        {transaction.date.day}{" "}
-                        {toLowerCase(transaction.date.month.shortName)}.{" "}
-                        {transaction.date.year}
-                      </div>
-                      <div className="text-gray-500">
-                        {transaction.date.weekDay.shortName},
-                        {transaction.date.hour}:{transaction.date.minute}
-                      </div>
-                    </td>
-                    <td className="p-2 text-green-500">
-                      +{transaction.amount}TJS
-                    </td>
-                    <td className="p-2">
-                      <div>{transaction.account}</div>
-                    </td>
-                    <td className="p-2">
-                      {toUpperCase(transaction.counterParty)}
-                    </td>
-                    <td className="p-2">{toUpperCase(transaction.category)}</td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
-        </section>
-      )} */}
-      <GridExample />
-    </article>
+        <div style={gridStyle}>
+          <AgGridReact<IOlympicData>
+            getRowId={(params) => params.data.id}
+            theme={myTheme}
+            ref={gridRef}
+            columnDefs={columnDefs}
+            defaultColDef={defaultColDef}
+            rowSelection={rowSelection}
+            onGridReady={onGridReady}
+            onRowClicked={handleRowClick}
+            onSelectionChanged={onSelectionChanged}
+          />
+        </div>
+      </div>
+    </section>
   );
 };
 
-export default TransactionsTabel;
+export default TransactionsTable;

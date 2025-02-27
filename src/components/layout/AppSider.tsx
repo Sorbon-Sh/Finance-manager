@@ -29,13 +29,12 @@ const AppSider = () => {
       <article className="w-64 mx-auto">
         <div className="flex justify-between flex-col mt-[22px] ">
           <span className="mb-1 text-sm text-gray-500">Всего на счетах </span>
-          {company
-            ? company.map((company) => (
-                <span className="text-3xl font-bold" key={company.id}>
-                  {company.currency} {company.allAmount}
-                </span>
-              ))
-            : 0}
+          <span className="text-3xl font-bold">
+            TJS{" "}
+            {accountsData
+              ? accountsData.reduce((acc, item) => acc + item.allAmount, 0)
+              : 0}
+          </span>
         </div>
         <hr className="border-gray-400  mt-5" />
         <div>
