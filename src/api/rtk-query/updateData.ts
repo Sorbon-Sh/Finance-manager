@@ -68,33 +68,86 @@ export const supabaseApi = createApi({
         const isAccountChanged =
           oldTransaction && oldTransaction.account !== modalData.account;
 
+        const isOldTranAmountChange =
+          tranId && modalData.amount !== oldTransaction.amount;
+
         const updates = [];
 
+        //! Для разных сценариев лучше делать для них отдельные запросы изменение данных
+        //* Назавём это условия выполнение запроса
         //* Если транзакция существовала (редактирование)
+        //* Сценарий если присходит редактирование
         if (oldTransaction) {
-          const delta = modalData.amount - oldTransaction.amount; //* Разница между новой и старой суммой
-
-          //! Для разных сценариев лучше делать для них отдельные запросы изменение данных
-          //* Назавём это условия выполнение запроса
+          const delta = modalData.amount - oldTransaction.amount; // Разница между новой и старой суммой
           if (isAccountChanged && oldAccount) {
-            //* 1. Вычитаем сумму из старого аккаунта
-            updates.push(
-              supabase
-                .from("accounts")
-                .update({
-                  allAmount: oldAccount.allAmount - oldTransaction.amount,
-                })
-                .eq("id", oldAccount.id)
-            );
+            //* Сценарий если изменится и аккаунт в модалке и его сумма чтобы передать его данные другому аккаунту
+            //* Также если сумма аккаунте не изменится то просто передать данные без изменение
+            if (!isOldTranAmountChange) {
+              console.log("Сценарий: изменение аккаунта без изменения суммы");
 
-            //* 2. Добавляем сумму в новый аккаунт
-            updates.push(
-              supabase
-                .from("accounts")
-                .update({ allAmount: newAccount.allAmount + modalData.amount })
-                .eq("id", newAccount.id)
-            );
-          } else {
+              //* 1. Вычитаем сумму из старого аккаунта
+              updates.push(
+                supabase
+                  .from("accounts")
+                  .update({
+                    allAmount: oldAccount.allAmount - oldTransaction.amount,
+                  })
+                  .eq("id", oldAccount.id)
+              );
+
+              //* 2. Добавляем сумму в новый аккаунт
+              updates.push(
+                supabase
+                  .from("accounts")
+                  .update({
+                    allAmount: newAccount.allAmount + oldTransaction.amount,
+                  })
+                  .eq("id", newAccount.id)
+              );
+            } //* Также если сумма аккаунте не изменится то просто передать данные без изменение
+            else {
+              console.log(
+                "Сработал сценарий: изменение имя аккаунта и изменение его счета чтобы передать"
+              );
+              console.log(
+                "Вычитаем так же стврую транзакци из аккаунта: ",
+                oldAccount.allAmount - Number(modalData.amount)
+              );
+
+              console.log(
+                "Плюсуем к новому аккаунту: ",
+                +modalData.amount + newAccount.allAmount
+              );
+
+              const changeOldAmountAccount =
+                oldAccount.allAmount - +modalData.amount;
+              const addNewAmountAccount =
+                +modalData.amount + newAccount.allAmount;
+
+              //* 1. Вычитаем старую сумму из старого аккаунта
+              updates.push(
+                supabase
+                  .from("accounts")
+                  .update({
+                    allAmount: changeOldAmountAccount,
+                  })
+                  .eq("id", oldAccount.id)
+              );
+
+              //* 2. Добавляем новую сумму в новый аккаунт
+              updates.push(
+                supabase
+                  .from("accounts")
+                  .update({
+                    allAmount: addNewAmountAccount,
+                  })
+                  .eq("id", newAccount.id)
+              );
+            }
+          } //* Сценарий если изменяется только сумма аккаунта
+          else {
+            console.log("Сценарий: изменение только суммы");
+
             //* Если аккаунт не менялся, просто обновляем сумму
             updates.push(
               supabase
@@ -103,8 +156,9 @@ export const supabaseApi = createApi({
                 .eq("id", newAccount.id)
             );
           }
-        } else {
-          //* Если это новая транзакция (добавление дохода)
+        } //* Сценарий если редактирование не присходит плюсовать послдению транзакцию
+        else {
+          console.log("Сценарий: новая транзакция");
           updates.push(
             supabase
               .from("accounts")
@@ -112,6 +166,13 @@ export const supabaseApi = createApi({
               .eq("id", newAccount.id)
           );
         }
+
+        console.log("modalData: ", modalData);
+        console.log("oldTransaction: ", oldTransaction);
+        console.log("oldAccount: ", oldAccount);
+        console.log("newAccount: ", newAccount);
+        console.log("isAccountChanged : ", isAccountChanged);
+        console.log("updates: ", updates);
 
         //* Выполняем все обновления
         const results = await Promise.all(updates);

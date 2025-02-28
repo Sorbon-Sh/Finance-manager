@@ -80,6 +80,15 @@ const IncomeModal = () => {
         await insertTransaction(["transactions", data]).unwrap();
         await updateAccount();
       }
+
+      // if (!accounts || accounts.length === 0)
+      //   throw new Error("Ошибка: Данные аккаунта пустые");
+
+      // const allUserAmount = accounts.reduce(
+      //   (acc, item) => acc + item.allAmount,
+      //   0
+      // );
+
       tranRefetch();
       accountRefetch();
       dispatch(setTransactionId(""));
@@ -92,12 +101,12 @@ const IncomeModal = () => {
   };
   const tranData = tranId
     ? transactions && transactions.find((elem) => elem.id === tranId)
-    : "no data";
+    : null;
 
-  setValue("account", tranData && tranData.account);
-  setValue("amount", tranData && tranData.amount);
-  setValue("category", tranData && tranData.category);
-  setValue("counterParty", tranData && tranData.counterParty);
+  setValue("account", (tranData && tranData.account) || "");
+  setValue("amount", (tranData && tranData.amount) || 0);
+  setValue("category", (tranData && tranData.category) || "");
+  setValue("counterParty", (tranData && tranData.counterParty) || "");
 
   const onClose = () => {
     dispatch(openModal(["income", false]));
@@ -144,10 +153,10 @@ const IncomeModal = () => {
 
         <div className="">
           <input
-            type="text"
+            type="number"
             placeholder="Сумма, TJS"
             className="w-full p-3 bg-gray-200 rounded-lg border border-gray-300 mb-4"
-            {...register("amount", { required: "Inter amount" })}
+            {...register("amount")}
           />
 
           {/* <select

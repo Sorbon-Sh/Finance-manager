@@ -8,6 +8,8 @@ body {
   background-color: #121212;
 }
 
+
+
 @layer components {
   .headerButton {
     @apply px-8 py-[10px] rounded-xl  flex gap-x-2 items-center;

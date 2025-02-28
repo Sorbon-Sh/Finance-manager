@@ -12,17 +12,13 @@ import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
 import { openModal } from "../../redux/slices/StateAndData";
 import { IAccounts } from "../../types/types";
 import EditAccount from "../modalWindow/EditAccount";
-import { useState } from "react";
 
 const AppSider = () => {
   //* Хук useState обновляется Асинхронно
   const { data: company } = useGetCompanyDataQuery("company");
-  const [clicked, setClicked] = useState<string>();
+
   const { data: accountsData, isSuccess } = useGetAccountQuery("accounts");
   const dispatch = useAppDispatch();
-  const handleClickAccount = (account: string) => {
-    setClicked(account);
-  };
 
   return (
     <aside className=" col-start-1 col-end-4 bg-[#edf4f7] rounded-tl-3xl">
@@ -55,17 +51,10 @@ const AppSider = () => {
               </div>
             </li>
 
-            <div className="flex-col [&>li]:flex [&>li]:cursor-pointer [&>li]:justify-between [&]:gap-y-5 text-sm text-gray-500">
+            <div className="flex-col [&>li]:flex  [&>li]:justify-between [&]:gap-y-5 text-sm text-gray-500">
               {isSuccess
                 ? accountsData.map((account: IAccounts) => (
-                    <li
-                      key={account.id}
-                      className={`${
-                        clicked === account.id &&
-                        "border-l-2 border-l-green-400"
-                      }`}
-                      onClick={() => handleClickAccount(account.account)}
-                    >
+                    <li key={account.id}>
                       <span>{account.account}</span>
                       <span>
                         {account.currency} {account.allAmount}

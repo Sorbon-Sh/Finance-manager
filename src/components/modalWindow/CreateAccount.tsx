@@ -70,7 +70,10 @@ const CreateAccount = () => {
             manager
           </span>
         </div>
-        <button className="w-full  py-4 bg-gradient-to-r from-blue-400 to-green-400  font-semibold rounded-lg cursor-pointer">
+        <button
+          onClick={() => dispatch(openModal(["createAccount", false]))}
+          className="w-full  py-4 bg-gradient-to-r from-blue-400 to-green-400  font-semibold rounded-lg cursor-pointer"
+        >
           Добавить счет
         </button>
       </form>

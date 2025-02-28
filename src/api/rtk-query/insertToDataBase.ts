@@ -5,6 +5,7 @@ import { IAccounts, ICompnay, ITransactions } from "../../types/types";
 export const supabaseApi = createApi({
   reducerPath: "supabaseApi",
   baseQuery: fetchBaseQuery({}),
+  tagTypes: ["Accounts"],
   endpoints: (builder) => ({
     //* Переиспользуемый
     insertTransaction: builder.mutation({
@@ -55,7 +56,7 @@ export const supabaseApi = createApi({
         return { data: sumData || [] };
       },
     }),
-    createAccount: builder.mutation({
+    createAccount: builder.mutation<IAccounts[], [string, object]>({
       queryFn: async (formData) => {
         const [table, account] = formData;
         const { data, error } = await supabase.from(table).insert(account);
@@ -67,6 +68,7 @@ export const supabaseApi = createApi({
 
         return { data: data || [] };
       },
+      invalidatesTags: [{ type: "Accounts" }],
     }),
     getAccount: builder.query<IAccounts[], string>({
       queryFn: async (table) => {
@@ -80,6 +82,7 @@ export const supabaseApi = createApi({
 
         return { data: accounts || [] };
       },
+      providesTags: [{ type: "Accounts" }],
     }),
     getSingleDataTransactions: builder.query({
       queryFn: async (sqlFn) => {

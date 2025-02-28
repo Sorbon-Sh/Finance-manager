@@ -160,7 +160,7 @@ const TransactionsTable = () => {
           <div>
             <div
               className={`bg-[#00b28e] w-full px-5  ease-in-out transition-all duration-700 ${
-                selectRows.length !== 0 ? "h-9" : "h-0"
+                selectRows.length !== 0 ? "h-9" : "h-0 text-transparent"
               } font-bold text-[15px] text-slate-100 flex justify-between  items-center rounded-xl`}
             >
               <span onClick={deleteTran}>Удалить запись,</span>
