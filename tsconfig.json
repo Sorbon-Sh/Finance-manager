@@ -5,6 +5,8 @@
     { "path": "./tsconfig.node.json" }
   ],
   "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["dom","es2023"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]

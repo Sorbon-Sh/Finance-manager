@@ -7,6 +7,7 @@ import {
   GridApi,
   GridReadyEvent,
   ModuleRegistry,
+  RowClickedEvent,
   RowSelectionModule,
   themeQuartz,
   ValidationModule,
@@ -20,7 +21,7 @@ import {
   ExcelExportModule,
   QuickFilterModule,
 } from "ag-grid-enterprise";
-import { IOlympicData, ITransactions } from "../types/types";
+import { GridAndTransaction } from "../types/types";
 import { useGetSumQuery } from "../api/rtk-query/insertToDataBase";
 import { useAppDispatch } from "../hooks/useReduxTypedHooks";
 import { openModal, setTransactionId } from "../redux/slices/StateAndData";
@@ -40,9 +41,9 @@ ModuleRegistry.registerModules([
 
 const TransactionsTable = () => {
   const dispatch = useAppDispatch();
-  const gridRef = useRef(null);
+  const gridRef = useRef<AgGridReact<GridAndTransaction>>(null);
   const [deleteTransaction] = useDeleteTransactionMutation();
-  const [selectRows, setSelecRows] = useState<ITransactions[]>([]);
+  const [selectRows, setSelecRows] = useState<GridAndTransaction[]>([]);
   const containerStyle = useMemo(() => ({ width: "100%", height: "100%" }), []);
   const gridStyle = useMemo(() => ({ height: "500px", width: "100%" }), []);
   const { data: transactions } = useGetSumQuery("transactions");
@@ -52,29 +53,37 @@ const TransactionsTable = () => {
     setGridApi(params.api);
   }, []);
 
-  const [columnDefs, setColumnDefs] = useState<ColDef[]>([
-    {
-      field: "date",
-      headerName: "Дата",
-      valueFormatter: (params) => {
-        const date = params.value;
-        return date
-          ? `${date.day}.${date.month.shortName}.${date.year} ${date.hour}:${date.minute}`
-          : "";
+  const columnDefs = useMemo<ColDef[]>(
+    () => [
+      {
+        field: "date",
+        headerName: "Дата",
+        valueFormatter: (params) => {
+          const date = params.value;
+          return date
+            ? `${date.day}.${date.month.shortName}.${date.year} ${date.hour}:${date.minute}`
+            : "";
+        },
       },
-    },
-    {
-      field: "amount",
-      headerName: "Сумма",
-      valueFormatter: (params) => "+" + params.value,
-      cellStyle: () => ({
-        color: "green",
-      }),
-    },
-    { field: "account", headerName: "Счет" },
-    { field: "counterParty", headerName: "Контрагент" },
-    { field: "category", headerName: "Категория" },
-  ]);
+      {
+        field: "amount",
+        headerName: "Сумма",
+        valueFormatter: (params) => {
+          return params.data.tranCategory === "income"
+            ? `+${params.value}`
+            : `-${params.value}`;
+        },
+        cellStyle: (params) => ({
+          color: params.data.tranCategory === "income" ? "green" : "red",
+        }),
+      },
+      { field: "account", headerName: "Счет" },
+      { field: "counterParty", headerName: "Контрагент" },
+      { field: "category", headerName: "Категория" },
+    ],
+    []
+  );
+
   const defaultColDef = useMemo<ColDef>(() => {
     return {
       flex: 1,
@@ -82,6 +91,7 @@ const TransactionsTable = () => {
       cellClass: "cursor-pointer",
     };
   }, []);
+
   const myTheme = themeQuartz.withParams({
     wrapperBorder: false,
     headerRowBorder: true,
@@ -94,11 +104,7 @@ const TransactionsTable = () => {
     rowHoverColor: "#edf4f7",
   });
 
-  const rowSelection = useMemo(() => {
-    return {
-      mode: "multiRow",
-    };
-  }, []);
+  const rowSelection = useMemo<"single" | "multiple">(() => "multiple", []);
 
   const onSelectionChanged = useCallback(() => {
     if (gridRef.current) {
@@ -114,13 +120,19 @@ const TransactionsTable = () => {
     }
   }, [transactions, gridApi]);
 
-  const editTable = (id: string) => {
+  const editIncome = (id: string) => {
     dispatch(setTransactionId(id));
     dispatch(openModal(["income", true]));
   };
 
-  const handleRowClick = useCallback((event) => {
-    if (event.data.id) editTable(event.data.id);
+  const handleRowClick = useCallback((event: RowClickedEvent) => {
+    console.log(event.data);
+
+    if (event.data.tranCategory === "income") {
+      editIncome(event.data.id);
+    } else {
+      return null;
+    }
   }, []);
 
   const deleteTran = () => {
@@ -173,7 +185,7 @@ const TransactionsTable = () => {
           </div>
         </div>
         <div style={gridStyle}>
-          <AgGridReact<IOlympicData>
+          <AgGridReact<GridAndTransaction>
             getRowId={(params) => params.data.id}
             theme={myTheme}
             ref={gridRef}

@@ -10,9 +10,10 @@ export const supabaseApi = createApi({
     //* Переиспользуемый
     insertTransaction: builder.mutation({
       queryFn: async (formData) => {
-        const [table, insertData] = formData;
+        const [table, insertData, category] = formData;
         const { data, error } = await supabase.from(table).insert({
           ...insertData,
+          tranCategory: category,
           date: {
             day: insertData.date.day,
             month: insertData.date.month,

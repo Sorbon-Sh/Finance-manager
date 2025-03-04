@@ -55,7 +55,7 @@ export interface ITransactions {
 
 export type AccountAndTransations = IAccounts & ITransactions;
 
-export interface IOlympicData {
+interface IOlympicData {
   athlete: string;
   age: number;
   country: string;
@@ -67,4 +67,27 @@ export interface IOlympicData {
   bronze: number;
   total: number;
   id: string;
+}
+
+export type GridAndTransaction = IOlympicData & ITransactions;
+export interface IAssets {
+  header: {
+    date: string;
+    investmentAmount: string;
+    monthly: string;
+    annual: string;
+    commission: string;
+    all: string;
+    bank: string;
+  };
+  items: {
+    date: string;
+    time: string;
+    investmentAmount: string;
+    monthlyInterest: string;
+    annualInterest: string;
+    commission: string;
+    all: string;
+    bank: string;
+  };
 }

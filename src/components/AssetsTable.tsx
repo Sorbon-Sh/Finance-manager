@@ -1,4 +1,6 @@
-const DepositsTable = ({ header, items }) => {
+import { IAssets } from "../types/types";
+
+const DepositsTable = ({ header, items }: IAssets) => {
   return (
     <article>
       <table className="w-full border-collapse">

@@ -16,7 +16,7 @@ import { Inputs, ITransactions } from "../../types/types";
 import TimePicker from "react-multi-date-picker/plugins/time_picker";
 import DatePicker from "react-multi-date-picker";
 import {
-  useUpdateAmountAccountMutation,
+  useUpdateIncomeAmountAccountMutation,
   useUpdateTransactionMutation,
 } from "../../api/rtk-query/updateData";
 const IncomeModal = () => {
@@ -30,7 +30,7 @@ const IncomeModal = () => {
   const [updateTransaction] = useUpdateTransactionMutation();
   const [getTransactions] = useLazyGetTransactionsQuery();
   const [getAccount] = useLazyGetAccountQuery();
-  const [updateAmountAccount] = useUpdateAmountAccountMutation();
+  const [updateIncomeAmountAccount] = useUpdateIncomeAmountAccountMutation();
   const tranId = useAppSelector((state) => state.stateAndData.transactionId);
   const dispatch = useAppDispatch();
   const { register, handleSubmit, control, reset, setValue } =
@@ -51,14 +51,12 @@ const IncomeModal = () => {
         console.log("Modal Data Amount: ", data.amount);
 
         //*========================================================================
-        const tranLastData = tranData
-          ? tranData.findLast((elem) => elem.account === elem.account)
-          : null;
+        const tranLastData = tranData && tranData[tranData.length - 1];
         console.log("Последние данные массива: ", tranLastData);
 
         if (tranLastData) {
           console.log("✅ Отправка данных на обновление:", tranLastData);
-          await updateAmountAccount([
+          await updateIncomeAmountAccount([
             tranLastData,
             accData,
             tranId,
@@ -77,7 +75,7 @@ const IncomeModal = () => {
       //* Суммировать последние  данные если не редактируем транзакции
       //*
       if (!tranId) {
-        await insertTransaction(["transactions", data]).unwrap();
+        await insertTransaction(["transactions", data, "income"]).unwrap();
         await updateAccount();
       }
 

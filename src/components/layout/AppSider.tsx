@@ -1,8 +1,5 @@
 import { createPortal } from "react-dom";
-import {
-  useGetAccountQuery,
-  useGetCompanyDataQuery,
-} from "../../api/rtk-query/insertToDataBase";
+import { useGetAccountQuery } from "../../api/rtk-query/insertToDataBase";
 import editAccount from "../../assets/edit-account.svg";
 import plusAccount from "../../assets/plus-account.svg";
 import plus from "../../assets/plus-gray.svg";
@@ -15,7 +12,7 @@ import EditAccount from "../modalWindow/EditAccount";
 
 const AppSider = () => {
   //* Хук useState обновляется Асинхронно
-  const { data: company } = useGetCompanyDataQuery("company");
+  // const { data: company } = useGetCompanyDataQuery("company");
 
   const { data: accountsData, isSuccess } = useGetAccountQuery("accounts");
   const dispatch = useAppDispatch();
