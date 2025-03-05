@@ -192,6 +192,7 @@ const TransactionsTable = () => {
             </div>
           </div>
         </div>
+        {/* Table */}
         <div style={gridStyle}>
           <AgGridReact<GridAndTransaction>
             getRowId={(params) => params.data.id}
