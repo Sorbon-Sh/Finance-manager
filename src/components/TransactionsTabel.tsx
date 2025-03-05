@@ -9,6 +9,7 @@ import {
   ModuleRegistry,
   RowClickedEvent,
   RowSelectionModule,
+  RowSelectionOptions,
   themeQuartz,
   ValidationModule,
 } from "ag-grid-community";
@@ -105,7 +106,7 @@ const TransactionsTable = () => {
   });
 
   const rowSelection = useMemo<
-    { mode: "single" } | { mode: "multiRow" }
+    RowSelectionOptions | "single" | "multiple"
   >(() => {
     return {
       mode: "multiRow",
@@ -192,7 +193,6 @@ const TransactionsTable = () => {
             </div>
           </div>
         </div>
-        {/* Table */}
         <div style={gridStyle}>
           <AgGridReact<GridAndTransaction>
             getRowId={(params) => params.data.id}
