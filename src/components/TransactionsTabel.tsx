@@ -191,7 +191,6 @@ const TransactionsTable = () => {
               </span>
             </div>
           </div>
-          {/* Test t*/}
         </div>
         <div style={gridStyle}>
           <AgGridReact<GridAndTransaction>
