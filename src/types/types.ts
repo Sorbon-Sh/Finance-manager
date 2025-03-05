@@ -51,6 +51,7 @@ export interface ITransactions {
   counterParty: string;
   category: string;
   date: IDate;
+  tranCategory: string;
 }
 
 export type AccountAndTransations = IAccounts & ITransactions;

@@ -104,7 +104,13 @@ const TransactionsTable = () => {
     rowHoverColor: "#edf4f7",
   });
 
-  const rowSelection = useMemo<"single" | "multiple">(() => "multiple", []);
+  const rowSelection = useMemo<
+    { mode: "single" } | { mode: "multiRow" }
+  >(() => {
+    return {
+      mode: "multiRow",
+    };
+  }, []);
 
   const onSelectionChanged = useCallback(() => {
     if (gridRef.current) {
@@ -179,7 +185,9 @@ const TransactionsTable = () => {
               {selectRows.length <= 1 && <span>Изменить,</span>}
               <span>
                 Доход * {selectRows.length} платеж *{" "}
-                {selectRows.reduce((acc, amount) => acc + amount.amount, 0)}
+                {selectRows
+                  .filter((elem) => elem.tranCategory === "income")
+                  .reduce((acc, amount) => acc + amount.amount, 0)}
               </span>
             </div>
           </div>
