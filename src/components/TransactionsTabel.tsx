@@ -182,6 +182,7 @@ const TransactionsTable = () => {
                 selectRows.length !== 0 ? "h-9" : "h-0 text-transparent"
               } font-bold text-[15px] text-slate-100 flex justify-between  items-center rounded-xl`}
             >
+              {/* s */}
               <span onClick={deleteTran}>Удалить запись,</span>
               {selectRows.length <= 1 && <span>Изменить,</span>}
               <span>
