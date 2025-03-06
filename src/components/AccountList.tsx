@@ -2,6 +2,8 @@ import { useGetAccountQuery } from "../api/rtk-query/insertToDataBase";
 import { useAppDispatch } from "../hooks/useReduxTypedHooks";
 import { openModal, setAccountId } from "../redux/slices/StateAndData";
 import closeIcon from "../assets/closeIcon.svg";
+import editIconList from "../assets/edit-icon-list.svg";
+import burgerIcon from "../assets/burger-icon.svg";
 
 const AccountList = () => {
   const { data: accouts, isSuccess } = useGetAccountQuery("accounts");
@@ -23,10 +25,12 @@ const AccountList = () => {
         ? accouts.map((account) => (
             <p
               key={account.id}
-              className="p-3 mb-1 bg-green-300"
+              className="py-4  px-2 cursor-pointer flex justify-between border-0 hover:rounded-xl border-b-1  border-b-gray-400 hover:bg-[#edf4f7]"
               onClick={() => dispatch(setAccountId(account.id))}
             >
-              {account.account}
+              <img src={burgerIcon} />
+              <span className="ml-2 ">{account.account}</span>
+              <img src={editIconList} className="ml-auto" />
             </p>
           ))
         : "No account found"}
