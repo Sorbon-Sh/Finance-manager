@@ -22,6 +22,7 @@ const EditAccount = () => {
       reset();
     } catch (err) {
       console.log("Error: ", err);
+
       throw new Error(`Error to sending data to DataBase`);
     }
   };
@@ -37,6 +38,7 @@ const EditAccount = () => {
 
   return (
     <SwitchModal
+      handleClick={onClose}
       modalID="editAccount"
       className="bg-white rounded-4xl h-[463px] w-[480px]  pt-6 px-8"
     >

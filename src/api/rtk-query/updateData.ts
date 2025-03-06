@@ -45,7 +45,7 @@ export const supabaseApi = createApi({
     }),
     updateIncomeAmountAccount: builder.mutation({
       queryFn: async (tranAndAcc) => {
-        const [tranLastData, accData, tranId, tranData, modalData] = tranAndAcc;
+        const [accData, tranId, tranData, modalData] = tranAndAcc;
 
         const oldTransaction = tranId
           ? tranData.find((t: ITransactions) => t.id === tranId)
@@ -89,9 +89,9 @@ export const supabaseApi = createApi({
               );
             } else {
               const changeOldAmountAccount =
-                oldAccount.allAmount - +modalData.amount;
+                oldAccount.allAmount - modalData.amount;
               const addNewAmountAccount =
-                +modalData.amount + newAccount.allAmount;
+                modalData.amount + newAccount.allAmount;
 
               updates.push(
                 supabase
@@ -123,7 +123,7 @@ export const supabaseApi = createApi({
           updates.push(
             supabase
               .from("accounts")
-              .update({ allAmount: newAccount.allAmount + tranLastData.amount })
+              .update({ allAmount: newAccount.allAmount + modalData.amount })
               .eq("id", newAccount.id)
           );
         }
@@ -139,7 +139,7 @@ export const supabaseApi = createApi({
     }),
     updateExpenseAmountAccount: builder.mutation({
       queryFn: async (tranAndAcc) => {
-        const [tranLastData, accData, modalData] = tranAndAcc;
+        const [accData, modalData] = tranAndAcc;
 
         const account = accData.find(
           (a: IAccounts) => a.account === modalData.account
@@ -147,7 +147,7 @@ export const supabaseApi = createApi({
 
         const { data, error } = await supabase
           .from("accounts")
-          .update({ allAmount: account.allAmount - tranLastData.amount })
+          .update({ allAmount: account.allAmount - modalData.amount })
           .eq("id", account.id);
 
         if (error) {

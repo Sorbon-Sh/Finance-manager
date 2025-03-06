@@ -51,19 +51,8 @@ const IncomeModal = () => {
         console.log("Modal Data Amount: ", data.amount);
 
         //*========================================================================
-        const tranLastData = tranData && tranData[tranData.length - 1];
-        console.log("Последние данные массива: ", tranLastData);
 
-        if (tranLastData) {
-          console.log("✅ Отправка данных на обновление:", tranLastData);
-          await updateIncomeAmountAccount([
-            tranLastData,
-            accData,
-            tranId,
-            tranData,
-            data,
-          ]);
-        }
+        await updateIncomeAmountAccount([accData, tranId, tranData, data]);
       };
       //*===========================================================================
 
@@ -78,14 +67,6 @@ const IncomeModal = () => {
         await insertTransaction(["transactions", data, "income"]).unwrap();
         await updateAccount();
       }
-
-      // if (!accounts || accounts.length === 0)
-      //   throw new Error("Ошибка: Данные аккаунта пустые");
-
-      // const allUserAmount = accounts.reduce(
-      //   (acc, item) => acc + item.allAmount,
-      //   0
-      // );
 
       tranRefetch();
       accountRefetch();
@@ -115,7 +96,7 @@ const IncomeModal = () => {
     <SwitchModal
       handleClick={onClose}
       modalID="income"
-      className="bg-white rounded-4xl h-[535px] w-[480px]   pt-6 pb-6  px-8 min-w-md"
+      className="bg-white rounded-4xl min-h-[535px] w-[480px]   pt-6 pb-6  px-8 min-w-md"
     >
       <div className="flex justify-between items-center mb-4 ">
         <h2 className="text-3xl font-bold">Новый доход</h2>
@@ -154,7 +135,9 @@ const IncomeModal = () => {
             type="number"
             placeholder="Сумма, TJS"
             className="w-full p-3 bg-gray-200 rounded-lg border border-gray-300 mb-4"
-            {...register("amount")}
+            {...register("amount", {
+              valueAsNumber: true,
+            })}
           />
 
           {/* <select
@@ -171,6 +154,7 @@ const IncomeModal = () => {
             type="text"
             list="category"
             placeholder="Категория"
+            onInput={(e) => setValue("category", e.currentTarget.value)}
             className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
             {...register("category")}
           />
@@ -210,10 +194,7 @@ const IncomeModal = () => {
             control={control}
             name="date"
             rules={{ required: true }}
-            render={({
-              field: { onChange, name, value },
-              formState: { errors },
-            }) => (
+            render={({ field: { onChange, value } }) => (
               <div className="bg-gray-100 rounded-lg ">
                 <p className="text-xs text-gray-500">Дата поступления денег</p>
                 <DatePicker
@@ -227,17 +208,12 @@ const IncomeModal = () => {
                   inputClass="p-4 flex items-center justify-between"
                   containerClassName="w-full "
                 />
-
-                {errors && errors[name] && errors[name].type === "required" && (
-                  //if you want to show an error message
-                  <span>Введите дата и время</span>
-                )}
               </div>
             )}
           />
         </div>
-        <div className="flex items-center space-x-2"></div>
-        <button className="w-full mt-4 py-2 bg-gradient-to-r from-blue-400 to-green-400 text-white font-semibold rounded-lg cursor-pointer">
+
+        <button className="w-full  py-2 bg-gradient-to-r from-blue-400 to-green-400 text-white font-semibold rounded-lg cursor-pointer">
           Добавить доход
         </button>
       </form>

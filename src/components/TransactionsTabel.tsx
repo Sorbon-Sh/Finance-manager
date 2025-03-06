@@ -44,10 +44,11 @@ const TransactionsTable = () => {
   const dispatch = useAppDispatch();
   const gridRef = useRef<AgGridReact<GridAndTransaction>>(null);
   const [deleteTransaction] = useDeleteTransactionMutation();
+  const [rowId, setRowId] = useState<string>("");
   const [selectRows, setSelecRows] = useState<GridAndTransaction[]>([]);
   const containerStyle = useMemo(() => ({ width: "100%", height: "100%" }), []);
   const gridStyle = useMemo(() => ({ height: "500px", width: "100%" }), []);
-  const { data: transactions } = useGetSumQuery("transactions");
+  const { data: transactions, refetch } = useGetSumQuery("transactions");
   const [gridApi, setGridApi] = useState<GridApi | null>(null);
 
   const onGridReady = useCallback((params: GridReadyEvent) => {
@@ -133,18 +134,16 @@ const TransactionsTable = () => {
   };
 
   const handleRowClick = useCallback((event: RowClickedEvent) => {
-    console.log(event.data);
-
+    setRowId(event.data.id);
     if (event.data.tranCategory === "income") {
       editIncome(event.data.id);
-    } else {
-      return null;
     }
   }, []);
 
-  const deleteTran = () => {
+  const deleteTran = async () => {
     const ids = selectRows.map((elem) => elem.id);
-    deleteTransaction(ids);
+    await deleteTransaction(ids);
+    refetch();
   };
   const onFilterTextBoxChanged = useCallback(() => {
     gridRef.current!.api.setGridOption(
@@ -160,7 +159,7 @@ const TransactionsTable = () => {
   return (
     <section>
       <div style={containerStyle}>
-        <div className="">
+        <div>
           <div className="grid grid-cols-5 mb-7 gap-x-10   justify-between ">
             <input
               type="text"
@@ -182,9 +181,20 @@ const TransactionsTable = () => {
                 selectRows.length !== 0 ? "h-9" : "h-0 text-transparent"
               } font-bold text-[15px] text-slate-100 flex justify-between  items-center rounded-xl`}
             >
-              {/* s */}
-              <span onClick={deleteTran}>Удалить запись,</span>
-              {selectRows.length <= 1 && <span>Изменить,</span>}
+              <span
+                onClick={deleteTran}
+                className="cursor-pointer hover:bg-slate-50/30 px-2 py-1 rounded-xl"
+              >
+                Удалить запись
+              </span>
+              {selectRows.length <= 1 && (
+                <span
+                  className="cursor-pointer hover:bg-slate-50/30 px-2 py-1 rounded-xl"
+                  onClick={() => editIncome(rowId)}
+                >
+                  Изменить
+                </span>
+              )}
               <span>
                 Доход * {selectRows.length} платеж *{" "}
                 {selectRows

@@ -44,14 +44,8 @@ const ExpenseModal = () => {
         console.log("Modal Data Amount: ", data.amount);
 
         //*========================================================================
-        const tranLastData = tranData && tranData[tranData.length - 1];
 
-        console.log("Последние данные массива: ", tranLastData);
-
-        if (tranLastData) {
-          console.log("✅ Отправка данных на обновление:", tranLastData);
-          await updateExpenseAmountAccount([tranLastData, accData, data]);
-        }
+        await updateExpenseAmountAccount([accData, data]);
       };
       //*===========================================================================
 
