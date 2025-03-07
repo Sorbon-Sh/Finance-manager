@@ -11,8 +11,9 @@ import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
 import { openModal } from "../../redux/slices/StateAndData";
 import { ICompnay } from "../../types/types";
 import EditCompany from "../modalWindow/EditCompany";
-import { useGetCompanyDataQuery } from "../../api/rtk-query/insertToDataBase";
+import { useGetCompanyDataQuery } from "../../api/rtk-query/insertTranData";
 import ExpenseModal from "../modalWindow/ExpenseModal";
+import TransferModal from "../modalWindow/TransferModal";
 const AppHeader = () => {
   const { data: company } = useGetCompanyDataQuery("company");
   const dispatch = useAppDispatch();
@@ -73,7 +74,10 @@ const AppHeader = () => {
           </span>
           <span>Expense</span>
         </Button>
-        <Button className="headerButton  bg-gray-600/55 ">
+        <Button
+          submitHandler={() => dispatch(openModal(["transfer", true]))}
+          className="headerButton  bg-gray-600/55 "
+        >
           <span>
             <img src={arrowTransfer} />
           </span>
@@ -97,6 +101,7 @@ const AppHeader = () => {
       </div>
       {createPortal(<IncomeModal />, document.body)}
       {createPortal(<ExpenseModal />, document.body)}
+      {createPortal(<TransferModal />, document.body)}
       {createPortal(<EditCompany />, document.body)}
     </header>
   );

@@ -23,10 +23,10 @@ import {
   QuickFilterModule,
 } from "ag-grid-enterprise";
 import { GridAndTransaction } from "../types/types";
-import { useGetSumQuery } from "../api/rtk-query/insertToDataBase";
+import { useGetSumQuery } from "../api/rtk-query/insertTranData";
 import { useAppDispatch } from "../hooks/useReduxTypedHooks";
 import { openModal, setTransactionId } from "../redux/slices/StateAndData";
-import { useDeleteTransactionMutation } from "../api/rtk-query/deleteData";
+import { useDeleteTransactionMutation } from "../api/rtk-query/deleteTranData";
 ModuleRegistry.registerModules([
   RowSelectionModule,
   ClientSideRowModelModule,
@@ -164,6 +164,7 @@ const TransactionsTable = () => {
             <input
               type="text"
               id="filter-text-box"
+              autoComplete="off"
               onInput={onFilterTextBoxChanged}
               placeholder="Поиск по счетам, контрагентам, категориям"
               className="py-2 rounded-xl col-span-4  bg-[#edf4f7] ml-2 mr-9 outline-green-300 pl-4 search"

@@ -7,50 +7,32 @@ import {
   useGetAccountQuery,
   useGetSingleDataTransactionsQuery,
   useGetSumQuery,
-  useInsertTransactionMutation,
   useLazyGetAccountQuery,
-  useLazyGetTransactionsQuery,
 } from "../../api/rtk-query/insertTranData";
 import { Inputs, ITransactions } from "../../types/types";
 import TimePicker from "react-multi-date-picker/plugins/time_picker";
 import DatePicker from "react-multi-date-picker";
-import { useUpdateExpenseAmountAccountMutation } from "../../api/rtk-query/updateTranData";
-const ExpenseModal = () => {
+import { useTransferRequestMutation } from "../../api/rtk-query/transferRequest";
+const TransferModal = () => {
   const { data: accounts, refetch: accountRefetch } =
     useGetAccountQuery("accounts");
   const { refetch: tranRefetch } = useGetSumQuery("transactions");
   const { data: uniqueData } =
     useGetSingleDataTransactionsQuery("get_unique_data");
-  const [insertTransaction] = useInsertTransactionMutation();
-  const [getTransactions] = useLazyGetTransactionsQuery();
+  const [transferRequest] = useTransferRequestMutation();
   const [getAccount] = useLazyGetAccountQuery();
-  const [updateExpenseAmountAccount] = useUpdateExpenseAmountAccountMutation();
   const tranId = useAppSelector((state) => state.stateAndData.transactionId);
   const dispatch = useAppDispatch();
   const { register, handleSubmit, control, reset } = useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
-    dispatch(openModal(["expense", false]));
+    dispatch(openModal(["transfer", false]));
     try {
-      const updateAccount = async () => {
-        const { data: tranData } = await getTransactions();
-        const { data: accData } = await getAccount("accounts");
-        //* Для дебага
-        if (!tranData || tranData.length === 0)
-          console.error("❌ Ошибка: данные транзакций пустые!");
-        //* Для дебага
-        if (!accData || accData.length === 0)
-          console.error("❌ Ошибка: данные аккаунтов пустые!");
+      const { data: accData } = await getAccount("accounts");
+      //* Для дебага
+      if (!accData || accData.length === 0)
+        console.error("❌ Ошибка: данные аккаунтов пустые!");
 
-        console.log("Modal Data Amount: ", data.amount);
-
-        //*========================================================================
-
-        await updateExpenseAmountAccount([accData, data]);
-      };
-      //*===========================================================================
-
-      await insertTransaction(["transactions", data, "expense"]).unwrap();
-      await updateAccount();
+      await transferRequest([accData, data, "transfer"]);
 
       tranRefetch();
       accountRefetch();
@@ -63,18 +45,18 @@ const ExpenseModal = () => {
   };
 
   const onClose = () => {
-    dispatch(openModal(["expense", false]));
+    dispatch(openModal(["transfer", false]));
     dispatch(setTransactionId(""));
   };
 
   return (
     <SwitchModal
       handleClick={onClose}
-      modalID="expense"
+      modalID="transfer"
       className="bg-white rounded-4xl h-[535px] w-[480px]   pt-6 pb-6  px-8 min-w-md"
     >
       <div className="flex justify-between items-center mb-4 ">
-        <h2 className="text-3xl font-bold">Новый рассход</h2>
+        <h2 className="text-3xl font-bold">Новый перевод</h2>
         <button className="cursor-pointer" onClick={onClose}>
           <img src={closeIcon} />
         </button>
@@ -87,11 +69,11 @@ const ExpenseModal = () => {
         <div>
           <input
             type="text"
-            placeholder="На счет"
+            placeholder="Со счета"
             list="accounts"
             id="country"
             className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
-            {...register("account")}
+            {...register("fromAccount")}
           />
           <datalist className=" bg-white w-16 p-2" id="accounts">
             {accounts &&
@@ -104,31 +86,13 @@ const ExpenseModal = () => {
               ))}
           </datalist>
         </div>
-
-        <div className="">
-          <input
-            type="number"
-            placeholder="Сумма, TJS"
-            className="w-full p-3 bg-gray-200 rounded-lg border border-gray-300 mb-4"
-            {...register("amount")}
-          />
-
-          {/* <select
-            value="TJS (TJS)"
-            className="p-3 bg-gray-100 rounded-lg border border-gray-300"
-          >
-            <option>TJS (TJS)</option>
-            <option>USD (USD)</option>
-          </select> */}
-        </div>
-
         <div>
           <input
             type="text"
             list="category"
-            placeholder="Категория"
+            placeholder="На счет"
             className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
-            {...register("category")}
+            {...register("toAccount")}
           />
           <datalist className=" bg-white w-16 p-2" id="category">
             {uniqueData &&
@@ -141,24 +105,22 @@ const ExpenseModal = () => {
               ))}
           </datalist>
         </div>
-        <div>
+
+        <div className="">
           <input
-            type="text"
-            placeholder="Мой контрагент"
-            list="counterParty"
-            className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
-            {...register("counterParty")}
+            type="number"
+            placeholder="Сумма, TJS"
+            className="w-full p-3 bg-gray-200 rounded-lg border border-gray-300 mb-4"
+            {...register("amount", { valueAsNumber: true })}
           />
-          <datalist className=" bg-white w-16 p-2" id="counterParty">
-            {uniqueData &&
-              uniqueData.map((unique: ITransactions) => (
-                <option
-                  value={unique.counterParty}
-                  key={unique.counterParty}
-                  className="bg-green-300 p-1"
-                />
-              ))}
-          </datalist>
+
+          {/* <select
+            value="TJS (TJS)"
+            className="p-3 bg-gray-100 rounded-lg border border-gray-300"
+          >
+            <option>TJS (TJS)</option>
+            <option>USD (USD)</option>
+          </select> */}
         </div>
 
         <div>
@@ -201,4 +163,4 @@ const ExpenseModal = () => {
   );
 };
 
-export default ExpenseModal;
+export default TransferModal;

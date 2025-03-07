@@ -1,4 +1,4 @@
-import { useGetAccountQuery } from "../api/rtk-query/insertToDataBase";
+import { useGetAccountQuery } from "../api/rtk-query/insertTranData";
 
 export const useGetAccountsAmount = () => {
   const { data: accounts } = useGetAccountQuery("accounts");

@@ -4,7 +4,7 @@ import SwitchModal from "./SwitchModal";
 import closeIcon from "../../assets/closeIcon.svg";
 import attentionIcon from "../../assets/attention-icon.svg";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { useCreateAccountMutation } from "../../api/rtk-query/insertToDataBase";
+import { useCreateAccountMutation } from "../../api/rtk-query/insertTranData";
 import { Inputs } from "../../types/types";
 
 const CreateAccount = () => {

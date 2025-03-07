@@ -1,5 +1,5 @@
 import { createPortal } from "react-dom";
-import { useGetAccountQuery } from "../../api/rtk-query/insertToDataBase";
+import { useGetAccountQuery } from "../../api/rtk-query/insertTranData";
 import editAccount from "../../assets/edit-account.svg";
 import plusAccount from "../../assets/plus-account.svg";
 import plus from "../../assets/plus-gray.svg";

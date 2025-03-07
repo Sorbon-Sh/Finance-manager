@@ -1,4 +1,4 @@
-import { useGetAccountQuery } from "../api/rtk-query/insertToDataBase";
+import { useGetAccountQuery } from "../api/rtk-query/insertTranData";
 import { useAppDispatch } from "../hooks/useReduxTypedHooks";
 import { openModal, setAccountId } from "../redux/slices/StateAndData";
 import closeIcon from "../assets/closeIcon.svg";

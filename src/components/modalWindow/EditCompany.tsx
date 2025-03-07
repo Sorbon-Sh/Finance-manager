@@ -4,8 +4,8 @@ import SwitchModal from "./SwitchModal";
 import closeIcon from "../../assets/closeIcon.svg";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { Inputs } from "../../types/types";
-import { useUpdateCompanyMutation } from "../../api/rtk-query/updateData";
-import { useGetCompanyDataQuery } from "../../api/rtk-query/insertToDataBase";
+import { useUpdateCompanyMutation } from "../../api/rtk-query/updateTranData";
+import { useGetCompanyDataQuery } from "../../api/rtk-query/insertTranData";
 
 const EditCompany = () => {
   const dispatch = useAppDispatch();

@@ -3,9 +3,9 @@ import { openModal, setAccountId } from "../../redux/slices/StateAndData";
 import SwitchModal from "./SwitchModal";
 import closeIcon from "../../assets/closeIcon.svg";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { useGetAccountQuery } from "../../api/rtk-query/insertToDataBase";
+import { useGetAccountQuery } from "../../api/rtk-query/insertTranData";
 import { Inputs } from "../../types/types";
-import { useUpdateAccountMutation } from "../../api/rtk-query/updateData";
+import { useUpdateAccountMutation } from "../../api/rtk-query/updateTranData";
 import AccountList from "../AccountList";
 
 const EditAccount = () => {

@@ -8,6 +8,8 @@ export interface Inputs {
   currency: string;
   mainCurrency: string;
   companyName: string;
+  fromAccount: string;
+  toAccount: string;
 }
 
 export interface IAccounts {

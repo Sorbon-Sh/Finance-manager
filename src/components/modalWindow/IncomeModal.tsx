@@ -10,7 +10,7 @@ import {
   useInsertTransactionMutation,
   useLazyGetAccountQuery,
   useLazyGetTransactionsQuery,
-} from "../../api/rtk-query/insertToDataBase";
+} from "../../api/rtk-query/insertTranData";
 import { Inputs, ITransactions } from "../../types/types";
 
 import TimePicker from "react-multi-date-picker/plugins/time_picker";
@@ -18,7 +18,7 @@ import DatePicker from "react-multi-date-picker";
 import {
   useUpdateIncomeAmountAccountMutation,
   useUpdateTransactionMutation,
-} from "../../api/rtk-query/updateData";
+} from "../../api/rtk-query/updateTranData";
 const IncomeModal = () => {
   const { data: accounts, refetch: accountRefetch } =
     useGetAccountQuery("accounts");

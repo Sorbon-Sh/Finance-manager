@@ -1,6 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import stateAndDataReducer from "./slices/StateAndData";
-import { supabaseApi } from "../api/rtk-query/insertToDataBase";
+import { supabaseApi } from "../api/rtk-query/insertTranData";
 export const store = configureStore({
   reducer: {
     stateAndData: stateAndDataReducer,
