@@ -49,7 +49,7 @@ export interface IDate {
 export interface ITransactions {
   id: string;
   amount: number;
-  account: string;
+  account: string & { fromAccount: string; toAccount: string };
   counterParty: string;
   category: string;
   date: IDate;

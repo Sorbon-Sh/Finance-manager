@@ -5,25 +5,25 @@ import closeIcon from "../../assets/closeIcon.svg";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import {
   useGetAccountQuery,
-  useGetSingleDataTransactionsQuery,
   useGetSumQuery,
   useLazyGetAccountQuery,
 } from "../../api/rtk-query/insertTranData";
-import { Inputs, ITransactions } from "../../types/types";
 import TimePicker from "react-multi-date-picker/plugins/time_picker";
 import DatePicker from "react-multi-date-picker";
 import { useTransferRequestMutation } from "../../api/rtk-query/transferRequest";
+import { Inputs } from "../../types/types";
+
 const TransferModal = () => {
   const { data: accounts, refetch: accountRefetch } =
     useGetAccountQuery("accounts");
-  const { refetch: tranRefetch } = useGetSumQuery("transactions");
-  const { data: uniqueData } =
-    useGetSingleDataTransactionsQuery("get_unique_data");
+  const { refetch: tranRefetch, data: transactions } =
+    useGetSumQuery("transactions");
   const [transferRequest] = useTransferRequestMutation();
   const [getAccount] = useLazyGetAccountQuery();
   const tranId = useAppSelector((state) => state.stateAndData.transactionId);
   const dispatch = useAppDispatch();
-  const { register, handleSubmit, control, reset } = useForm<Inputs>();
+  const { register, handleSubmit, control, reset, getValues, setValue } =
+    useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     dispatch(openModal(["transfer", false]));
     try {
@@ -48,6 +48,20 @@ const TransferModal = () => {
     dispatch(openModal(["transfer", false]));
     dispatch(setTransactionId(""));
   };
+
+  const tranData = tranId
+    ? transactions && transactions.find((elem) => elem.id === tranId)
+    : null;
+
+  setValue(
+    "fromAccount",
+    (tranData && JSON.parse(tranData.account).fromAccount) || ""
+  );
+  setValue(
+    "toAccount",
+    (tranData && JSON.parse(tranData.account).toAccount) || ""
+  );
+  setValue("amount", (tranData && tranData.amount) || 0);
 
   return (
     <SwitchModal
@@ -89,20 +103,24 @@ const TransferModal = () => {
         <div>
           <input
             type="text"
-            list="category"
+            list="toAccount"
             placeholder="На счет"
             className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
             {...register("toAccount")}
           />
-          <datalist className=" bg-white w-16 p-2" id="category">
-            {uniqueData &&
-              uniqueData.map((unique: ITransactions) => (
-                <option
-                  key={unique.category}
-                  value={unique.category}
-                  className="bg-green-300 p-1"
-                />
-              ))}
+          <datalist className=" bg-white w-16 p-2" id="toAccount">
+            {accounts &&
+              accounts
+                .filter(
+                  (toAccount) => toAccount.account !== getValues("fromAccount")
+                )
+                .map((toAccount) => (
+                  <option
+                    key={toAccount.id}
+                    value={toAccount.account}
+                    className="bg-green-300 p-1"
+                  />
+                ))}
           </datalist>
         </div>
 
@@ -156,7 +174,7 @@ const TransferModal = () => {
         </div>
         <div className="flex items-center space-x-2"></div>
         <button className="w-full mt-4 py-2 bg-gradient-to-r from-blue-400 to-green-400 text-white font-semibold rounded-lg cursor-pointer">
-          Добавить доход
+          Добавить перевод
         </button>
       </form>
     </SwitchModal>

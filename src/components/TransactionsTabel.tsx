@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-
+import transferIcon from "../assets/transfer-icon.png";
 import { AgGridReact } from "ag-grid-react";
 import {
   ClientSideRowModelModule,
@@ -73,13 +73,28 @@ const TransactionsTable = () => {
         valueFormatter: (params) => {
           return params.data.tranCategory === "income"
             ? `+${params.value}`
+            : params.data.tranCategory === "transfer"
+            ? `transfer ${params.value}`
             : `-${params.value}`;
         },
         cellStyle: (params) => ({
-          color: params.data.tranCategory === "income" ? "green" : "red",
+          color:
+            params.data.tranCategory === "income"
+              ? "green"
+              : params.data.tranCategory === "transfer"
+              ? "black"
+              : "red",
         }),
       },
-      { field: "account", headerName: "Счет" },
+      {
+        field: "account",
+        headerName: "Счет",
+        valueFormatter: (params) => {
+          return params.data.tranCategory === "transfer"
+            ? `${JSON.parse(params.data.account).toAccount}`
+            : params.data.account;
+        },
+      },
       { field: "counterParty", headerName: "Контрагент" },
       { field: "category", headerName: "Категория" },
     ],
@@ -133,11 +148,15 @@ const TransactionsTable = () => {
     dispatch(openModal(["income", true]));
   };
 
+  const editTransfer = (id: string) => {
+    dispatch(setTransactionId(id));
+    dispatch(openModal(["transfer", true]));
+  };
+
   const handleRowClick = useCallback((event: RowClickedEvent) => {
     setRowId(event.data.id);
-    if (event.data.tranCategory === "income") {
-      editIncome(event.data.id);
-    }
+    if (event.data.tranCategory === "income") editIncome(event.data.id);
+    if (event.data.tranCategory === "transfer") editTransfer(event.data.id);
   }, []);
 
   const deleteTran = async () => {

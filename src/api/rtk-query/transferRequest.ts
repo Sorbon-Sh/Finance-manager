@@ -33,9 +33,14 @@ export const supabaseApi = createApi({
           })
           .eq("id", toAccount.id);
 
+        const accountsToJSON = JSON.stringify({
+          toAccount: modal.toAccount,
+          fromAccount: modal.fromAccount,
+        });
+
         const transaction = await supabase.from("transactions").insert({
           amount: modal.amount,
-          account: modal.toAccount,
+          account: accountsToJSON,
           category: category,
           tranCategory: category,
           date: {
