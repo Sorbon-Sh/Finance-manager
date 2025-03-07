@@ -48,7 +48,19 @@ export const supabaseApi = createApi({
           },
         });
 
-        Promise.all([takeFromAccount, sendToAccount, transaction]);
+        Promise.all([takeFromAccount, sendToAccount, transaction])
+          .then((results) => {
+            const isError = results.find((result) => result.error);
+            if (isError) {
+              throw new Error(`${isError.error?.message}`);
+            } else {
+              console.log("Transfer: Success");
+            }
+          })
+          .catch((error) => {
+            console.log("Error", error);
+            throw new Error(`${error.message}`);
+          });
 
         return { data: data || [] };
       },
