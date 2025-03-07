@@ -55,13 +55,20 @@ const TransferModal = () => {
 
   setValue(
     "fromAccount",
-    (tranData && JSON.parse(tranData.account).fromAccount) || ""
+    (tranData?.tranCategory === "transfer" &&
+      JSON.parse(tranData.account).fromAccount) ||
+      ""
   );
   setValue(
     "toAccount",
-    (tranData && JSON.parse(tranData.account).toAccount) || ""
+    (tranData?.tranCategory === "transfer" &&
+      JSON.parse(tranData.account).toAccount) ||
+      ""
   );
-  setValue("amount", (tranData && tranData.amount) || 0);
+  setValue(
+    "amount",
+    (tranData?.tranCategory === "transfer" && tranData.amount) || 0
+  );
 
   return (
     <SwitchModal

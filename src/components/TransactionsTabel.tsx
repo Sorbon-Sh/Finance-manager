@@ -80,7 +80,7 @@ const TransactionsTable = () => {
                   title="icon from Icons8"
                   className="size-5 mr-2"
                 />
-                <span>${params.value}</span>
+                <span>{params.value}</span>
               </div>
             );
           }
@@ -102,10 +102,12 @@ const TransactionsTable = () => {
       {
         field: "account",
         headerName: "Счет",
-        valueFormatter: (params) => {
-          return params.data.tranCategory === "transfer"
-            ? `${JSON.parse(params.data.account).toAccount}`
-            : params.data.account;
+        cellRenderer: (params: ICellRendererParams) => {
+          if (params.data.tranCategory === "transfer") {
+            return `${JSON.parse(params.data.account).toAccount}`;
+          } else {
+            return params.data.account;
+          }
         },
       },
       { field: "counterParty", headerName: "Контрагент" },
