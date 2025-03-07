@@ -6,6 +6,7 @@ import {
   ColDef,
   GridApi,
   GridReadyEvent,
+  ICellRendererParams,
   ModuleRegistry,
   RowClickedEvent,
   RowSelectionModule,
@@ -70,12 +71,24 @@ const TransactionsTable = () => {
       {
         field: "amount",
         headerName: "Сумма",
-        valueFormatter: (params) => {
-          return params.data.tranCategory === "income"
-            ? `+${params.value}`
-            : params.data.tranCategory === "transfer"
-            ? `transfer ${params.value}`
-            : `-${params.value}`;
+        cellRenderer: (params: ICellRendererParams) => {
+          if (params.data.tranCategory === "transfer") {
+            return (
+              <div className="flex items-center">
+                <img
+                  src={transferIcon}
+                  title="icon from Icons8"
+                  className="size-5 mr-2"
+                />
+                <span>${params.value}</span>
+              </div>
+            );
+          }
+          if (params.data.tranCategory === "income") {
+            return `+${params.value}`;
+          } else {
+            return `-${params.value}`;
+          }
         },
         cellStyle: (params) => ({
           color:

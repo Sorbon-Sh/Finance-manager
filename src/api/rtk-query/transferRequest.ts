@@ -53,7 +53,7 @@ export const supabaseApi = createApi({
           },
         });
 
-        Promise.all([takeFromAccount, sendToAccount, transaction])
+        const data = Promise.all([takeFromAccount, sendToAccount, transaction])
           .then((results) => {
             const isError = results.find((result) => result.error);
             if (isError) {
