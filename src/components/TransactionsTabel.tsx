@@ -47,7 +47,13 @@ const TransactionsTable = () => {
   const [deleteTransaction] = useDeleteTransactionMutation();
   const [rowId, setRowId] = useState<string>("");
   const [selectRows, setSelecRows] = useState<GridAndTransaction[]>([]);
-  const containerStyle = useMemo(() => ({ width: "100%", height: "100%" }), []);
+  const containerStyle = useMemo(
+    () => ({
+      width: "100%",
+      height: "100%",
+    }),
+    []
+  );
   const gridStyle = useMemo(() => ({ height: "500px", width: "100%" }), []);
   const { data: transactions, refetch } = useGetSumQuery("transactions");
   const [gridApi, setGridApi] = useState<GridApi | null>(null);
@@ -134,6 +140,8 @@ const TransactionsTable = () => {
     columnBorder: { style: "none" },
     rowHeight: "74px",
     rowHoverColor: "#edf4f7",
+    checkboxCheckedBackgroundColor: "#00b28e",
+    checkboxCheckedShapeColor: "#fff",
   });
 
   const rowSelection = useMemo<

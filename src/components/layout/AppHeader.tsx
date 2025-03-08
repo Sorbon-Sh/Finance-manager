@@ -37,7 +37,7 @@ const AppHeader = () => {
             задать relative */}
             <div className="absolute w-72 mt-2 bg-white rounded-xl left-10">
               <div className="py-2">
-                <Button className="py-3 text-start block px-3 mx-auto rounded-md hover:bg-gray-200 w-[95%]">
+                <Button className="py-3  text-start block px-3 mx-auto rounded-md hover:bg-gray-200 w-[95%]">
                   {companyName}
                 </Button>
                 <hr className="my-2 bg-gray-200" />
@@ -45,7 +45,7 @@ const AppHeader = () => {
                   submitHandler={() =>
                     dispatch(openModal(["editCompany", true]))
                   }
-                  className="py-3 w-[95%] block mx-auto px-3 rounded-md text-green-400 text-start hover:bg-gray-200"
+                  className="py-3 w-[95%] cursor-pointer block mx-auto px-3 rounded-md text-green-400 text-start hover:bg-gray-200"
                 >
                   Edit
                 </Button>
@@ -56,7 +56,7 @@ const AppHeader = () => {
       </div>
       <div className="flex gap-x-6">
         <Button
-          className="headerButton bg-green-300/20 text-green-300"
+          className="headerButton cursor-pointer bg-green-300/20 text-green-300"
           submitHandler={() => dispatch(openModal(["income", true]))}
         >
           <span>
@@ -66,7 +66,7 @@ const AppHeader = () => {
         </Button>
 
         <Button
-          className="headerButton bg-red-300/20 text-red-400 "
+          className="headerButton cursor-pointer bg-red-300/20 text-red-400 "
           submitHandler={() => dispatch(openModal(["expense", true]))}
         >
           <span>
@@ -76,7 +76,7 @@ const AppHeader = () => {
         </Button>
         <Button
           submitHandler={() => dispatch(openModal(["transfer", true]))}
-          className="headerButton  bg-gray-600/55 "
+          className="headerButton cursor-pointer bg-gray-600/55 "
         >
           <span>
             <img src={arrowTransfer} />

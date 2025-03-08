@@ -63,7 +63,6 @@ export const supabaseApi = createApi({
             }
           })
           .catch((error) => {
-            console.log("Error", error);
             throw new Error(`${error.message}`);
           });
 
