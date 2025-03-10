@@ -10,6 +10,10 @@ export interface Inputs {
   companyName: string;
   fromAccount: string;
   toAccount: string;
+  plan: string;
+  monthlyAmount: number;
+  annualAmount: number;
+  maxAmount: number;
 }
 
 export interface IAccounts {
@@ -73,6 +77,25 @@ interface IOlympicData {
 }
 
 export type GridAndTransaction = IOlympicData & ITransactions;
+
+export interface IFinPlan {
+  id: string;
+  plan: string;
+  planId: string;
+  monthlyAmount: number;
+  annualAmount: number;
+  maxAmount: number;
+  date: IDate;
+}
+
+export interface IFinPlanTransaction {
+  id: string;
+  planId: string;
+  amount: number;
+  fromPlan: string;
+  date: IDate;
+}
+
 export interface IAssets {
   header: {
     date: string;

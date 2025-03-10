@@ -2,8 +2,8 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import supabase from "../supabaseClient";
 import { IAccounts, ICompnay, ITransactions } from "../../types/types";
 
-export const supabaseApi = createApi({
-  reducerPath: "supabaseApi",
+export const insertTranData = createApi({
+  reducerPath: "insertTranData",
   baseQuery: fetchBaseQuery({}),
   tagTypes: ["Accounts"],
   endpoints: (builder) => ({
@@ -123,4 +123,4 @@ export const {
   useGetSingleDataTransactionsQuery,
   useCreateAccountMutation,
   useLazyGetAccountQuery,
-} = supabaseApi;
+} = insertTranData;

@@ -1,13 +1,27 @@
 import { configureStore } from "@reduxjs/toolkit";
 import stateAndDataReducer from "./slices/StateAndData";
-import { supabaseApi } from "../api/rtk-query/insertTranData";
+import { insertTranData } from "../api/rtk-query/insertTranData";
+import { deleteTranData } from "../api/rtk-query/deleteTranData";
+import { updateTranData } from "../api/rtk-query/updateTranData";
+import { finplanApi } from "../api/rtk-query/finPlanRequest";
+import { transferRequest } from "../api/rtk-query/transferRequest";
 export const store = configureStore({
   reducer: {
     stateAndData: stateAndDataReducer,
-    [supabaseApi.reducerPath]: supabaseApi.reducer,
+    [insertTranData.reducerPath]: insertTranData.reducer,
+    [updateTranData.reducerPath]: updateTranData.reducer,
+    [deleteTranData.reducerPath]: deleteTranData.reducer,
+    [finplanApi.reducerPath]: finplanApi.reducer,
+    [transferRequest.reducerPath]: transferRequest.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(supabaseApi.middleware),
+    getDefaultMiddleware().concat(
+      insertTranData.middleware,
+      finplanApi.middleware,
+      transferRequest.middleware,
+      updateTranData.middleware,
+      deleteTranData.middleware
+    ),
 });
 
 // Infer the `RootState`,  `AppDispatch`, and `AppStore` types from the store itself

@@ -2,8 +2,8 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import supabase from "../supabaseClient";
 import { IAccounts } from "../../types/types";
 
-export const supabaseApi = createApi({
-  reducerPath: "supabaseApi",
+export const transferRequest = createApi({
+  reducerPath: "transferRequest",
   baseQuery: fetchBaseQuery({}),
   endpoints: (builder) => ({
     transferRequest: builder.mutation({
@@ -72,4 +72,4 @@ export const supabaseApi = createApi({
   }),
 });
 
-export const { useTransferRequestMutation } = supabaseApi;
+export const { useTransferRequestMutation } = transferRequest;

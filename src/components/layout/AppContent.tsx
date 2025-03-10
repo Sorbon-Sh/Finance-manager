@@ -1,6 +1,5 @@
 import { Link, Route, Routes } from "react-router";
 import Transactions from "../contentComponents/Transactions";
-import Analytic from "../contentComponents/Analytic";
 import FinPlans from "../contentComponents/FinPlans";
 import Deposits from "../contentComponents/Assets";
 import PlanTable from "../PlanTable";
@@ -14,9 +13,6 @@ const AppContent: React.FC = () => {
             <li className="hover:text-slate-100 hover:bg-black">
               Transactions
             </li>
-          </Link>
-          <Link to="/analytic">
-            <li className="hover:text-slate-100 hover:bg-black">Analytic</li>
           </Link>
           <Link to="/finplans">
             <li className="hover:text-slate-100 hover:bg-black">
@@ -38,10 +34,9 @@ const AppContent: React.FC = () => {
          */}
         <Routes>
           <Route path="/" element={<Transactions />} />
-          <Route path="/analytic" element={<Analytic />} />
           <Route path="/finplans" element={<FinPlans />} />
           <Route path="/assets" element={<Deposits />} />
-          <Route path="/finplans/table" element={<PlanTable />} />
+          <Route path="/finplans/:id" element={<PlanTable />} />
           <Route path="*" element={<div>NO Page Found</div>} />
         </Routes>
       </section>

@@ -2,8 +2,8 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import supabase from "../supabaseClient";
 import { IAccounts, ITransactions } from "../../types/types";
 
-export const supabaseApi = createApi({
-  reducerPath: "supabaseApi",
+export const updateTranData = createApi({
+  reducerPath: "updateTranData",
   baseQuery: fetchBaseQuery({}),
   endpoints: (builder) => ({
     updateCompany: builder.mutation({
@@ -200,4 +200,4 @@ export const {
   useUpdateTransactionMutation,
   useUpdateExpenseAmountAccountMutation,
   useUpdateIncomeAmountAccountMutation,
-} = supabaseApi;
+} = updateTranData;

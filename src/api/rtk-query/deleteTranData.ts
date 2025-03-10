@@ -1,8 +1,8 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import supabase from "../supabaseClient";
 
-export const supabaseApi = createApi({
-  reducerPath: "supabaseApi",
+export const deleteTranData = createApi({
+  reducerPath: "deleteTranData",
   baseQuery: fetchBaseQuery({}),
   endpoints: (builder) => ({
     deleteTransaction: builder.mutation({
@@ -24,4 +24,4 @@ export const supabaseApi = createApi({
   }),
 });
 
-export const { useDeleteTransactionMutation } = supabaseApi;
+export const { useDeleteTransactionMutation } = deleteTranData;
