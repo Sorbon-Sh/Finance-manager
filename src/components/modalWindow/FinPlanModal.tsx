@@ -7,19 +7,16 @@ import TimePicker from "react-multi-date-picker/plugins/time_picker";
 import DatePicker from "react-multi-date-picker";
 import { Inputs } from "../../types/types";
 import { useCreateFinPlanMutation } from "../../api/rtk-query/finPlanRequest";
-import { useId } from "react";
 
 const FinPlanModal = () => {
-  const planId = useId();
   const [createFinPlan] = useCreateFinPlanMutation();
-
   const dispatch = useAppDispatch();
   const { register, handleSubmit, control, reset, getValues, setValue } =
     useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     dispatch(openModal(["finplan", false]));
     try {
-      await createFinPlan([data, planId]);
+      await createFinPlan(data);
 
       reset();
     } catch (err) {

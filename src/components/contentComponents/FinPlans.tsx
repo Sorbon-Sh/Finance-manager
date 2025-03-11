@@ -1,15 +1,44 @@
 import { Link } from "react-router";
 import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
-import { openModal } from "../../redux/slices/StateAndData";
+import { openModal, setPlanID } from "../../redux/slices/StateAndData";
 import { createPortal } from "react-dom";
 import FinPlanModal from "../modalWindow/FinPlanModal";
 import { useGetFinPlanQuery } from "../../api/rtk-query/finPlanRequest";
+import { useCapitalize } from "../../hooks/useCapitalize";
+import { useState } from "react";
 
 const FinPlans = () => {
+  const [selectedPlans, setSelectedPlans] = useState<{
+    [key: string]: boolean;
+  }>({});
+  const [checkAll, setCheckAll] = useState<boolean>(false);
   const dispatch = useAppDispatch();
+  const { toLowerCase } = useCapitalize();
   const { data: finPlans } = useGetFinPlanQuery();
   const handleClickSelect = (id: string) => {
-    console.log("ID", id);
+    console.log(id);
+
+    setSelectedPlans((prev) => {
+      const newState = { ...prev, [id]: !prev[id] };
+      const allSelected = Object.values(newState).every((value) => value);
+      setCheckAll(allSelected);
+      return newState;
+    });
+  };
+
+  const handleSelectAll = () => {
+    const newAllChecked = !checkAll;
+    setCheckAll(newAllChecked);
+
+    const newSelectedPlans: Record<string, boolean> = {};
+
+    finPlans?.forEach((plan) => {
+      newSelectedPlans[plan.id] = newAllChecked;
+      if (newAllChecked !== selectedPlans[plan.id]) {
+        handleClickSelect(plan.id);
+      }
+    });
+    setSelectedPlans(newSelectedPlans);
   };
 
   return (
@@ -19,42 +48,61 @@ const FinPlans = () => {
           <h2 className="text-xl font-semibold">Plans</h2>
           <span
             onClick={() => dispatch(openModal(["finplan", true]))}
-            className="px-3 py-2 cursor-pointer rounded-xl bg-green-400"
+            className="px-3 py-2 cursor-pointer rounded-xl bg-green-600 text-white font-medium"
           >
-            Create plan
+            Создать
           </span>
         </div>
       </div>
       <div className="overflow-x-auto">
         <div className="min-w-full bg-white border  border-gray-200 rounded-lg">
-          <div className="flex py-2 px-4 border-b">
+          <div className="flex py-2  border-b">
+            <input
+              type="checkbox"
+              className="size-5 mx-4"
+              onChange={handleSelectAll}
+            />
             <span className="w-1/5 font-semibold">Date</span>
-            <span className="w-1/5 font-semibold">Plan</span>
-            <span className="w-1/5 font-semibold">Month</span>
-            <span className="w-1/5 font-semibold">Year</span>
+            <span className="w-1/5 font-semibold">Moth</span>
+            <span className="w-1/5 font-semibold">Annual</span>
             <span className="w-1/5 font-semibold">Max plan</span>
+            <span className="w-1/5 font-semibold">Plan</span>
           </div>
           {finPlans
             ? finPlans.map((plan) => (
-                <div key={plan.id} className="flex border-b items-center">
+                <div
+                  key={plan.id}
+                  className="flex border-b items-center hover:bg-[#edf4f7] cursor-pointer"
+                >
                   <input
                     type="checkbox"
-                    onClick={() => handleClickSelect(plan.id)}
-                    className="ml-2 size-4"
+                    className="size-5 mx-4"
+                    checked={selectedPlans[plan.id] || false}
+                    onChange={() => handleClickSelect(plan.id)}
                   />
-                  <Link to={`/finplans/${plan.id}`} className="w-full">
-                    <div className="flex py-2 cursor-pointer px-4 items-center">
-                      <span className="w-1/6">
-                        {plan.date.day}.{plan.date.month.shortName}.
-                        {plan.date.year}
+                  <Link
+                    to={`/finplans/${plan.id}`}
+                    className="w-full"
+                    onClick={() => dispatch(setPlanID(plan.id))}
+                  >
+                    <div className="flex items-center h-[74px]">
+                      <div className="w-1/5">
                         <div>
-                          {plan.date.hour}:{plan.date.minute}
+                          {plan.date.day}.
+                          {toLowerCase(plan.date.month.shortName)}.
+                          {plan.date.year}
                         </div>
-                      </span>
-                      <span className="w-1/5">{plan.plan}</span>
-                      <span className="w-1/5">{plan.monthlyAmount}</span>
-                      <span className="w-1/5">{plan.annualAmount}</span>
-                      <span className="w-1/5">{plan.maxAmount}</span>
+                        <div className="text-gray-500">
+                          {plan.date.weekDay.shortName} {plan.date.hour}:
+                          {plan.date.minute}
+                        </div>
+                      </div>
+                      <div className="w-1/5">{plan.monthlyAmount}</div>
+                      <div className=" w-1/5">
+                        <div>{plan.annualAmount}</div>
+                      </div>
+                      <div className=" w-1/5">{plan.maxAmount}</div>
+                      <div className=" w-1/5">{plan.plan}</div>
                     </div>
                   </Link>
                 </div>

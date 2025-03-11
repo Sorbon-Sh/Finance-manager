@@ -7,15 +7,11 @@ export const finplanApi = createApi({
   baseQuery: fetchBaseQuery({}),
   endpoints: (builder) => ({
     createFinPlan: builder.mutation({
-      queryFn: async (data) => {
-        const [formData, planId] = data;
+      queryFn: async (formData) => {
         console.log("FormData: ", formData);
-
-        console.log("PlanId:", planId);
 
         const postRequest = await supabase.from("finplans").insert({
           ...formData,
-          planId: planId,
           date: {
             day: formData.date.day,
             month: formData.date.month,
@@ -75,7 +71,7 @@ export const finplanApi = createApi({
       queryFn: async (data) => {
         const [formData, planData] = data;
 
-        const planId = planData.planId;
+        const planId = planData.id;
         const planName = planData.plan;
         console.log("PlanID: ", planId);
         console.log("PlanName: ", planName);

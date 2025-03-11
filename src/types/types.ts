@@ -81,7 +81,6 @@ export type GridAndTransaction = IOlympicData & ITransactions;
 export interface IFinPlan {
   id: string;
   plan: string;
-  planId: string;
   monthlyAmount: number;
   annualAmount: number;
   maxAmount: number;

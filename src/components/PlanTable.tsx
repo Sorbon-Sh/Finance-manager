@@ -24,7 +24,7 @@ import {
 } from "ag-grid-enterprise";
 import { GridAndTransaction } from "../types/types";
 
-import { useAppDispatch } from "../hooks/useReduxTypedHooks";
+import { useAppDispatch, useAppSelector } from "../hooks/useReduxTypedHooks";
 import { openModal, setTransactionId } from "../redux/slices/StateAndData";
 import { useDeleteTransactionMutation } from "../api/rtk-query/deleteTranData";
 import { useGetPlanTransactionsQuery } from "../api/rtk-query/finPlanRequest";
@@ -45,6 +45,7 @@ ModuleRegistry.registerModules([
 
 const PlanTable = () => {
   const dispatch = useAppDispatch();
+  const planId = useAppSelector((state) => state.stateAndData.planId);
   const gridRef = useRef<AgGridReact<GridAndTransaction>>(null);
   const [deleteTransaction] = useDeleteTransactionMutation();
   const [rowId, setRowId] = useState<string>("");
@@ -58,7 +59,6 @@ const PlanTable = () => {
   );
   const gridStyle = useMemo(() => ({ height: "500px", width: "100%" }), []);
   const { data: transactions, refetch } = useGetPlanTransactionsQuery();
-  console.log("transactions", transactions);
   const [gridApi, setGridApi] = useState<GridApi | null>(null);
 
   const onGridReady = useCallback((params: GridReadyEvent) => {
@@ -130,7 +130,12 @@ const PlanTable = () => {
 
   useEffect(() => {
     if (gridApi && transactions) {
-      gridApi.setGridOption("rowData", transactions);
+      console.log("PlanId Redux:", planId);
+
+      const showDataById = transactions.filter(
+        (elem) => elem.planId === planId
+      );
+      gridApi.setGridOption("rowData", showDataById);
     }
   }, [transactions, gridApi]);
 
