@@ -4,7 +4,8 @@ import { insertTranData } from "../api/rtk-query/insertTranData";
 import { deleteTranData } from "../api/rtk-query/deleteTranData";
 import { updateTranData } from "../api/rtk-query/updateTranData";
 import { finplanApi } from "../api/rtk-query/finPlanRequest";
-import { transferRequest } from "../api/rtk-query/transferRequest";
+import { finPlanTransactionsApi } from "../api/rtk-query/finPlanTransactions";
+import { transferRequest } from "../../transferRequest";
 export const store = configureStore({
   reducer: {
     stateAndData: stateAndDataReducer,
@@ -12,12 +13,14 @@ export const store = configureStore({
     [updateTranData.reducerPath]: updateTranData.reducer,
     [deleteTranData.reducerPath]: deleteTranData.reducer,
     [finplanApi.reducerPath]: finplanApi.reducer,
+    [finPlanTransactionsApi.reducerPath]: finPlanTransactionsApi.reducer,
     [transferRequest.reducerPath]: transferRequest.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
       insertTranData.middleware,
       finplanApi.middleware,
+      finPlanTransactionsApi.middleware,
       transferRequest.middleware,
       updateTranData.middleware,
       deleteTranData.middleware

@@ -1,23 +1,37 @@
-import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
-import { openModal, setTransactionId } from "../../redux/slices/StateAndData";
+import { useAppDispatch, useAppSelector } from "../../hooks/useReduxTypedHooks";
+import { openModal, setPlanID } from "../../redux/slices/StateAndData";
 import SwitchModal from "./SwitchModal";
 import closeIcon from "../../assets/closeIcon.svg";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import TimePicker from "react-multi-date-picker/plugins/time_picker";
 import DatePicker from "react-multi-date-picker";
 import { Inputs } from "../../types/types";
-import { useCreateFinPlanMutation } from "../../api/rtk-query/finPlanRequest";
+
+import {
+  useCreateFinPlanMutation,
+  useGetFinPlanQuery,
+  useUpdatePlanMutation,
+} from "../../api/rtk-query/finPlanRequest";
 
 const FinPlanModal = () => {
   const [createFinPlan] = useCreateFinPlanMutation();
+  const [updatePlan] = useUpdatePlanMutation();
+  const { data: finPlans, refetch: refetchFinPlan } = useGetFinPlanQuery();
+  const planRowsId = useAppSelector((state) => state.stateAndData.planId);
   const dispatch = useAppDispatch();
   const { register, handleSubmit, control, reset, getValues, setValue } =
     useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     dispatch(openModal(["finplan", false]));
+    dispatch(setPlanID(""));
     try {
-      await createFinPlan(data);
+      if (planRowsId) {
+        await updatePlan([data, planRowsId]);
+      } else {
+        await createFinPlan(data);
+      }
 
+      refetchFinPlan();
       reset();
     } catch (err) {
       console.log("Error", err);
@@ -27,8 +41,15 @@ const FinPlanModal = () => {
 
   const onClose = () => {
     dispatch(openModal(["finplan", false]));
-    dispatch(setTransactionId(""));
+    dispatch(setPlanID(""));
   };
+
+  const planDataById = finPlans?.find((plan) => plan.id === planRowsId);
+
+  setValue("plan", planDataById?.plan || "");
+  setValue("monthlyAmount", planDataById?.monthlyAmount || 0);
+  setValue("annualAmount", planDataById?.annualAmount || 0);
+  setValue("maxAmount", planDataById?.maxAmount || 0);
 
   return (
     <SwitchModal

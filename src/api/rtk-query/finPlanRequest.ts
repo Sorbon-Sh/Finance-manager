@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import supabase from "../supabaseClient";
-import { IFinPlan, IFinPlanTransaction } from "../../types/types";
+import { IFinPlan } from "../../types/types";
 
 export const finplanApi = createApi({
   reducerPath: "finplanApi",
@@ -54,34 +54,15 @@ export const finplanApi = createApi({
         return { data: data || [] };
       },
     }),
-    getPlanTransactions: builder.query<IFinPlanTransaction[], void>({
-      queryFn: async () => {
-        const { data: data, error } = await supabase
-          .from("finplanTransactions")
-          .select("*");
-        if (error) {
-          console.log(error.message);
-          throw new Error(error.message);
-        }
-
-        return { data: data || [] };
-      },
-    }),
-    planTransactions: builder.mutation({
+    updatePlan: builder.mutation({
       queryFn: async (data) => {
-        const [formData, planData] = data;
+        const [formData, rowsId] = data;
+        console.log("updatePlan: ", "Started");
 
-        const planId = planData.id;
-        const planName = planData.plan;
-        console.log("PlanID: ", planId);
-        console.log("PlanName: ", planName);
-
-        const { data: Supadata, error } = await supabase
-          .from("finplanTransactions")
-          .insert({
+        const updateRequest = await supabase
+          .from("finplans")
+          .update({
             ...formData,
-            planId: planId,
-            fromPlan: planName,
             date: {
               day: formData.date.day,
               month: formData.date.month,
@@ -90,13 +71,52 @@ export const finplanApi = createApi({
               minute: formData.date.minute,
               weekDay: formData.date.weekDay,
             },
-          });
-        if (error) {
-          console.log(error.message);
-          throw new Error(error.message);
-        }
+          })
+          .eq("id", rowsId);
 
-        return { data: Supadata || [] };
+        Promise.all([updateRequest])
+          .then((results) => {
+            const isError = results.find((result) => result.error);
+            if (isError) {
+              throw new Error(`${isError.error?.message}`);
+            } else {
+              console.log(
+                "✅ Данные успешно отправлены в базу данных!: ",
+                results
+              );
+            }
+          })
+          .catch((error) => {
+            throw new Error(`❌ Ошибка: ${error.message}`);
+          });
+
+        return { data: updateRequest || [] };
+      },
+    }),
+    deletePlan: builder.mutation({
+      queryFn: async (rowsId) => {
+        const deleteRequest = await supabase
+          .from("finplans")
+          .delete()
+          .in("id", rowsId);
+
+        Promise.all([deleteRequest])
+          .then((results) => {
+            const isError = results.find((result) => result.error);
+            if (isError) {
+              throw new Error(`${isError.error?.message}`);
+            } else {
+              console.log(
+                "✅ Данные успешно отправлены в базу данных!: ",
+                results
+              );
+            }
+          })
+          .catch((error) => {
+            throw new Error(`❌ Ошибка: ${error.message}`);
+          });
+
+        return { data: deleteRequest || [] };
       },
     }),
   }),
@@ -105,6 +125,6 @@ export const finplanApi = createApi({
 export const {
   useCreateFinPlanMutation,
   useGetFinPlanQuery,
-  useGetPlanTransactionsQuery,
-  usePlanTransactionsMutation,
+  useUpdatePlanMutation,
+  useDeletePlanMutation,
 } = finplanApi;

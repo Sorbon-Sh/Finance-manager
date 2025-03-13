@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import supabase from "../supabaseClient";
-import { IAccounts } from "../../types/types";
+import supabase from "./src/api/supabaseClient";
+import { IAccounts } from "./src/types/types";
 
 export const transferRequest = createApi({
   reducerPath: "transferRequest",

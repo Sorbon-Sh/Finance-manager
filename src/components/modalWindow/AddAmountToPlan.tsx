@@ -6,15 +6,18 @@ import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import TimePicker from "react-multi-date-picker/plugins/time_picker";
 import DatePicker from "react-multi-date-picker";
 import { Inputs } from "../../types/types";
-import {
-  useGetFinPlanQuery,
-  usePlanTransactionsMutation,
-} from "../../api/rtk-query/finPlanRequest";
+
 import { useParams } from "react-router";
+import { useGetFinPlanQuery } from "../../api/rtk-query/finPlanRequest";
+import {
+  useGetPlanTransactionsQuery,
+  usePlanTransactionsMutation,
+} from "../../api/rtk-query/finPlanTransactions";
 
 const AddAmountToPlanModal = () => {
   const { id } = useParams<{ id: string }>();
   const { data: planData } = useGetFinPlanQuery();
+  const { refetch: refetchPlanTran } = useGetPlanTransactionsQuery();
   const [planTransactions] = usePlanTransactionsMutation();
   const dispatch = useAppDispatch();
   const { register, handleSubmit, control, reset } = useForm<Inputs>();
@@ -23,6 +26,7 @@ const AddAmountToPlanModal = () => {
     try {
       const plan = planData ? planData.find((plan) => plan.id === id) : null;
       await planTransactions([data, plan]);
+      refetchPlanTran();
       reset();
     } catch (err) {
       console.log("Error", err);

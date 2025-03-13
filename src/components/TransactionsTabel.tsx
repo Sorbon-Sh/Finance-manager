@@ -226,19 +226,27 @@ const TransactionsTable = () => {
             >
               <span
                 onClick={deleteTran}
-                className="cursor-pointer hover:bg-slate-50/30 px-2 py-1 rounded-xl"
+                className={`cursor-pointer ${
+                  selectRows.length !== 0 ? "visible" : "hidden"
+                }`}
               >
                 Удалить запись
               </span>
               {selectRows.length <= 1 && (
                 <span
-                  className="cursor-pointer hover:bg-slate-50/30 px-2 py-1 rounded-xl"
+                  className={`cursor-pointer ${
+                    selectRows.length !== 0 ? "visible" : "hidden"
+                  }`}
                   onClick={() => editIncome(rowId)}
                 >
                   Изменить
                 </span>
               )}
-              <span>
+              <span
+                className={`cursor-pointer ${
+                  selectRows.length !== 0 ? "visible" : "hidden"
+                }`}
+              >
                 Доход * {selectRows.length} платеж *{" "}
                 {selectRows
                   .filter((elem) => elem.tranCategory === "income")

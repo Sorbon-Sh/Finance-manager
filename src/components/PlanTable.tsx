@@ -27,9 +27,9 @@ import { GridAndTransaction } from "../types/types";
 import { useAppDispatch, useAppSelector } from "../hooks/useReduxTypedHooks";
 import { openModal, setTransactionId } from "../redux/slices/StateAndData";
 import { useDeleteTransactionMutation } from "../api/rtk-query/deleteTranData";
-import { useGetPlanTransactionsQuery } from "../api/rtk-query/finPlanRequest";
 import { createPortal } from "react-dom";
 import AddAmountToPlanModal from "./modalWindow/AddAmountToPlan";
+import { useGetPlanTransactionsQuery } from "../api/rtk-query/finPlanTransactions";
 ModuleRegistry.registerModules([
   RowSelectionModule,
   ClientSideRowModelModule,

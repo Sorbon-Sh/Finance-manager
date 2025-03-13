@@ -71,9 +71,6 @@ const AppSider = () => {
           </Button>
         </div>
         <hr className=" bg-gray-400 mt-5 border-gray-400" />
-        <div className="mt-5 text-sm text-gray-500">
-          Здесь будут отображаться <br /> платежи с датой в будущем 👇
-        </div>
       </article>
       {createPortal(<CreateAccount />, document.body)}
       {createPortal(<EditAccount />, document.body)}

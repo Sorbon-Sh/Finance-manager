@@ -10,7 +10,7 @@ import {
 } from "../../api/rtk-query/insertTranData";
 import TimePicker from "react-multi-date-picker/plugins/time_picker";
 import DatePicker from "react-multi-date-picker";
-import { useTransferRequestMutation } from "../../api/rtk-query/transferRequest";
+import { useTransferRequestMutation } from "../../../transferRequest";
 import { Inputs } from "../../types/types";
 
 const TransferModal = () => {
