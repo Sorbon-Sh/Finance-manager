@@ -9,6 +9,7 @@ const initialState: IData = {
   transactionId: "",
   incomeButton: false,
   planId: "",
+  planTranId: "",
 };
 
 // ? Аналог если TypeScript из лишне будет проверять Redux
@@ -46,6 +47,9 @@ export const modalState = createSlice({
     setPlanID: (state, action: PayloadAction<string>) => {
       state.planId = action.payload;
     },
+    setPlanTranID: (state, action: PayloadAction<string>) => {
+      state.planTranId = action.payload;
+    },
   },
 });
 
@@ -57,6 +61,7 @@ export const {
   isIncomeButtonClicked,
   choosedAccount,
   setPlanID,
+  setPlanTranID,
 } = modalState.actions;
 
 export default modalState.reducer;

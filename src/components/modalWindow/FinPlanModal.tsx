@@ -45,7 +45,6 @@ const FinPlanModal = () => {
   };
 
   const planDataById = finPlans?.find((plan) => plan.id === planRowsId);
-
   setValue("plan", planDataById?.plan || "");
   setValue("monthlyAmount", planDataById?.monthlyAmount || 0);
   setValue("annualAmount", planDataById?.annualAmount || 0);

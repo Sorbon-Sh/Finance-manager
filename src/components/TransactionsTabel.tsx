@@ -45,8 +45,8 @@ const TransactionsTable = () => {
   const dispatch = useAppDispatch();
   const gridRef = useRef<AgGridReact<GridAndTransaction>>(null);
   const [deleteTransaction] = useDeleteTransactionMutation();
-  const [rowId, setRowId] = useState<string>("");
   const [selectRows, setSelecRows] = useState<GridAndTransaction[]>([]);
+  const rowsId = selectRows.find((item) => item);
   const containerStyle = useMemo(
     () => ({
       width: "100%",
@@ -166,27 +166,6 @@ const TransactionsTable = () => {
     }
   }, [transactions, gridApi]);
 
-  const editIncome = (id: string) => {
-    dispatch(setTransactionId(id));
-    dispatch(openModal(["income", true]));
-  };
-
-  const editTransfer = (id: string) => {
-    dispatch(setTransactionId(id));
-    dispatch(openModal(["transfer", true]));
-  };
-
-  const handleRowClick = useCallback((event: RowClickedEvent) => {
-    setRowId(event.data.id);
-    if (event.data.tranCategory === "income") editIncome(event.data.id);
-    if (event.data.tranCategory === "transfer") editTransfer(event.data.id);
-  }, []);
-
-  const deleteTran = async () => {
-    const ids = selectRows.map((elem) => elem.id);
-    await deleteTransaction(ids);
-    refetch();
-  };
   const onFilterTextBoxChanged = useCallback(() => {
     gridRef.current!.api.setGridOption(
       "quickFilterText",
@@ -198,6 +177,33 @@ const TransactionsTable = () => {
       fileName: "FinManager.xlsx",
     });
   };
+
+  const editRowsByCheckBox = (rowId: { id: string; tranCategory: string }) => {
+    if (rowId.tranCategory === "income") {
+      dispatch(setTransactionId(rowId.id));
+      dispatch(openModal(["income", true]));
+    }
+    if (rowId.tranCategory === "transfer") {
+      dispatch(setTransactionId(rowId.id));
+      dispatch(openModal(["transfer", true]));
+    }
+  };
+  const editTransfer = (ids: string) => {
+    dispatch(setTransactionId(ids));
+    dispatch(openModal(["transfer", true]));
+  };
+
+  const handleRowClick = useCallback((event: RowClickedEvent) => {
+    if (event.data.tranCategory === "income") editRowsByCheckBox(event.data.id);
+    if (event.data.tranCategory === "transfer") editTransfer(event.data.id);
+  }, []);
+
+  const deleteTran = async () => {
+    const ids = selectRows.map((elem) => elem.id);
+    await deleteTransaction(ids);
+    refetch();
+  };
+
   return (
     <section>
       <div style={containerStyle}>
@@ -226,7 +232,7 @@ const TransactionsTable = () => {
             >
               <span
                 onClick={deleteTran}
-                className={`cursor-pointer ${
+                className={`cursor-pointer hover:bg-slate-50/30 px-2 py-1 rounded-xl ${
                   selectRows.length !== 0 ? "visible" : "hidden"
                 }`}
               >
@@ -234,10 +240,10 @@ const TransactionsTable = () => {
               </span>
               {selectRows.length <= 1 && (
                 <span
-                  className={`cursor-pointer ${
+                  className={`cursor-pointer hover:bg-slate-50/30 px-2 py-1 rounded-xl ${
                     selectRows.length !== 0 ? "visible" : "hidden"
                   }`}
-                  onClick={() => editIncome(rowId)}
+                  onClick={() => editRowsByCheckBox(rowsId)}
                 >
                   Изменить
                 </span>

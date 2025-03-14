@@ -24,12 +24,16 @@ import {
 } from "ag-grid-enterprise";
 import { GridAndTransaction } from "../types/types";
 
-import { useAppDispatch, useAppSelector } from "../hooks/useReduxTypedHooks";
-import { openModal, setTransactionId } from "../redux/slices/StateAndData";
-import { useDeleteTransactionMutation } from "../api/rtk-query/deleteTranData";
+import { useAppDispatch } from "../hooks/useReduxTypedHooks";
+import { openModal, setPlanTranID } from "../redux/slices/StateAndData";
+
 import { createPortal } from "react-dom";
 import AddAmountToPlanModal from "./modalWindow/AddAmountToPlan";
-import { useGetPlanTransactionsQuery } from "../api/rtk-query/finPlanTransactions";
+import {
+  useDeletePlanTransactionsMutation,
+  useGetPlanTransactionsQuery,
+} from "../api/rtk-query/finPlanTransactions";
+import { useParams } from "react-router";
 ModuleRegistry.registerModules([
   RowSelectionModule,
   ClientSideRowModelModule,
@@ -44,10 +48,10 @@ ModuleRegistry.registerModules([
 ]);
 
 const PlanTable = () => {
+  const { id: urlPlanId } = useParams();
   const dispatch = useAppDispatch();
-  const planId = useAppSelector((state) => state.stateAndData.planId);
   const gridRef = useRef<AgGridReact<GridAndTransaction>>(null);
-  const [deleteTransaction] = useDeleteTransactionMutation();
+  const [deletePlanTransactions] = useDeletePlanTransactionsMutation();
   const [rowId, setRowId] = useState<string>("");
   const [selectRows, setSelecRows] = useState<GridAndTransaction[]>([]);
   const containerStyle = useMemo(
@@ -130,34 +134,28 @@ const PlanTable = () => {
 
   useEffect(() => {
     if (gridApi && transactions) {
-      console.log("PlanId Redux:", planId);
-
       const showDataById = transactions.filter(
-        (elem) => elem.planId === planId
+        (elem) => elem.planId === urlPlanId
       );
       gridApi.setGridOption("rowData", showDataById);
     }
   }, [transactions, gridApi]);
 
-  const editIncome = (id: string) => {
-    dispatch(setTransactionId(id));
-    dispatch(openModal(["income", true]));
-  };
+  const editPlanTran = (id: string) => {
+    console.log("id: ", id);
 
-  const editTransfer = (id: string) => {
-    dispatch(setTransactionId(id));
-    dispatch(openModal(["transfer", true]));
+    dispatch(setPlanTranID(id));
+    dispatch(openModal(["addAmountPlan", true]));
   };
 
   const handleRowClick = useCallback((event: RowClickedEvent) => {
     setRowId(event.data.id);
-    if (event.data.tranCategory === "income") editIncome(event.data.id);
-    if (event.data.tranCategory === "transfer") editTransfer(event.data.id);
+    editPlanTran(event.data.id);
   }, []);
 
   const deleteTran = async () => {
     const ids = selectRows.map((elem) => elem.id);
-    await deleteTransaction(ids);
+    await deletePlanTransactions(ids);
     refetch();
   };
   const onFilterTextBoxChanged = useCallback(() => {
@@ -202,7 +200,7 @@ const PlanTable = () => {
               {selectRows.length <= 1 && (
                 <span
                   className="cursor-pointer hover:bg-slate-50/30 px-2 py-1 rounded-xl"
-                  onClick={() => editIncome(rowId)}
+                  onClick={() => editPlanTran(rowId)}
                 >
                   Изменить
                 </span>

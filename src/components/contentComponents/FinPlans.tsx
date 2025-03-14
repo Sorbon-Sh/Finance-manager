@@ -15,7 +15,7 @@ import {
   useGetPlanTransactionsQuery,
 } from "../../api/rtk-query/finPlanTransactions";
 const FinPlans = () => {
-  const { id: urlPlanID } = useParams();
+  const { id: urlPlanID } = useParams<{ id: string }>();
   const [deletePlan] = useDeletePlanMutation();
   const { data: planTransactions } = useGetPlanTransactionsQuery();
   const [deletePlanTransactions] = useDeletePlanTransactionsMutation();
@@ -27,10 +27,6 @@ const FinPlans = () => {
   const { toLowerCase } = useCapitalize();
   const { data: finPlans, refetch: refetchPlan } = useGetFinPlanQuery();
   console.log(rowsId);
-
-  const handleClickGetId = (id: string) => {
-    dispatch(setPlanID(id));
-  };
 
   const handleClickSelect = (id: string) => {
     dispatch(setPlanID(id));
@@ -50,30 +46,31 @@ const FinPlans = () => {
   const handleSelectAll = (event: ChangeEvent<HTMLInputElement>) => {
     const isSelected = event.target.checked;
 
-    // Создаем новый объект для состояний всех планов
+    //* Создаем новый объект для состояний всех планов
     const newSelectedPlans: Record<string, boolean> = {};
 
-    // Создаем новый массив для ID выбранных строк
+    //* Создаем новый массив для ID выбранных строк
     const newRowsId: string[] = [];
 
-    // Устанавливаем все планы в одинаковое состояние
+    //* Устанавливаем все планы в одинаковое состояние
     finPlans?.forEach((plan) => {
       newSelectedPlans[plan.id] = isSelected;
 
-      // Если нужно выбрать все, добавляем ID в массив
+      //* Если нужно выбрать все, добавляем ID в массив
       if (isSelected) {
         newRowsId.push(plan.id);
       }
     });
 
-    // Обновляем состояние выбранных планов
+    //* Обновляем состояние выбранных планов
     setSelectedPlans(newSelectedPlans);
 
-    // Обновляем массив ID выбранных строк
+    //* Обновляем массив ID выбранных строк
     setRowsId(newRowsId);
   };
 
   const handleClickDelete = async () => {
+    //? Фильтруем ID метод some в этом поможет
     const planTranId =
       rowsId?.filter((id) => planTransactions?.some((t) => t.planId === id)) ||
       null;
@@ -156,11 +153,7 @@ const FinPlans = () => {
                   checked={selectedPlans[plan.id] || false}
                   onChange={() => handleClickSelect(plan.id)}
                 />
-                <Link
-                  to={`/finplans/${plan.id}`}
-                  className="w-full"
-                  onClick={() => handleClickGetId(plan.id)}
-                >
+                <Link to={`/finplans/${plan.id}`} className="w-full">
                   <div className="flex items-center h-[74px]">
                     <div className="w-1/5">
                       <div>

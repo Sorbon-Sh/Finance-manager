@@ -1,4 +1,4 @@
-import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
+import { useAppDispatch, useAppSelector } from "../../hooks/useReduxTypedHooks";
 import { openModal, setTransactionId } from "../../redux/slices/StateAndData";
 import SwitchModal from "./SwitchModal";
 import closeIcon from "../../assets/closeIcon.svg";
@@ -8,23 +8,28 @@ import DatePicker from "react-multi-date-picker";
 import { Inputs } from "../../types/types";
 
 import { useParams } from "react-router";
-import { useGetFinPlanQuery } from "../../api/rtk-query/finPlanRequest";
 import {
   useGetPlanTransactionsQuery,
   usePlanTransactionsMutation,
 } from "../../api/rtk-query/finPlanTransactions";
 
 const AddAmountToPlanModal = () => {
-  const { id } = useParams<{ id: string }>();
-  const { data: planData } = useGetFinPlanQuery();
+  const { id: urlPlanId } = useParams<{ id: string }>();
+  const planTranRowsId = useAppSelector(
+    (state) => state.stateAndData.planTranId
+  );
+  const { data: planTranData } = useGetPlanTransactionsQuery();
   const { refetch: refetchPlanTran } = useGetPlanTransactionsQuery();
   const [planTransactions] = usePlanTransactionsMutation();
   const dispatch = useAppDispatch();
-  const { register, handleSubmit, control, reset } = useForm<Inputs>();
+  const { register, handleSubmit, control, reset, setValue } =
+    useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     dispatch(openModal(["addAmountPlan", false]));
     try {
-      const plan = planData ? planData.find((plan) => plan.id === id) : null;
+      const plan = planTranData
+        ? planTranData.find((plan) => plan.id === urlPlanId)
+        : null;
       await planTransactions([data, plan]);
       refetchPlanTran();
       reset();
@@ -38,6 +43,14 @@ const AddAmountToPlanModal = () => {
     dispatch(openModal(["addAmountPlan", false]));
     dispatch(setTransactionId(""));
   };
+
+  const planTranDataById = planTranData?.find(
+    (plan) => plan.id === planTranRowsId
+  );
+
+  console.log("planTranDataById :", planTranDataById);
+
+  setValue("amount", planTranDataById?.amount || 0);
 
   return (
     <SwitchModal

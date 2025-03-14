@@ -19,34 +19,7 @@ export const finPlanTransactionsApi = createApi({
         return { data: data || [] };
       },
     }),
-    deletePlanTransactions: builder.mutation({
-      queryFn: async (rowsId) => {
-        console.log("RowsID planTran: ", rowsId);
 
-        const deleteRequest = supabase
-          .from("finplanTransactions")
-          .delete()
-          .in("planId", rowsId);
-
-        Promise.all([deleteRequest])
-          .then((results) => {
-            const isError = results.find((result) => result.error);
-            if (isError) {
-              throw new Error(`${isError.error?.message}`);
-            } else {
-              console.log(
-                "✅ Данные успешно удалены из базы данных!: ",
-                results
-              );
-            }
-          })
-          .catch((error) => {
-            throw new Error(`❌ Ошибка: ${error.message}`);
-          });
-
-        return { data: deleteRequest || [] };
-      },
-    }),
     planTransactions: builder.mutation({
       queryFn: async (data) => {
         const [formData, planData] = data;
@@ -79,11 +52,71 @@ export const finPlanTransactionsApi = createApi({
         return { data: Supadata || [] };
       },
     }),
+    deletePlanTransactions: builder.mutation({
+      queryFn: async (rowsId) => {
+        console.log("RowsID planTran: ", rowsId);
+
+        const deleteRequest = supabase
+          .from("finplanTransactions")
+          .delete()
+          .in("planId", rowsId);
+
+        Promise.all([deleteRequest])
+          .then((results) => {
+            const isError = results.find((result) => result.error);
+            if (isError) {
+              throw new Error(`${isError.error?.message}`);
+            } else {
+              console.log(
+                "✅ Данные успешно удалены из базы данных!: ",
+                results
+              );
+            }
+          })
+          .catch((error) => {
+            throw new Error(`❌ Ошибка: ${error.message}`);
+          });
+
+        return { data: deleteRequest || [] };
+      },
+    }),
+    updatePlanTransactions: builder.mutation({
+      queryFn: async (data) => {
+        [formData, rowsId] = data;
+        console.log("RowsID planTran: ", rowsId);
+
+        const updateRequest = supabase
+          .from("finplanTransactions")
+          .update({
+            ...formData,
+          })
+          .eq("id", rowsId);
+
+        Promise.all([updateRequest])
+          .then((results) => {
+            const isError = results.find((result) => result.error);
+            if (isError) {
+              throw new Error(`${isError.error?.message}`);
+            } else {
+              console.log(
+                "✅ Данные успешно удалены из базы данных!: ",
+                results
+              );
+            }
+          })
+          .catch((error) => {
+            throw new Error(`❌ Ошибка: ${error.message}`);
+          });
+
+        return { data: updateRequest || [] };
+      },
+    }),
   }),
 });
 
 export const {
   useDeletePlanTransactionsMutation,
+  useUpdatePlanTransactionsMutation,
   usePlanTransactionsMutation,
   useGetPlanTransactionsQuery,
 } = finPlanTransactionsApi;
