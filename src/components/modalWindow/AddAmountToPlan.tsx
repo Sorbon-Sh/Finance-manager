@@ -6,21 +6,21 @@ import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import TimePicker from "react-multi-date-picker/plugins/time_picker";
 import DatePicker from "react-multi-date-picker";
 import { Inputs } from "../../types/types";
-
-import { useParams } from "react-router";
 import {
   useGetPlanTransactionsQuery,
   usePlanTransactionsMutation,
+  useUpdatePlanTransactionsMutation,
 } from "../../api/rtk-query/finPlanTransactions";
 
 const AddAmountToPlanModal = () => {
-  const { id: urlPlanId } = useParams<{ id: string }>();
   const planTranRowsId = useAppSelector(
     (state) => state.stateAndData.planTranId
   );
-  const { data: planTranData } = useGetPlanTransactionsQuery();
-  const { refetch: refetchPlanTran } = useGetPlanTransactionsQuery();
+
+  const { refetch: refetchPlanTran, data: planTranData } =
+    useGetPlanTransactionsQuery();
   const [planTransactions] = usePlanTransactionsMutation();
+  const [updatePlanTransactions] = useUpdatePlanTransactionsMutation();
   const dispatch = useAppDispatch();
   const { register, handleSubmit, control, reset, setValue } =
     useForm<Inputs>();
@@ -28,9 +28,16 @@ const AddAmountToPlanModal = () => {
     dispatch(openModal(["addAmountPlan", false]));
     try {
       const plan = planTranData
-        ? planTranData.find((plan) => plan.id === urlPlanId)
+        ? planTranData.find((plan) => plan.id === planTranRowsId)
         : null;
-      await planTransactions([data, plan]);
+      console.log("planTranRowsId", planTranRowsId);
+      console.log("plan", plan);
+
+      if (planTranRowsId) {
+        await updatePlanTransactions([data, plan]);
+      } else {
+        await planTransactions([data, plan]);
+      }
       refetchPlanTran();
       reset();
     } catch (err) {

@@ -52,8 +52,8 @@ const PlanTable = () => {
   const dispatch = useAppDispatch();
   const gridRef = useRef<AgGridReact<GridAndTransaction>>(null);
   const [deletePlanTransactions] = useDeletePlanTransactionsMutation();
-  const [rowId, setRowId] = useState<string>("");
   const [selectRows, setSelecRows] = useState<GridAndTransaction[]>([]);
+
   const containerStyle = useMemo(
     () => ({
       width: "100%",
@@ -124,14 +124,6 @@ const PlanTable = () => {
     };
   }, []);
 
-  const onSelectionChanged = useCallback(() => {
-    if (gridRef.current) {
-      const selectedData = gridRef.current.api.getSelectedRows();
-      setSelecRows(selectedData);
-      // Здесь вы можете обновить состояние или выполнить другие действия с выбранными данными
-    }
-  }, []);
-
   useEffect(() => {
     if (gridApi && transactions) {
       const showDataById = transactions.filter(
@@ -141,16 +133,31 @@ const PlanTable = () => {
     }
   }, [transactions, gridApi]);
 
-  const editPlanTran = (id: string) => {
-    console.log("id: ", id);
+  const onFilterTextBoxChanged = useCallback(() => {
+    gridRef.current!.api.setGridOption(
+      "quickFilterText",
+      (document.getElementById("filter-text-box") as HTMLInputElement).value
+    );
+  }, []);
 
-    dispatch(setPlanTranID(id));
-    dispatch(openModal(["addAmountPlan", true]));
+  const onSelectionChanged = useCallback(() => {
+    if (gridRef.current) {
+      const selectedData = gridRef.current.api.getSelectedRows();
+      setSelecRows(selectedData);
+    }
+  }, []);
+
+  const editPlanTran = () => {
+    const rowIdByCheckBox = selectRows.find((item) => item);
+    if (rowIdByCheckBox) {
+      dispatch(setPlanTranID(rowIdByCheckBox.id));
+      dispatch(openModal(["addAmountPlan", true]));
+    }
   };
 
   const handleRowClick = useCallback((event: RowClickedEvent) => {
-    setRowId(event.data.id);
-    editPlanTran(event.data.id);
+    dispatch(setPlanTranID(event.data.id));
+    dispatch(openModal(["addAmountPlan", true]));
   }, []);
 
   const deleteTran = async () => {
@@ -158,12 +165,6 @@ const PlanTable = () => {
     await deletePlanTransactions(ids);
     refetch();
   };
-  const onFilterTextBoxChanged = useCallback(() => {
-    gridRef.current!.api.setGridOption(
-      "quickFilterText",
-      (document.getElementById("filter-text-box") as HTMLInputElement).value
-    );
-  }, []);
 
   return (
     <section>
@@ -200,16 +201,14 @@ const PlanTable = () => {
               {selectRows.length <= 1 && (
                 <span
                   className="cursor-pointer hover:bg-slate-50/30 px-2 py-1 rounded-xl"
-                  onClick={() => editPlanTran(rowId)}
+                  onClick={editPlanTran}
                 >
                   Изменить
                 </span>
               )}
               <span>
                 Доход * {selectRows.length} платеж *{" "}
-                {selectRows
-                  .filter((elem) => elem.tranCategory === "income")
-                  .reduce((acc, amount) => acc + amount.amount, 0)}
+                {selectRows.reduce((acc, amount) => acc + amount.amount, 0)}
               </span>
             </div>
           </div>

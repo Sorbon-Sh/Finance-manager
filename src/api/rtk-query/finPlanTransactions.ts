@@ -59,7 +59,7 @@ export const finPlanTransactionsApi = createApi({
         const deleteRequest = supabase
           .from("finplanTransactions")
           .delete()
-          .in("planId", rowsId);
+          .in("id", rowsId);
 
         Promise.all([deleteRequest])
           .then((results) => {
@@ -82,15 +82,22 @@ export const finPlanTransactionsApi = createApi({
     }),
     updatePlanTransactions: builder.mutation({
       queryFn: async (data) => {
-        [formData, rowsId] = data;
-        console.log("RowsID planTran: ", rowsId);
+        const [formData, rowId] = data;
 
         const updateRequest = supabase
           .from("finplanTransactions")
           .update({
             ...formData,
+            date: {
+              day: formData.date.day,
+              month: formData.date.month,
+              year: formData.date.year,
+              hour: formData.date.hour,
+              minute: formData.date.minute,
+              weekDay: formData.date.weekDay,
+            },
           })
-          .eq("id", rowsId);
+          .eq("id", rowId.id);
 
         Promise.all([updateRequest])
           .then((results) => {
@@ -99,7 +106,7 @@ export const finPlanTransactionsApi = createApi({
               throw new Error(`${isError.error?.message}`);
             } else {
               console.log(
-                "✅ Данные успешно удалены из базы данных!: ",
+                "✅ Данные успешно обновлены из базы данных!: ",
                 results
               );
             }
