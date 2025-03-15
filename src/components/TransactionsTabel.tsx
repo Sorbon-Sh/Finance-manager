@@ -46,7 +46,7 @@ const TransactionsTable = () => {
   const gridRef = useRef<AgGridReact<GridAndTransaction>>(null);
   const [deleteTransaction] = useDeleteTransactionMutation();
   const [selectRows, setSelecRows] = useState<GridAndTransaction[]>([]);
-  const rowsId = selectRows.find((item) => item);
+
   const containerStyle = useMemo(
     () => ({
       width: "100%",
@@ -178,24 +178,29 @@ const TransactionsTable = () => {
     });
   };
 
-  const editRowsByCheckBox = (rowId: { id: string; tranCategory: string }) => {
-    if (rowId.tranCategory === "income") {
-      dispatch(setTransactionId(rowId.id));
+  const editRowsByCheckBox = () => {
+    const rowsId = selectRows.find((item) => item);
+    if (!rowsId) throw new Error("editRowsByCheckBox ID is undefined");
+
+    if (rowsId.tranCategory === "income") {
+      dispatch(setTransactionId(rowsId.id));
       dispatch(openModal(["income", true]));
     }
-    if (rowId.tranCategory === "transfer") {
-      dispatch(setTransactionId(rowId.id));
+    if (rowsId.tranCategory === "transfer") {
+      dispatch(setTransactionId(rowsId.id));
       dispatch(openModal(["transfer", true]));
     }
   };
-  const editTransfer = (ids: string) => {
-    dispatch(setTransactionId(ids));
-    dispatch(openModal(["transfer", true]));
-  };
 
   const handleRowClick = useCallback((event: RowClickedEvent) => {
-    if (event.data.tranCategory === "income") editRowsByCheckBox(event.data.id);
-    if (event.data.tranCategory === "transfer") editTransfer(event.data.id);
+    if (event.data.tranCategory === "income") {
+      dispatch(setTransactionId(event.data.id));
+      dispatch(openModal(["income", true]));
+    }
+    if (event.data.tranCategory === "transfer") {
+      dispatch(setTransactionId(event.data.id));
+      dispatch(openModal(["transfer", true]));
+    }
   }, []);
 
   const deleteTran = async () => {
@@ -227,23 +232,19 @@ const TransactionsTable = () => {
           <div>
             <div
               className={`bg-[#00b28e] w-full px-5  ease-in-out transition-all duration-700 ${
-                selectRows.length !== 0 ? "h-9" : "h-0 text-transparent"
+                selectRows.length !== 0 ? "h-9" : "h-0 [&>span]:hidden"
               } font-bold text-[15px] text-slate-100 flex justify-between  items-center rounded-xl`}
             >
               <span
                 onClick={deleteTran}
-                className={`cursor-pointer hover:bg-slate-50/30 px-2 py-1 rounded-xl ${
-                  selectRows.length !== 0 ? "visible" : "hidden"
-                }`}
+                className="cursor-pointer hover:bg-slate-50/30 px-2 py-1 rounded-xl"
               >
                 Удалить запись
               </span>
               {selectRows.length <= 1 && (
                 <span
-                  className={`cursor-pointer hover:bg-slate-50/30 px-2 py-1 rounded-xl ${
-                    selectRows.length !== 0 ? "visible" : "hidden"
-                  }`}
-                  onClick={() => editRowsByCheckBox(rowsId)}
+                  className="cursor-pointer hover:bg-slate-50/30 px-2 py-1 rounded-xl"
+                  onClick={() => editRowsByCheckBox()}
                 >
                   Изменить
                 </span>

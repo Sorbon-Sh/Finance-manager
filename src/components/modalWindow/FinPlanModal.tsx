@@ -19,7 +19,7 @@ const FinPlanModal = () => {
   const { data: finPlans, refetch: refetchFinPlan } = useGetFinPlanQuery();
   const planRowsId = useAppSelector((state) => state.stateAndData.planId);
   const dispatch = useAppDispatch();
-  const { register, handleSubmit, control, reset, getValues, setValue } =
+  const { register, handleSubmit, control, reset, setValue } =
     useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     dispatch(openModal(["finplan", false]));
