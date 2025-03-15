@@ -1,6 +1,10 @@
 import { Link, useParams } from "react-router";
 import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
-import { openModal, setPlanID } from "../../redux/slices/StateAndData";
+import {
+  openModal,
+  setPlanID,
+  setPlanTranID,
+} from "../../redux/slices/StateAndData";
 import { createPortal } from "react-dom";
 import FinPlanModal from "../modalWindow/FinPlanModal";
 import {

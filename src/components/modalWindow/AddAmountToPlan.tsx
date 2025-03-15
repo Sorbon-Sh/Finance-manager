@@ -11,32 +11,39 @@ import {
   usePlanTransactionsMutation,
   useUpdatePlanTransactionsMutation,
 } from "../../api/rtk-query/finPlanTransactions";
+import { useGetFinPlanQuery } from "../../api/rtk-query/finPlanRequest";
+import { useParams } from "react-router";
 
 const AddAmountToPlanModal = () => {
+  const { id: urlPlanId } = useParams();
   const planTranRowsId = useAppSelector(
     (state) => state.stateAndData.planTranId
   );
-
-  const { refetch: refetchPlanTran, data: planTranData } =
+  const { refetch: refetchPlanTran, data: dataTran } =
     useGetPlanTransactionsQuery();
   const [planTransactions] = usePlanTransactionsMutation();
   const [updatePlanTransactions] = useUpdatePlanTransactionsMutation();
+  const { data: finPlans } = useGetFinPlanQuery();
   const dispatch = useAppDispatch();
   const { register, handleSubmit, control, reset, setValue } =
     useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     dispatch(openModal(["addAmountPlan", false]));
     try {
-      const plan = planTranData
-        ? planTranData.find((plan) => plan.id === planTranRowsId)
+      const planTran = dataTran
+        ? dataTran.find((plan) => plan.id === planTranRowsId)
         : null;
       console.log("planTranRowsId", planTranRowsId);
-      console.log("plan", plan);
+      console.log("plan", planTran);
+
+      const plans = finPlans
+        ? finPlans.find((plan) => plan.id === urlPlanId)
+        : null;
 
       if (planTranRowsId) {
-        await updatePlanTransactions([data, plan]);
+        await updatePlanTransactions([data, planTran]);
       } else {
-        await planTransactions([data, plan]);
+        await planTransactions([data, plans]);
       }
       refetchPlanTran();
       reset();
@@ -51,9 +58,7 @@ const AddAmountToPlanModal = () => {
     dispatch(setTransactionId(""));
   };
 
-  const planTranDataById = planTranData?.find(
-    (plan) => plan.id === planTranRowsId
-  );
+  const planTranDataById = dataTran?.find((plan) => plan.id === planTranRowsId);
 
   console.log("planTranDataById :", planTranDataById);
 
