@@ -22,19 +22,19 @@ import {
   ExcelExportModule,
   QuickFilterModule,
 } from "ag-grid-enterprise";
-import { GridAndTransaction } from "../types/types";
+import { GridAndTransaction } from "../../types/types";
 
-import { useAppDispatch } from "../hooks/useReduxTypedHooks";
-import { openModal, setPlanTranID } from "../redux/slices/StateAndData";
+import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
+import { openModal, setPlanTranID } from "../../redux/slices/StateAndData";
 
 import { createPortal } from "react-dom";
-import AddAmountToPlanModal from "./modalWindow/AddAmountToPlan";
+import AddAmountToPlanModal from "../modalWindow/AddAmountToPlan";
 import {
   useDeletePlanTransactionsMutation,
   useGetPlanTransactionsQuery,
-} from "../api/rtk-query/finPlanTransactions";
+} from "../../api/rtk-query/finPlanTransactions";
 import { useParams } from "react-router";
-import Button from "./buttons/Button";
+import Button from "../buttons/Button";
 ModuleRegistry.registerModules([
   RowSelectionModule,
   ClientSideRowModelModule,

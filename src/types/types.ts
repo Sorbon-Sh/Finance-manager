@@ -10,10 +10,10 @@ export interface Inputs {
   companyName: string;
   fromAccount: string;
   toAccount: string;
-  plan: string;
-  monthlyAmount: number;
-  annualAmount: number;
-  maxAmount: number;
+  plan: string | null;
+  monthlyAmount: number | null;
+  annualAmount: number | null;
+  maxAmount: number | null;
   investment: number;
   taxes: number;
 }

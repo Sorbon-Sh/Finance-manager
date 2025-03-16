@@ -1,10 +1,10 @@
-import { useGetAccountQuery } from "../api/rtk-query/insertTranData";
-import { useAppDispatch } from "../hooks/useReduxTypedHooks";
-import { openModal, setAccountId } from "../redux/slices/StateAndData";
-import closeIcon from "../assets/closeIcon.svg";
-import editIconList from "../assets/edit-icon-list.svg";
-import burgerIcon from "../assets/burger-icon.svg";
-import Button from "./buttons/Button";
+import { useGetAccountQuery } from "../../api/rtk-query/insertTranData";
+import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
+import { openModal, setAccountId } from "../../redux/slices/StateAndData";
+import closeIcon from "../../assets/closeIcon.svg";
+import editIconList from "../../assets/edit-icon-list.svg";
+import burgerIcon from "../../assets/burger-icon.svg";
+import Button from "../buttons/Button";
 
 const AccountList = () => {
   const { data: accouts, isSuccess } = useGetAccountQuery("accounts");

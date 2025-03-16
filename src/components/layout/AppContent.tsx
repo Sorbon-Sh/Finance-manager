@@ -1,8 +1,8 @@
 import { Link, Route, Routes } from "react-router";
 import Transactions from "../contentComponents/Transactions";
 import FinPlans from "../contentComponents/FinPlans";
-import Deposits from "../contentComponents/Assets";
-import PlanTable from "../PlanTable";
+import PlanTable from "../contentComponents/PlanTable";
+import Deposits from "../contentComponents/Deposits";
 
 const AppContent: React.FC = () => {
   return (

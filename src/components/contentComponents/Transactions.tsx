@@ -1,4 +1,4 @@
-import TransactionsTable from "../TransactionsTabel";
+import TransactionsTable from "./TransactionsTabel";
 
 const Transactions = () => {
   return (

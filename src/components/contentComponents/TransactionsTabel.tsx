@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import transferIcon from "../assets/transfer-icon.png";
+import transferIcon from "../../assets/transfer-icon.png";
 import { AgGridReact } from "ag-grid-react";
 import {
   ClientSideRowModelModule,
@@ -23,12 +23,12 @@ import {
   ExcelExportModule,
   QuickFilterModule,
 } from "ag-grid-enterprise";
-import { GridAndTransaction } from "../types/types";
-import { useGetSumQuery } from "../api/rtk-query/insertTranData";
-import { useAppDispatch } from "../hooks/useReduxTypedHooks";
-import { openModal, setTransactionId } from "../redux/slices/StateAndData";
-import { useDeleteTransactionMutation } from "../api/rtk-query/deleteTranData";
-import Button from "./buttons/Button";
+import { GridAndTransaction } from "../../types/types";
+import { useGetSumQuery } from "../../api/rtk-query/insertTranData";
+import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
+import { openModal, setTransactionId } from "../../redux/slices/StateAndData";
+import { useDeleteTransactionMutation } from "../../api/rtk-query/deleteTranData";
+import Button from "../buttons/Button";
 ModuleRegistry.registerModules([
   RowSelectionModule,
   ClientSideRowModelModule,

@@ -1,14 +1,14 @@
-import { useAppDispatch } from "../hooks/useReduxTypedHooks";
-import { openModal, setPlanID } from "../redux/slices/StateAndData";
+import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
+import { openModal, setPlanID } from "../../redux/slices/StateAndData";
 import { createPortal } from "react-dom";
-import { useCapitalize } from "../hooks/useCapitalize";
+import { useCapitalize } from "../../hooks/useCapitalize";
 import { ChangeEvent, useState } from "react";
-import loadingIcon from "../assets/cash-icon.gif";
-import { useGetDepositsQuery } from "../api/rtk-query/depositsRequest";
-import CreateDeposit from "./modalWindow/CreateDeposit";
-import Button from "./buttons/Button";
+import loadingIcon from "../../assets/cash-icon.gif";
+import { useGetDepositsQuery } from "../../api/rtk-query/depositsRequest";
+import CreateDeposit from "../modalWindow/CreateDeposit";
+import Button from "../buttons/Button";
 
-const FinPlans = () => {
+const Deposits = () => {
   const { data: deposits } = useGetDepositsQuery();
   const [selectedPlans, setSelectedPlans] = useState<{
     [key: string]: boolean;
@@ -187,4 +187,4 @@ const FinPlans = () => {
   );
 };
 
-export default FinPlans;
+export default Deposits;

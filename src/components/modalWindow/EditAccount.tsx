@@ -6,7 +6,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { useGetAccountQuery } from "../../api/rtk-query/insertTranData";
 import { Inputs } from "../../types/types";
 import { useUpdateAccountMutation } from "../../api/rtk-query/updateTranData";
-import AccountList from "../AccountList";
+import AccountList from "../contentComponents/AccountList";
 import Button from "../buttons/Button";
 
 const EditAccount = () => {
