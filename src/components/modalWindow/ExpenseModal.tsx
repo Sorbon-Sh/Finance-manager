@@ -15,6 +15,7 @@ import { Inputs, ITransactions } from "../../types/types";
 import TimePicker from "react-multi-date-picker/plugins/time_picker";
 import DatePicker from "react-multi-date-picker";
 import { useUpdateExpenseAmountAccountMutation } from "../../api/rtk-query/updateTranData";
+import Button from "../buttons/Button";
 const ExpenseModal = () => {
   const { data: accounts, refetch: accountRefetch } =
     useGetAccountQuery("accounts");
@@ -193,9 +194,9 @@ const ExpenseModal = () => {
           />
         </div>
         <div className="flex items-center space-x-2"></div>
-        <button className="w-full mt-4 py-2 bg-gradient-to-r from-blue-400 to-green-400 text-white font-semibold rounded-lg cursor-pointer">
+        <Button className="w-full mt-4 py-2 bg-gradient-to-r from-blue-400 to-green-400 text-white font-semibold rounded-lg cursor-pointer">
           Добавить доход
-        </button>
+        </Button>
       </form>
     </SwitchModal>
   );

@@ -28,6 +28,7 @@ import { useGetSumQuery } from "../api/rtk-query/insertTranData";
 import { useAppDispatch } from "../hooks/useReduxTypedHooks";
 import { openModal, setTransactionId } from "../redux/slices/StateAndData";
 import { useDeleteTransactionMutation } from "../api/rtk-query/deleteTranData";
+import Button from "./buttons/Button";
 ModuleRegistry.registerModules([
   RowSelectionModule,
   ClientSideRowModelModule,
@@ -235,19 +236,19 @@ const TransactionsTable = () => {
                 selectRows.length !== 0 ? "h-9" : "h-0 [&>span]:hidden"
               } font-bold text-[15px] text-slate-100 flex justify-between  items-center rounded-xl`}
             >
-              <span
-                onClick={deleteTran}
+              <Button
+                submitHandler={deleteTran}
                 className="cursor-pointer hover:bg-slate-50/30 px-2 py-1 rounded-xl"
               >
                 Удалить запись
-              </span>
+              </Button>
               {selectRows.length <= 1 && (
-                <span
+                <Button
                   className="cursor-pointer hover:bg-slate-50/30 px-2 py-1 rounded-xl"
-                  onClick={() => editRowsByCheckBox()}
+                  submitHandler={() => editRowsByCheckBox()}
                 >
                   Изменить
-                </span>
+                </Button>
               )}
               <span
                 className={`cursor-pointer ${

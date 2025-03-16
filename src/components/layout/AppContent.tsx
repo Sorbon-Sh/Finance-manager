@@ -19,8 +19,8 @@ const AppContent: React.FC = () => {
               Create Fin Plans
             </li>
           </Link>
-          <Link to="/assets">
-            <li className="hover:text-slate-100 hover:bg-black">Assets</li>
+          <Link to="/deposits">
+            <li className="hover:text-slate-100 hover:bg-black">Deposits</li>
           </Link>
         </ul>
       </nav>
@@ -35,7 +35,7 @@ const AppContent: React.FC = () => {
         <Routes>
           <Route path="/" element={<Transactions />} />
           <Route path="/finplans" element={<FinPlans />} />
-          <Route path="/assets" element={<Deposits />} />
+          <Route path="/deposits" element={<Deposits />} />
           <Route path="/finplans/:id" element={<PlanTable />} />
           <Route path="*" element={<div>NO Page Found</div>} />
         </Routes>

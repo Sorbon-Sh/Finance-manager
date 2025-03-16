@@ -14,6 +14,8 @@ export interface Inputs {
   monthlyAmount: number;
   annualAmount: number;
   maxAmount: number;
+  investment: number;
+  taxes: number;
 }
 
 export interface IAccounts {
@@ -95,24 +97,12 @@ export interface IFinPlanTransaction {
   date: IDate;
 }
 
-export interface IAssets {
-  header: {
-    date: string;
-    investmentAmount: string;
-    monthly: string;
-    annual: string;
-    commission: string;
-    all: string;
-    bank: string;
-  };
-  items: {
-    date: string;
-    time: string;
-    investmentAmount: string;
-    monthlyInterest: string;
-    annualInterest: string;
-    commission: string;
-    all: string;
-    bank: string;
-  };
+export interface IDeposits {
+  id: string;
+  date: IDate;
+  investment: number;
+  annualAmount: number;
+  taxes: number;
+  category: string;
+  currency: string;
 }

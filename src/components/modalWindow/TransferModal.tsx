@@ -12,6 +12,7 @@ import TimePicker from "react-multi-date-picker/plugins/time_picker";
 import DatePicker from "react-multi-date-picker";
 import { useTransferRequestMutation } from "../../../transferRequest";
 import { Inputs } from "../../types/types";
+import Button from "../buttons/Button";
 
 const TransferModal = () => {
   const { data: accounts, refetch: accountRefetch } =
@@ -180,9 +181,9 @@ const TransferModal = () => {
           />
         </div>
         <div className="flex items-center space-x-2"></div>
-        <button className="w-full mt-4 py-2 bg-gradient-to-r from-blue-400 to-green-400 text-white font-semibold rounded-lg cursor-pointer">
+        <Button className="w-full mt-4 py-2 bg-gradient-to-r from-blue-400 to-green-400 text-white font-semibold rounded-lg cursor-pointer">
           Добавить перевод
-        </button>
+        </Button>
       </form>
     </SwitchModal>
   );

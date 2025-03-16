@@ -1,38 +1,24 @@
-import { useAppDispatch, useAppSelector } from "../../hooks/useReduxTypedHooks";
-import { openModal, setPlanID } from "../../redux/slices/StateAndData";
+import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
+import { openModal } from "../../redux/slices/StateAndData";
 import SwitchModal from "./SwitchModal";
 import closeIcon from "../../assets/closeIcon.svg";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import TimePicker from "react-multi-date-picker/plugins/time_picker";
 import DatePicker from "react-multi-date-picker";
 import { Inputs } from "../../types/types";
-
-import {
-  useCreateFinPlanMutation,
-  useGetFinPlanQuery,
-  useUpdatePlanMutation,
-} from "../../api/rtk-query/finPlanRequest";
 import Button from "../buttons/Button";
+import { useCreateDepositMutation } from "../../api/rtk-query/depositsRequest";
 
-const FinPlanModal = () => {
-  const [createFinPlan] = useCreateFinPlanMutation();
-  const [updatePlan] = useUpdatePlanMutation();
-  const { data: finPlans, refetch: refetchFinPlan } = useGetFinPlanQuery();
-  const planRowsId = useAppSelector((state) => state.stateAndData.planId);
+const CreateDeposit = () => {
+  const [createDeposit] = useCreateDepositMutation();
+
   const dispatch = useAppDispatch();
-  const { register, handleSubmit, control, reset, setValue } =
-    useForm<Inputs>();
+  const { register, handleSubmit, control, reset } = useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
-    dispatch(openModal(["finplan", false]));
-    dispatch(setPlanID(""));
+    dispatch(openModal(["createDeposit", false]));
     try {
-      if (planRowsId) {
-        await updatePlan([data, planRowsId]);
-      } else {
-        await createFinPlan(data);
-      }
+      await createDeposit(data);
 
-      refetchFinPlan();
       reset();
     } catch (err) {
       console.log("Error", err);
@@ -41,24 +27,23 @@ const FinPlanModal = () => {
   };
 
   const onClose = () => {
-    dispatch(openModal(["finplan", false]));
-    dispatch(setPlanID(""));
+    dispatch(openModal(["createDeposit", false]));
   };
 
-  const planDataById = finPlans?.find((plan) => plan.id === planRowsId);
-  setValue("plan", planDataById?.plan || null);
-  setValue("monthlyAmount", planDataById?.monthlyAmount || null);
-  setValue("annualAmount", planDataById?.annualAmount || null);
-  setValue("maxAmount", planDataById?.maxAmount || null);
+  //   const planDataById = finPlans?.find((plan) => plan.id === planRowsId);
+  //   setValue("investment", planDataById?.plan || null);
+  //   setValue("monthlyAmount", planDataById?.monthlyAmount || null);
+  //   setValue("annualAmount", planDataById?.annualAmount || null);
+  //   setValue("maxAmount", planDataById?.maxAmount || null);
 
   return (
     <SwitchModal
       handleClick={onClose}
-      modalID="finplan"
-      className="bg-white rounded-4xl h-[535px] w-[480px]   pt-6 pb-6  px-8 min-w-md"
+      modalID="createDeposit"
+      className="bg-white rounded-4xl h-auto w-[480px]   pt-6 pb-6  px-8 min-w-md"
     >
       <div className="flex justify-between items-center mb-4 ">
-        <h2 className="text-3xl font-bold">Создать план</h2>
+        <h2 className="text-3xl font-bold">Добавить вклад</h2>
         <button className="cursor-pointer" onClick={onClose}>
           <img src={closeIcon} />
         </button>
@@ -69,31 +54,51 @@ const FinPlanModal = () => {
         autoComplete="off"
       >
         <input
+          type="number"
+          placeholder="Сумма"
+          className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
+          {...register("investment", { valueAsNumber: true })}
+        />
+
+        <select
+          className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
+          {...register("currency")}
+        >
+          <option selected>Валюта</option>
+          <option value="TJS" selected>
+            TJS
+          </option>
+        </select>
+
+        <input
+          type="number"
+          placeholder="В год"
+          className="w-full p-3 bg-gray-200 rounded-lg border border-gray-300 mb-4"
+          {...register("annualAmount", {
+            valueAsNumber: true,
+            validate: (value) => {
+              // Проверка на корректность формата числа с двумя знаками после запятой
+              const regex = /^\d+(\.\d{1,2})?$/;
+              return (
+                regex.test(String(value)) ||
+                "Введите число с не более чем двумя знаками после запятой"
+              );
+            },
+          })}
+        />
+
+        <input
+          type="number"
+          placeholder="Налог"
+          className="w-full p-3 bg-gray-200 rounded-lg border border-gray-300 mb-4"
+          {...register("taxes", { valueAsNumber: true })}
+        />
+
+        <input
           type="text"
-          placeholder="План"
-          className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
-          {...register("plan")}
-        />
-
-        <input
-          type="number"
-          placeholder="За месяц"
-          className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
-          {...register("monthlyAmount", { valueAsNumber: true })}
-        />
-
-        <input
-          type="number"
-          placeholder="За год"
+          placeholder="Категория"
           className="w-full p-3 bg-gray-200 rounded-lg border border-gray-300 mb-4"
-          {...register("annualAmount", { valueAsNumber: true })}
-        />
-
-        <input
-          type="number"
-          placeholder="Всего"
-          className="w-full p-3 bg-gray-200 rounded-lg border border-gray-300 mb-4"
-          {...register("maxAmount", { valueAsNumber: true })}
+          {...register("category")}
         />
 
         <div>
@@ -128,7 +133,7 @@ const FinPlanModal = () => {
           />
         </div>
         <div className="flex items-center space-x-2"></div>
-        <Button className="w-full mt-4 py-2 bg-gradient-to-r from-blue-400 to-green-400 text-white font-semibold rounded-lg cursor-pointer">
+        <Button className="w-full  py-2 bg-gradient-to-r from-blue-400 to-green-400 text-white font-semibold rounded-lg cursor-pointer">
           Создать план
         </Button>
       </form>
@@ -136,4 +141,4 @@ const FinPlanModal = () => {
   );
 };
 
-export default FinPlanModal;
+export default CreateDeposit;

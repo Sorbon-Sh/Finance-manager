@@ -7,6 +7,7 @@ import { useGetAccountQuery } from "../../api/rtk-query/insertTranData";
 import { Inputs } from "../../types/types";
 import { useUpdateAccountMutation } from "../../api/rtk-query/updateTranData";
 import AccountList from "../AccountList";
+import Button from "../buttons/Button";
 
 const EditAccount = () => {
   const dispatch = useAppDispatch();
@@ -73,9 +74,9 @@ const EditAccount = () => {
             </div>
             <p className="text-red-400 ">Скрыть</p>
             <p className="text-red-400">Удалить</p>
-            <button className="w-full  py-4 bg-gradient-to-r from-blue-400 to-green-400  font-semibold rounded-lg cursor-pointer">
+            <Button className="w-full  py-4 bg-gradient-to-r from-blue-400 to-green-400  font-semibold rounded-lg cursor-pointer">
               Изменить счет
-            </button>
+            </Button>
           </form>
         </section>
       ) : (

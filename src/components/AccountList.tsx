@@ -4,6 +4,7 @@ import { openModal, setAccountId } from "../redux/slices/StateAndData";
 import closeIcon from "../assets/closeIcon.svg";
 import editIconList from "../assets/edit-icon-list.svg";
 import burgerIcon from "../assets/burger-icon.svg";
+import Button from "./buttons/Button";
 
 const AccountList = () => {
   const { data: accouts, isSuccess } = useGetAccountQuery("accounts");
@@ -17,9 +18,9 @@ const AccountList = () => {
     <div>
       <div className="flex justify-between items-center mb-4 ">
         <h2 className="text-3xl font-bold">Выбрать аккаунт</h2>
-        <button className="cursor-pointer" onClick={onClose}>
+        <Button className="cursor-pointer" submitHandler={onClose}>
           <img src={closeIcon} />
-        </button>
+        </Button>
       </div>
       {isSuccess
         ? accouts.map((account) => (

@@ -34,6 +34,7 @@ import {
   useGetPlanTransactionsQuery,
 } from "../api/rtk-query/finPlanTransactions";
 import { useParams } from "react-router";
+import Button from "./buttons/Button";
 ModuleRegistry.registerModules([
   RowSelectionModule,
   ClientSideRowModelModule,
@@ -192,19 +193,19 @@ const PlanTable = () => {
                 selectRows.length !== 0 ? "h-9" : "h-0 [&>span]:hidden"
               } font-bold text-[15px] text-slate-100 flex justify-between  items-center rounded-xl`}
             >
-              <span
-                onClick={deleteTran}
+              <Button
+                submitHandler={deleteTran}
                 className="cursor-pointer hover:bg-slate-50/30 px-2 py-1 rounded-xl"
               >
                 Удалить запись
-              </span>
+              </Button>
               {selectRows.length <= 1 && (
-                <span
+                <Button
                   className="cursor-pointer hover:bg-slate-50/30 px-2 py-1 rounded-xl"
-                  onClick={editPlanTran}
+                  submitHandler={editPlanTran}
                 >
                   Изменить
-                </span>
+                </Button>
               )}
               <span>
                 Доход * {selectRows.length} платеж *{" "}

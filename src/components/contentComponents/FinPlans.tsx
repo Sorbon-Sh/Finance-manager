@@ -14,6 +14,7 @@ import {
   useDeletePlanTransactionsMutation,
   useGetPlanTransactionsQuery,
 } from "../../api/rtk-query/finPlanTransactions";
+import Button from "../buttons/Button";
 const FinPlans = () => {
   const { id: urlPlanID } = useParams<{ id: string }>();
   const [deletePlan] = useDeletePlanMutation();
@@ -26,7 +27,6 @@ const FinPlans = () => {
   const dispatch = useAppDispatch();
   const { toLowerCase } = useCapitalize();
   const { data: finPlans, refetch: refetchPlan } = useGetFinPlanQuery();
-  console.log(rowsId);
 
   const handleClickSelect = (id: string) => {
     dispatch(setPlanID(id));
@@ -74,8 +74,6 @@ const FinPlans = () => {
     const planTranId =
       rowsId?.filter((id) => planTransactions?.some((t) => t.planId === id)) ||
       null;
-    console.log("planTranId:", planTranId);
-    console.log("planTranId:", planTranId);
 
     if (planTranId) {
       await deletePlan(rowsId);
@@ -95,12 +93,12 @@ const FinPlans = () => {
       <div className="flex justify-between items-center mb-6">
         <div className="flex justify-between w-full">
           <h2 className="text-xl font-semibold">Plans</h2>
-          <span
-            onClick={handleClickCreate}
+          <Button
+            submitHandler={handleClickCreate}
             className="px-3 py-2 cursor-pointer rounded-xl bg-green-600 text-white font-medium"
           >
             Создать
-          </span>
+          </Button>
         </div>
       </div>
       <div className="overflow-x-auto">
@@ -128,8 +126,8 @@ const FinPlans = () => {
             </span>
           )}
         </div>
-        <div className="min-w-full bg-white border  border-gray-200 rounded-lg">
-          <div className="flex py-2  border-b">
+        <div className="min-w-full  rounded-lg ">
+          <div className="flex py-2 border-b-gray-400 border-b text-gray-500">
             <input
               type="checkbox"
               className="size-5 mx-4"
@@ -145,7 +143,7 @@ const FinPlans = () => {
             finPlans.map((plan) => (
               <div
                 key={plan.id}
-                className="flex border-b items-center hover:bg-[#edf4f7] cursor-pointer "
+                className="flex border-b-gray-400 border-b items-center hover:bg-[#edf4f7] cursor-pointer "
               >
                 <input
                   type="checkbox"
@@ -154,22 +152,26 @@ const FinPlans = () => {
                   onChange={() => handleClickSelect(plan.id)}
                 />
                 <Link to={`/finplans/${plan.id}`} className="w-full">
-                  <div className="flex items-center h-[74px]">
+                  <div className="flex items-center h-[70px] ">
                     <div className="w-1/5">
-                      <div>
+                      <div className="">
                         {plan.date.day}.{toLowerCase(plan.date.month.shortName)}
                         .{plan.date.year}
                       </div>
-                      <div className="text-gray-500">
+                      <div className="text-gray-500 ">
                         {plan.date.weekDay.shortName} {plan.date.hour}:
                         {plan.date.minute}
                       </div>
                     </div>
-                    <div className="w-1/5">{plan.monthlyAmount}</div>
-                    <div className=" w-1/5">
-                      <div>{plan.annualAmount}</div>
+                    <div className="w-1/5 text-green-500 font-medium">
+                      {plan.monthlyAmount}
                     </div>
-                    <div className=" w-1/5">{plan.maxAmount}</div>
+                    <div className=" w-1/5 text-green-500 font-medium">
+                      {plan.annualAmount}
+                    </div>
+                    <div className=" w-1/5 text-green-500 font-medium">
+                      {plan.maxAmount}
+                    </div>
                     <div className=" w-1/5">{plan.plan}</div>
                   </div>
                 </Link>

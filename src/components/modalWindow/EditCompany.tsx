@@ -6,6 +6,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { Inputs } from "../../types/types";
 import { useUpdateCompanyMutation } from "../../api/rtk-query/updateTranData";
 import { useGetCompanyDataQuery } from "../../api/rtk-query/insertTranData";
+import Button from "../buttons/Button";
 
 const EditCompany = () => {
   const dispatch = useAppDispatch();
@@ -58,9 +59,9 @@ const EditCompany = () => {
           />
         </div>
 
-        <button className="w-full  py-4 bg-gradient-to-r from-blue-400 to-green-400  font-semibold rounded-lg cursor-pointer">
+        <Button className="w-full  py-4 bg-gradient-to-r from-blue-400 to-green-400  font-semibold rounded-lg cursor-pointer">
           Изменить
-        </button>
+        </Button>
       </form>
     </SwitchModal>
   );

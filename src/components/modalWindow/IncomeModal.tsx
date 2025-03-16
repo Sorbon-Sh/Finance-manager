@@ -19,6 +19,7 @@ import {
   useUpdateIncomeAmountAccountMutation,
   useUpdateTransactionMutation,
 } from "../../api/rtk-query/updateTranData";
+import Button from "../buttons/Button";
 const IncomeModal = () => {
   const { data: accounts, refetch: accountRefetch } =
     useGetAccountQuery("accounts");
@@ -213,9 +214,9 @@ const IncomeModal = () => {
           />
         </div>
 
-        <button className="w-full  py-2 bg-gradient-to-r from-blue-400 to-green-400 text-white font-semibold rounded-lg cursor-pointer">
+        <Button className="w-full  py-2 bg-gradient-to-r from-blue-400 to-green-400 text-white font-semibold rounded-lg cursor-pointer">
           Добавить доход
-        </button>
+        </Button>
       </form>
     </SwitchModal>
   );

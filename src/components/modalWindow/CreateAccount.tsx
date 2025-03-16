@@ -6,6 +6,7 @@ import attentionIcon from "../../assets/attention-icon.svg";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useCreateAccountMutation } from "../../api/rtk-query/insertTranData";
 import { Inputs } from "../../types/types";
+import Button from "../buttons/Button";
 
 const CreateAccount = () => {
   const dispatch = useAppDispatch();
@@ -70,12 +71,12 @@ const CreateAccount = () => {
             manager
           </span>
         </div>
-        <button
-          onClick={() => dispatch(openModal(["createAccount", false]))}
+        <Button
+          submitHandler={() => dispatch(openModal(["createAccount", false]))}
           className="w-full  py-4 bg-gradient-to-r from-blue-400 to-green-400  font-semibold rounded-lg cursor-pointer"
         >
           Добавить счет
-        </button>
+        </Button>
       </form>
     </SwitchModal>
   );
