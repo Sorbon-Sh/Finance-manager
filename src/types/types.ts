@@ -1,21 +1,22 @@
 export interface Inputs {
-  account: string;
-  amount: number;
-  allAmount: number;
-  category: string;
-  counterParty: string;
-  date: string;
-  currency: string;
-  mainCurrency: string;
-  companyName: string;
-  fromAccount: string;
-  toAccount: string;
+  account: string | null;
+  amount: number | null;
+  allAmount: number | null;
+  category: string | null;
+  counterParty: string | null;
+  date: string | null;
+  currency: string | null;
+  mainCurrency: string | null;
+  companyName: string | null;
+  fromAccount: string | null;
+  toAccount: string | null;
   plan: string | null;
   monthlyAmount: number | null;
   annualAmount: number | null;
+  annualInterest: number | null;
   maxAmount: number | null;
-  investment: number;
-  taxes: number;
+  investment: number | null;
+  taxes: number | null;
 }
 
 export interface IAccounts {
@@ -101,7 +102,7 @@ export interface IDeposits {
   id: string;
   date: IDate;
   investment: number;
-  annualAmount: number;
+  annualInterest: number;
   taxes: number;
   category: string;
   currency: string;

@@ -48,10 +48,8 @@ export const depositsApi = createApi({
     }),
     deleteDeposit: builder.mutation({
       queryFn: async (rowsId) => {
-        console.log("RowsID planTran: ", rowsId);
-
         const deleteRequest = supabase
-          .from("finplanTransactions")
+          .from("deposits")
           .delete()
           .in("id", rowsId);
 
@@ -73,45 +71,47 @@ export const depositsApi = createApi({
 
         return { data: deleteRequest || [] };
       },
+      invalidatesTags: ["Deposits"],
     }),
-    // updatePlanTransactions: builder.mutation({
-    //   queryFn: async (data) => {
-    //     const [formData, rowId] = data;
+    updateDeposit: builder.mutation({
+      queryFn: async (data) => {
+        const [formData, rowId] = data;
 
-    //     const updateRequest = supabase
-    //       .from("finplanTransactions")
-    //       .update({
-    //         ...formData,
-    //         date: {
-    //           day: formData.date.day,
-    //           month: formData.date.month,
-    //           year: formData.date.year,
-    //           hour: formData.date.hour,
-    //           minute: formData.date.minute,
-    //           weekDay: formData.date.weekDay,
-    //         },
-    //       })
-    //       .eq("id", rowId.id);
+        const updateRequest = supabase
+          .from("deposits")
+          .update({
+            ...formData,
+            date: {
+              day: formData.date.day,
+              month: formData.date.month,
+              year: formData.date.year,
+              hour: formData.date.hour,
+              minute: formData.date.minute,
+              weekDay: formData.date.weekDay,
+            },
+          })
+          .eq("id", rowId);
 
-    //     Promise.all([updateRequest])
-    //       .then((results) => {
-    //         const isError = results.find((result) => result.error);
-    //         if (isError) {
-    //           throw new Error(`${isError.error?.message}`);
-    //         } else {
-    //           console.log(
-    //             "✅ Данные успешно обновлены из базы данных!: ",
-    //             results
-    //           );
-    //         }
-    //       })
-    //       .catch((error) => {
-    //         throw new Error(`❌ Ошибка: ${error.message}`);
-    //       });
+        Promise.all([updateRequest])
+          .then((results) => {
+            const isError = results.find((result) => result.error);
+            if (isError) {
+              throw new Error(`${isError.error?.message}`);
+            } else {
+              console.log(
+                "✅ Данные успешно обновлены из базы данных!: ",
+                results
+              );
+            }
+          })
+          .catch((error) => {
+            throw new Error(`❌ Ошибка: ${error.message}`);
+          });
 
-    //     return { data: updateRequest || [] };
-    //   },
-    // }),
+        return { data: updateRequest || [] };
+      },
+      invalidatesTags: ["Deposits"],
+    }),
   }),
 });
 
@@ -119,4 +119,5 @@ export const {
   useGetDepositsQuery,
   useCreateDepositMutation,
   useDeleteDepositMutation,
+  useUpdateDepositMutation,
 } = depositsApi;

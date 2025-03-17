@@ -1,5 +1,5 @@
-import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
-import { openModal } from "../../redux/slices/StateAndData";
+import { useAppDispatch, useAppSelector } from "../../hooks/useReduxTypedHooks";
+import { openModal, setDepositId } from "../../redux/slices/StateAndData";
 import SwitchModal from "./SwitchModal";
 import closeIcon from "../../assets/closeIcon.svg";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
@@ -7,18 +7,30 @@ import TimePicker from "react-multi-date-picker/plugins/time_picker";
 import DatePicker from "react-multi-date-picker";
 import { Inputs } from "../../types/types";
 import Button from "../buttons/Button";
-import { useCreateDepositMutation } from "../../api/rtk-query/depositsRequest";
+import {
+  useCreateDepositMutation,
+  useGetDepositsQuery,
+  useUpdateDepositMutation,
+} from "../../api/rtk-query/depositsRequest";
 
 const CreateDeposit = () => {
+  const { data: deposits } = useGetDepositsQuery();
   const [createDeposit] = useCreateDepositMutation();
-
+  const [updateDeposit] = useUpdateDepositMutation();
+  const depositId = useAppSelector((state) => state.stateAndData.depositId);
+  const [id] = depositId;
   const dispatch = useAppDispatch();
-  const { register, handleSubmit, control, reset } = useForm<Inputs>();
+  const { register, handleSubmit, control, reset, setValue } =
+    useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     dispatch(openModal(["createDeposit", false]));
     try {
-      await createDeposit(data);
-
+      if (depositId.length !== 0) {
+        updateDeposit([data, depositId]);
+      } else {
+        createDeposit(data);
+      }
+      dispatch(setDepositId([]));
       reset();
     } catch (err) {
       console.log("Error", err);
@@ -28,13 +40,15 @@ const CreateDeposit = () => {
 
   const onClose = () => {
     dispatch(openModal(["createDeposit", false]));
+    dispatch(setDepositId([]));
   };
 
-  //   const planDataById = finPlans?.find((plan) => plan.id === planRowsId);
-  //   setValue("investment", planDataById?.plan || null);
-  //   setValue("monthlyAmount", planDataById?.monthlyAmount || null);
-  //   setValue("annualAmount", planDataById?.annualAmount || null);
-  //   setValue("maxAmount", planDataById?.maxAmount || null);
+  const depositDataById = deposits?.find((deposit) => deposit.id === id);
+  setValue("investment", depositDataById?.investment || null);
+  setValue("currency", depositDataById?.currency || null);
+  setValue("annualInterest", depositDataById?.annualInterest || null);
+  setValue("taxes", depositDataById?.taxes || null);
+  setValue("category", depositDataById?.category || null);
 
   return (
     <SwitchModal
@@ -74,7 +88,7 @@ const CreateDeposit = () => {
           type="number"
           placeholder="В год"
           className="w-full p-3 bg-gray-200 rounded-lg border border-gray-300 mb-4"
-          {...register("annualAmount", {
+          {...register("annualInterest", {
             valueAsNumber: true,
             validate: (value) => {
               // Проверка на корректность формата числа с двумя знаками после запятой

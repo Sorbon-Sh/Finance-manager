@@ -1,8 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { initTypes } from "../../types/sliceStateAndData";
 
-type IData = Record<string, unknown>;
-
-const initialState: IData = {
+const initialState: initTypes = {
   accountId: "",
   choosedAccount: [],
   transationAccount: "",
@@ -10,6 +9,7 @@ const initialState: IData = {
   incomeButton: false,
   planId: "",
   planTranId: "",
+  depositId: [],
 };
 
 // ? Аналог если TypeScript из лишне будет проверять Redux
@@ -50,6 +50,9 @@ export const modalState = createSlice({
     setPlanTranID: (state, action: PayloadAction<string>) => {
       state.planTranId = action.payload;
     },
+    setDepositId: (state, action: PayloadAction<string[]>) => {
+      state.depositId = action.payload;
+    },
   },
 });
 
@@ -62,6 +65,7 @@ export const {
   choosedAccount,
   setPlanID,
   setPlanTranID,
+  setDepositId,
 } = modalState.actions;
 
 export default modalState.reducer;

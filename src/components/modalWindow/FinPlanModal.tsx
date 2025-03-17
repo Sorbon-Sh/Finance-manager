@@ -27,11 +27,10 @@ const FinPlanModal = () => {
     dispatch(setPlanID(""));
     try {
       if (planRowsId) {
-        await updatePlan([data, planRowsId]);
+        updatePlan([data, planRowsId]);
       } else {
-        await createFinPlan(data);
+        createFinPlan(data);
       }
-
       refetchFinPlan();
       reset();
     } catch (err) {
