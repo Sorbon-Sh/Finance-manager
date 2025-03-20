@@ -41,7 +41,6 @@ const FinPlanModal = () => {
 
   const onClose = () => {
     dispatch(openModal(["finplan", false]));
-    dispatch(setPlanID(""));
   };
 
   const planDataById = finPlans?.find((plan) => plan.id === planRowsId);
@@ -57,7 +56,9 @@ const FinPlanModal = () => {
       className="bg-white rounded-4xl h-[535px] w-[480px]   pt-6 pb-6  px-8 min-w-md"
     >
       <div className="flex justify-between items-center mb-4 ">
-        <h2 className="text-3xl font-bold">Создать план</h2>
+        <h2 className="text-3xl font-bold">
+          {planRowsId ? "Редактировать" : "Создать план"}
+        </h2>
         <button className="cursor-pointer" onClick={onClose}>
           <img src={closeIcon} />
         </button>

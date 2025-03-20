@@ -2,9 +2,7 @@ import Button from "../buttons/Button";
 import arrowTransfer from "../../assets/arrow-transfer-header.svg";
 import stroke from "../../assets/stroke.svg";
 import union from "../../assets/union.svg";
-import history from "../../assets/history.svg";
 import logo from "../../assets/logo.svg";
-import ModalPopover from "../modalWindow/ModalPopover";
 import IncomeModal from "../modalWindow/IncomeModal";
 import { createPortal } from "react-dom";
 import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
@@ -22,7 +20,7 @@ const AppHeader = () => {
     : null;
 
   return (
-    <header className="flex justify-between text-white  py-5 items-center">
+    <header className="flex text-white  py-5 items-center">
       <div className="flex items-center">
         <div className="w-10 h-10 rounded-full bg-slate-400 mr-2">
           <img src={logo} />
@@ -54,7 +52,7 @@ const AppHeader = () => {
           </details>
         </div>
       </div>
-      <div className="flex gap-x-6">
+      <div className="flex mx-auto gap-x-6">
         <Button
           className="headerButton cursor-pointer bg-green-300/20 text-green-300"
           submitHandler={() => dispatch(openModal(["income", true]))}
@@ -84,21 +82,7 @@ const AppHeader = () => {
           <span>Transfer</span>
         </Button>
       </div>
-      <div>
-        <Button popoverId="history" className="block">
-          <img
-            src={history}
-            className="size-10 bg-gray-300 rounded-full left-0 "
-          />
-        </Button>
 
-        <ModalPopover
-          id="history"
-          className="mr-6 mt-6 w-[340px] px-5 mx-auto "
-        >
-          <div className="">Modal</div>
-        </ModalPopover>
-      </div>
       {createPortal(<IncomeModal />, document.body)}
       {createPortal(<ExpenseModal />, document.body)}
       {createPortal(<TransferModal />, document.body)}

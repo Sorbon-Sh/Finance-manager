@@ -9,12 +9,13 @@ import {
 } from "../../api/rtk-query/finPlanRequest";
 import { useCapitalize } from "../../hooks/useCapitalize";
 import { ChangeEvent, useState } from "react";
-import loadingIcon from "../../assets/cash-icon.gif";
+
 import {
   useDeletePlanTransactionsMutation,
   useGetPlanTransactionsQuery,
 } from "../../api/rtk-query/finPlanTransactions";
 import Button from "../buttons/Button";
+import { Loading } from "../Loading";
 const FinPlans = () => {
   const { id: urlPlanID } = useParams<{ id: string }>();
   const [deletePlan] = useDeletePlanMutation();
@@ -26,7 +27,7 @@ const FinPlans = () => {
   const [rowsId, setRowsId] = useState<string[]>([]);
   const dispatch = useAppDispatch();
   const { toLowerCase } = useCapitalize();
-  const { data: finPlans, refetch: refetchPlan } = useGetFinPlanQuery();
+  const { data: finPlans, refetch: refetchPlan, error } = useGetFinPlanQuery();
 
   const handleClickSelect = (id: string) => {
     dispatch(setPlanID(id));
@@ -127,7 +128,7 @@ const FinPlans = () => {
           )}
         </div>
         <div className="min-w-full  rounded-lg ">
-          <div className="flex py-2 border-b-gray-400 border-b text-gray-500">
+          <div className="flex py-2  border-b-gray-400 border-b text-gray-500">
             <input
               type="checkbox"
               className="size-5 mx-4"
@@ -139,6 +140,7 @@ const FinPlans = () => {
             <span className="w-1/5 font-semibold">Max plan</span>
             <span className="w-1/5 font-semibold">Plan</span>
           </div>
+
           {finPlans ? (
             finPlans.map((plan) => (
               <div
@@ -178,7 +180,7 @@ const FinPlans = () => {
               </div>
             ))
           ) : (
-            <img src={loadingIcon} className="mx-auto" />
+            <Loading error={error} onReload={refetchPlan} />
           )}
         </div>
       </div>

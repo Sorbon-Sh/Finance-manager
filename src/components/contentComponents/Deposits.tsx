@@ -7,16 +7,18 @@ import {
 import { createPortal } from "react-dom";
 import { useCapitalize } from "../../hooks/useCapitalize";
 import { ChangeEvent, useState } from "react";
-import loadingIcon from "../../assets/cash-icon.gif";
 import {
   useDeleteDepositMutation,
   useGetDepositsQuery,
 } from "../../api/rtk-query/depositsRequest";
 import CreateDeposit from "../modalWindow/CreateDeposit";
 import Button from "../buttons/Button";
+import { truncateDecimal } from "../../utility/truncateDecimal";
+import { getErrorMessage } from "../../utility/reduxErrorsCheck";
+import { Loading } from "../Loading";
 
 const Deposits = () => {
-  const { data: deposits } = useGetDepositsQuery();
+  const { data: deposits, error, refetch } = useGetDepositsQuery();
   const [deleteDeposit] = useDeleteDepositMutation();
   const [selectedPlans, setSelectedPlans] = useState<{
     [key: string]: boolean;
@@ -81,11 +83,6 @@ const Deposits = () => {
     dispatch(openModal(["createDeposit", true]));
   };
 
-  const truncateDecimal = (num: number, decimalPlaces: number) => {
-    const factor = Math.pow(10, decimalPlaces);
-    return Math.trunc(num * factor) / factor;
-  };
-
   const handleAddDeposit = () => {
     dispatch(setDepositId([]));
     dispatch(openModal(["createDeposit", true]));
@@ -129,8 +126,8 @@ const Deposits = () => {
             </span>
           )}
         </div>
-        <div className="w-full  rounded-lg ">
-          <div className="flex py-2 text-center border-b-gray-400 border-b text-gray-500">
+        <div className="w-full h-[400px] overflow-y-auto rounded-lg ">
+          <div className="flex  py-2 text-center border-b-gray-400 border-b text-gray-500">
             <input
               type="checkbox"
               className="size-7 mx-4 "
@@ -148,7 +145,7 @@ const Deposits = () => {
             deposits.map((deposit) => (
               <div
                 key={deposit.id}
-                className="flex border-b-gray-400 border-b items-center hover:bg-[#edf4f7] cursor-pointer "
+                className="flex border-b-gray-400 border-b items-center  hover:bg-[#edf4f7] cursor-pointer "
               >
                 <input
                   type="checkbox"
@@ -236,8 +233,18 @@ const Deposits = () => {
                 </div>
               </div>
             ))
+          ) : error ? (
+            <div className="text-red-500 mt-12 font-medium flex justify-center items-center gap-x-4">
+              <span>{getErrorMessage(error)}</span>
+              <span
+                onClick={() => refetch()}
+                className="bg-blue-500 text-white cursor-pointer py-2 px-3 rounded-lg"
+              >
+                Refresh
+              </span>
+            </div>
           ) : (
-            <img src={loadingIcon} className="mx-auto" />
+            <Loading error={error} onReload={refetch} />
           )}
         </div>
       </div>

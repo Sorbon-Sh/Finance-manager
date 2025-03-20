@@ -1,4 +1,4 @@
-import { useAppDispatch, useAppSelector } from "../../hooks/useReduxTypedHooks";
+import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
 import { openModal, setTransactionId } from "../../redux/slices/StateAndData";
 import SwitchModal from "./SwitchModal";
 import closeIcon from "../../assets/closeIcon.svg";
@@ -16,7 +16,9 @@ import TimePicker from "react-multi-date-picker/plugins/time_picker";
 import DatePicker from "react-multi-date-picker";
 import { useUpdateExpenseAmountAccountMutation } from "../../api/rtk-query/updateTranData";
 import Button from "../buttons/Button";
+import { useState } from "react";
 const ExpenseModal = () => {
+  const [amountError, setAmountError] = useState<string>("");
   const { data: accounts, refetch: accountRefetch } =
     useGetAccountQuery("accounts");
   const { refetch: tranRefetch } = useGetSumQuery("transactions");
@@ -26,9 +28,14 @@ const ExpenseModal = () => {
   const [getTransactions] = useLazyGetTransactionsQuery();
   const [getAccount] = useLazyGetAccountQuery();
   const [updateExpenseAmountAccount] = useUpdateExpenseAmountAccountMutation();
-  const tranId = useAppSelector((state) => state.stateAndData.transactionId);
   const dispatch = useAppDispatch();
-  const { register, handleSubmit, control, reset } = useForm<Inputs>();
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors },
+  } = useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     dispatch(openModal(["expense", false]));
     try {
@@ -55,9 +62,10 @@ const ExpenseModal = () => {
 
       tranRefetch();
       accountRefetch();
-      console.log("tranId Пустой?: ", tranId);
+
       reset();
     } catch (err) {
+      reset();
       console.log("Error", err);
       throw new Error(`Error to sending data to DataBase`);
     }
@@ -66,13 +74,14 @@ const ExpenseModal = () => {
   const onClose = () => {
     dispatch(openModal(["expense", false]));
     dispatch(setTransactionId(""));
+    setAmountError("");
   };
 
   return (
     <SwitchModal
       handleClick={onClose}
       modalID="expense"
-      className="bg-white rounded-4xl h-[535px] w-[480px]   pt-6 pb-6  px-8 min-w-md"
+      className="bg-white rounded-4xl min-h-[535px] w-[480px]   pt-6 pb-6  px-8 min-w-md"
     >
       <div className="flex justify-between items-center mb-4 ">
         <h2 className="text-3xl font-bold">Новый рассход</h2>
@@ -92,7 +101,7 @@ const ExpenseModal = () => {
             list="accounts"
             id="country"
             className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
-            {...register("account")}
+            {...register("account", { required: true })}
           />
           <datalist className=" bg-white w-16 p-2" id="accounts">
             {accounts &&
@@ -111,7 +120,21 @@ const ExpenseModal = () => {
             type="number"
             placeholder="Сумма, TJS"
             className="w-full p-3 bg-gray-200 rounded-lg border border-gray-300 mb-4"
-            {...register("amount")}
+            {...register("amount", {
+              required: true,
+              valueAsNumber: true,
+              validate: (value) => {
+                const isNumPlus = value && +value < 0 ? true : false;
+                if (isNumPlus) {
+                  setAmountError("Число не может быть отрецательным");
+                  return false;
+                } else {
+                  setAmountError("");
+                }
+
+                return true;
+              },
+            })}
           />
 
           {/* <select
@@ -129,7 +152,7 @@ const ExpenseModal = () => {
             list="category"
             placeholder="Категория"
             className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
-            {...register("category")}
+            {...register("category", { required: true })}
           />
           <datalist className=" bg-white w-16 p-2" id="category">
             {uniqueData &&
@@ -148,7 +171,7 @@ const ExpenseModal = () => {
             placeholder="Мой контрагент"
             list="counterParty"
             className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
-            {...register("counterParty")}
+            {...register("counterParty", { required: true })}
           />
           <datalist className=" bg-white w-16 p-2" id="counterParty">
             {uniqueData &&
@@ -167,10 +190,7 @@ const ExpenseModal = () => {
             control={control}
             name="date"
             rules={{ required: true }}
-            render={({
-              field: { onChange, name, value },
-              formState: { errors },
-            }) => (
+            render={({ field: { onChange, value } }) => (
               <div className="bg-gray-100 rounded-lg ">
                 <p className="text-xs text-gray-500">Дата поступления денег</p>
                 <DatePicker
@@ -184,17 +204,22 @@ const ExpenseModal = () => {
                   inputClass="p-4 flex items-center justify-between"
                   containerClassName="w-full "
                 />
-
-                {errors && errors[name] && errors[name].type === "required" && (
-                  //if you want to show an error message
-                  <span>Введите дата и время</span>
-                )}
               </div>
             )}
           />
         </div>
-        <div className="flex items-center space-x-2"></div>
-        <Button className="w-full mt-4 py-2 bg-gradient-to-r from-blue-400 to-green-400 text-white font-semibold rounded-lg cursor-pointer">
+        <div className="flex flex-col text-center  text-red-600">
+          {errors.account ||
+          errors.amount ||
+          errors.category ||
+          errors.counterParty ||
+          errors.date ? (
+            <span>Заполните все поля</span>
+          ) : null}
+
+          <span>{amountError && amountError}</span>
+        </div>
+        <Button className="w-full  py-2 bg-gradient-to-r from-blue-400 to-green-400 text-white font-semibold rounded-lg cursor-pointer">
           Добавить доход
         </Button>
       </form>

@@ -3,22 +3,12 @@ import { ReactNode } from "react";
 interface IButtonProps {
   children: ReactNode;
   className?: string;
-  popoverId?: string;
   submitHandler?: () => void;
 }
 
-const Button = ({
-  children,
-  className,
-  popoverId,
-  submitHandler,
-}: IButtonProps) => {
+const Button = ({ children, className, submitHandler }: IButtonProps) => {
   return (
-    <button
-      popoverTarget={popoverId}
-      className={className}
-      onClick={submitHandler}
-    >
+    <button className={className} onClick={submitHandler}>
       {children}
     </button>
   );

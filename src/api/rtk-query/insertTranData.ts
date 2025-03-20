@@ -7,7 +7,6 @@ export const insertTranData = createApi({
   baseQuery: fetchBaseQuery({}),
   tagTypes: ["Accounts"],
   endpoints: (builder) => ({
-    //* Переиспользуемый
     insertTransaction: builder.mutation({
       queryFn: async (formData) => {
         const [table, insertData, category] = formData;
@@ -31,7 +30,6 @@ export const insertTranData = createApi({
         return { data: data || [] };
       },
     }),
-    //* Переиспользуемый
     //! Нужно переименовать!
     getSum: builder.query<ITransactions[], string>({
       queryFn: async (table) => {
@@ -57,10 +55,13 @@ export const insertTranData = createApi({
         return { data: sumData || [] };
       },
     }),
-    createAccount: builder.mutation<IAccounts[], [string, object]>({
+    createAccount: builder.mutation<IAccounts[], [object, string]>({
       queryFn: async (formData) => {
-        const [table, account] = formData;
-        const { data, error } = await supabase.from(table).insert(account);
+        const [account, currency] = formData;
+        const { data, error } = await supabase.from("accounts").insert({
+          ...account,
+          currency,
+        });
 
         if (error) {
           console.log(error.message);

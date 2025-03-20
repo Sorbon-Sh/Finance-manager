@@ -4,14 +4,6 @@ import AppHeader from "./AppHeader";
 import { BrowserRouter } from "react-router";
 
 const AppLayout: React.FC = () => {
-  // const { data: company } = useGetCompanyDataQuery("company");
-  // const { data: accounts } = useGetAccountQuery("accounts");
-  // console.log(company && company);
-
-  // if (company && accounts) {
-  //   return "Loading";
-  // }
-
   return (
     <div className="container mx-auto">
       <AppHeader />

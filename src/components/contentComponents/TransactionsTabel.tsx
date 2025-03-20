@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import transferIcon from "../../assets/transfer-icon.png";
+
 import { AgGridReact } from "ag-grid-react";
 import {
   ClientSideRowModelModule,
@@ -29,6 +30,8 @@ import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
 import { openModal, setTransactionId } from "../../redux/slices/StateAndData";
 import { useDeleteTransactionMutation } from "../../api/rtk-query/deleteTranData";
 import Button from "../buttons/Button";
+import { Loading } from "../Loading";
+import { NoTransactions } from "../NoTransactions";
 ModuleRegistry.registerModules([
   RowSelectionModule,
   ClientSideRowModelModule,
@@ -56,7 +59,7 @@ const TransactionsTable = () => {
     []
   );
   const gridStyle = useMemo(() => ({ height: "500px", width: "100%" }), []);
-  const { data: transactions, refetch } = useGetSumQuery("transactions");
+  const { data: transactions, refetch, error } = useGetSumQuery("transactions");
   const [gridApi, setGridApi] = useState<GridApi | null>(null);
 
   const onGridReady = useCallback((params: GridReadyEvent) => {
@@ -225,7 +228,7 @@ const TransactionsTable = () => {
             />
             <button
               onClick={onExportClick}
-              className="bg-green-600 cursor-pointer rounded-xl text-white font-medium"
+              className="bg-green-500 cursor-pointer rounded-xl text-white font-medium"
             >
               Экспорт в Excel
             </button>
@@ -274,6 +277,18 @@ const TransactionsTable = () => {
             onGridReady={onGridReady}
             onRowClicked={handleRowClick}
             onSelectionChanged={onSelectionChanged}
+            loadingOverlayComponent={Loading}
+            loadingOverlayComponentParams={{
+              onReload: refetch,
+              error: error,
+            }}
+            noRowsOverlayComponent={NoTransactions}
+            noRowsOverlayComponentParams={{
+              header: "Транзакции пустые",
+              btnText: "Добавить",
+              modal: ["income", true],
+              error: error,
+            }}
           />
         </div>
       </div>

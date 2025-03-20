@@ -35,6 +35,8 @@ import {
 } from "../../api/rtk-query/finPlanTransactions";
 import { useParams } from "react-router";
 import Button from "../buttons/Button";
+import { Loading } from "../Loading";
+import { NoTransactions } from "../NoTransactions";
 ModuleRegistry.registerModules([
   RowSelectionModule,
   ClientSideRowModelModule,
@@ -63,7 +65,7 @@ const PlanTable = () => {
     []
   );
   const gridStyle = useMemo(() => ({ height: "500px", width: "100%" }), []);
-  const { data: transactions, refetch } = useGetPlanTransactionsQuery();
+  const { data: transactions, refetch, error } = useGetPlanTransactionsQuery();
   const [gridApi, setGridApi] = useState<GridApi | null>(null);
 
   const onGridReady = useCallback((params: GridReadyEvent) => {
@@ -180,12 +182,12 @@ const PlanTable = () => {
               placeholder="Поиск по счетам, контрагентам, категориям"
               className="py-2 rounded-xl col-span-4  bg-[#edf4f7] ml-2 mr-9 outline-green-300 pl-4 search"
             />
-            <button
-              onClick={() => dispatch(openModal(["addAmountPlan", true]))}
-              className="bg-green-600 cursor-pointer rounded-xl text-white font-medium"
+            <Button
+              submitHandler={() => dispatch(openModal(["addAmountPlan", true]))}
+              className="bg-green-500 cursor-pointer rounded-xl text-white font-medium"
             >
               Добавить сумму
-            </button>
+            </Button>
           </div>
           <div>
             <div
@@ -225,6 +227,18 @@ const PlanTable = () => {
             onGridReady={onGridReady}
             onRowClicked={handleRowClick}
             onSelectionChanged={onSelectionChanged}
+            loadingOverlayComponent={Loading}
+            loadingOverlayComponentParams={{
+              onReload: refetch,
+              error: error,
+            }}
+            noRowsOverlayComponent={NoTransactions}
+            noRowsOverlayComponentParams={{
+              header: "Транзакции пустые",
+              btnText: "Добавить",
+              modal: ["addAmountPlan", true],
+              error: error,
+            }}
           />
         </div>
       </div>

@@ -23,17 +23,19 @@ const EditCompany = () => {
     }
   };
 
+  const onClose = () => {
+    dispatch(openModal(["editCompany", false]));
+  };
+
   return (
     <SwitchModal
+      handleClick={onClose}
       modalID="editCompany"
       className="bg-white rounded-4xl h-[463px] w-[480px]  pt-6 px-8"
     >
       <div className="flex justify-between items-center mb-4 ">
         <h2 className="text-3xl font-bold">Редактировать</h2>
-        <button
-          className="cursor-pointer"
-          onClick={() => dispatch(openModal(["editCompany", false]))}
-        >
+        <button className="cursor-pointer" onClick={onClose}>
           <img src={closeIcon} />
         </button>
       </div>

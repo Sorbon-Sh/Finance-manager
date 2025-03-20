@@ -12,6 +12,7 @@ import {
   useGetDepositsQuery,
   useUpdateDepositMutation,
 } from "../../api/rtk-query/depositsRequest";
+import { useEffect } from "react";
 
 const CreateDeposit = () => {
   const { data: deposits } = useGetDepositsQuery();
@@ -19,6 +20,7 @@ const CreateDeposit = () => {
   const [updateDeposit] = useUpdateDepositMutation();
   const depositId = useAppSelector((state) => state.stateAndData.depositId);
   const [id] = depositId;
+  const depositDataById = deposits?.find((deposit) => deposit.id === id);
   const dispatch = useAppDispatch();
   const { register, handleSubmit, control, reset, setValue } =
     useForm<Inputs>();
@@ -33,6 +35,7 @@ const CreateDeposit = () => {
       dispatch(setDepositId([]));
       reset();
     } catch (err) {
+      reset();
       console.log("Error", err);
       throw new Error(`Error to sending data to DataBase`);
     }
@@ -43,13 +46,13 @@ const CreateDeposit = () => {
     dispatch(setDepositId([]));
   };
 
-  const depositDataById = deposits?.find((deposit) => deposit.id === id);
-  setValue("investment", depositDataById?.investment || null);
-  setValue("currency", depositDataById?.currency || null);
-  setValue("annualInterest", depositDataById?.annualInterest || null);
-  setValue("taxes", depositDataById?.taxes || null);
-  setValue("category", depositDataById?.category || null);
-
+  useEffect(() => {
+    setValue("investment", depositDataById?.investment || null);
+    setValue("currency", depositDataById?.currency || null);
+    setValue("annualInterest", depositDataById?.annualInterest || null);
+    setValue("taxes", depositDataById?.taxes || null);
+    setValue("category", depositDataById?.category || null);
+  }, [depositDataById, setValue]);
   return (
     <SwitchModal
       handleClick={onClose}
@@ -57,7 +60,9 @@ const CreateDeposit = () => {
       className="bg-white rounded-4xl h-auto w-[480px]   pt-6 pb-6  px-8 min-w-md"
     >
       <div className="flex justify-between items-center mb-4 ">
-        <h2 className="text-3xl font-bold">Добавить вклад</h2>
+        <h2 className="text-3xl font-bold">
+          {id ? "Редактировать" : "Добавить вклад"}
+        </h2>
         <button className="cursor-pointer" onClick={onClose}>
           <img src={closeIcon} />
         </button>

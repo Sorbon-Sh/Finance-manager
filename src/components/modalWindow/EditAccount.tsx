@@ -35,6 +35,7 @@ const EditAccount = () => {
   const onClose = () => {
     dispatch(openModal(["editAccount", false]));
     dispatch(setAccountId(""));
+    reset();
   };
 
   return (

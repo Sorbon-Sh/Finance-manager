@@ -20,7 +20,9 @@ import {
   useUpdateTransactionMutation,
 } from "../../api/rtk-query/updateTranData";
 import Button from "../buttons/Button";
+import { useEffect, useState } from "react";
 const IncomeModal = () => {
+  const [amountError, setAmountError] = useState<string>("");
   const { data: accounts, refetch: accountRefetch } =
     useGetAccountQuery("accounts");
   const { data: transactions, refetch: tranRefetch } =
@@ -34,8 +36,15 @@ const IncomeModal = () => {
   const [updateIncomeAmountAccount] = useUpdateIncomeAmountAccountMutation();
   const tranId = useAppSelector((state) => state.stateAndData.transactionId);
   const dispatch = useAppDispatch();
-  const { register, handleSubmit, control, reset, setValue } =
-    useForm<Inputs>();
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    setValue,
+    formState: { errors },
+  } = useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     dispatch(openModal(["income", false]));
     try {
@@ -72,25 +81,32 @@ const IncomeModal = () => {
       tranRefetch();
       accountRefetch();
       dispatch(setTransactionId(""));
-      console.log("tranId Пустой?: ", tranId);
       reset();
     } catch (err) {
+      reset();
       console.log("Error", err);
       throw new Error(`Error to sending data to DataBase`);
     }
   };
+
   const tranData = tranId
     ? transactions && transactions.find((elem) => elem.id === tranId)
     : null;
 
-  setValue("account", (tranData && tranData.account) || "");
-  setValue("amount", (tranData && tranData.amount) || 0);
-  setValue("category", (tranData && tranData.category) || "");
-  setValue("counterParty", (tranData && tranData.counterParty) || "");
+  useEffect(() => {
+    if (tranData) {
+      setValue("account", tranData.account);
+      setValue("amount", tranData.amount);
+      setValue("category", tranData.category);
+      setValue("counterParty", tranData.counterParty);
+    }
+  }, [tranData, setValue]);
 
   const onClose = () => {
     dispatch(openModal(["income", false]));
     dispatch(setTransactionId(""));
+    setAmountError("");
+    reset();
   };
 
   return (
@@ -100,7 +116,9 @@ const IncomeModal = () => {
       className="bg-white rounded-4xl min-h-[535px] w-[480px]   pt-6 pb-6  px-8 min-w-md"
     >
       <div className="flex justify-between items-center mb-4 ">
-        <h2 className="text-3xl font-bold">Новый доход</h2>
+        <h2 className="text-3xl font-bold">
+          {tranId ? "Редактировать" : "Новый доход"}
+        </h2>
         <button className="cursor-pointer" onClick={onClose}>
           <img src={closeIcon} />
         </button>
@@ -117,7 +135,7 @@ const IncomeModal = () => {
             list="accounts"
             id="country"
             className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
-            {...register("account")}
+            {...register("account", { required: true })}
           />
           <datalist className=" bg-white w-16 p-2" id="accounts">
             {accounts &&
@@ -131,13 +149,25 @@ const IncomeModal = () => {
           </datalist>
         </div>
 
-        <div className="">
+        <div>
           <input
             type="number"
             placeholder="Сумма, TJS"
             className="w-full p-3 bg-gray-200 rounded-lg border border-gray-300 mb-4"
             {...register("amount", {
+              required: true,
               valueAsNumber: true,
+              validate: (value) => {
+                const isNumPlus = value && +value < 0 ? true : false;
+                if (isNumPlus) {
+                  setAmountError("Число не может быть отрецательным");
+                  return false;
+                } else {
+                  setAmountError("");
+                }
+
+                return true;
+              },
             })}
           />
 
@@ -155,9 +185,8 @@ const IncomeModal = () => {
             type="text"
             list="category"
             placeholder="Категория"
-            onInput={(e) => setValue("category", e.currentTarget.value)}
             className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
-            {...register("category")}
+            {...register("category", { required: true })}
           />
           <datalist className=" bg-white w-16 p-2" id="category">
             {uniqueData &&
@@ -176,7 +205,7 @@ const IncomeModal = () => {
             placeholder="Мой контрагент"
             list="counterParty"
             className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
-            {...register("counterParty")}
+            {...register("counterParty", { required: true })}
           />
           <datalist className=" bg-white w-16 p-2" id="counterParty">
             {uniqueData &&
@@ -193,8 +222,8 @@ const IncomeModal = () => {
         <div>
           <Controller
             control={control}
-            name="date"
             rules={{ required: true }}
+            name="date"
             render={({ field: { onChange, value } }) => (
               <div className="bg-gray-100 rounded-lg ">
                 <p className="text-xs text-gray-500">Дата поступления денег</p>
@@ -212,6 +241,18 @@ const IncomeModal = () => {
               </div>
             )}
           />
+        </div>
+
+        <div className="flex flex-col text-center gap-y-2 text-red-600">
+          {errors.account ||
+          errors.amount ||
+          errors.category ||
+          errors.counterParty ||
+          errors.date ? (
+            <span>Заполните все поля</span>
+          ) : null}
+
+          <span>{amountError && amountError}</span>
         </div>
 
         <Button className="w-full  py-2 bg-gradient-to-r from-blue-400 to-green-400 text-white font-semibold rounded-lg cursor-pointer">
