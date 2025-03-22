@@ -13,12 +13,9 @@ import DatePicker from "react-multi-date-picker";
 import { useTransferRequestMutation } from "../../../transferRequest";
 import { Inputs } from "../../types/types";
 import Button from "../buttons/Button";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 const TransferModal = () => {
-  const [amountError, setAmountError] = useState<string>("");
-  const [isTransferAmountCorrect, setIsTransferAmountCorrect] =
-    useState<string>("");
   const { data: accounts, refetch: accountRefetch } =
     useGetAccountQuery("accounts");
   const { refetch: tranRefetch, data: transactions } =
@@ -59,7 +56,6 @@ const TransferModal = () => {
   const onClose = () => {
     dispatch(openModal(["transfer", false]));
     dispatch(setTransactionId(""));
-    setAmountError("");
     reset();
   };
 
@@ -112,7 +108,18 @@ const TransferModal = () => {
             list="accounts"
             id="country"
             className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
-            {...register("fromAccount", { required: true })}
+            {...register("fromAccount", {
+              required: true,
+              setValueAs: (value) => value?.trim(),
+              validate: (value) => {
+                const isAccount = accounts?.some(
+                  (item) => value?.trim() === item.account
+                );
+                console.log(isAccount);
+
+                return isAccount || "Аккаунт не найден";
+              },
+            })}
           />
           <datalist className=" bg-white w-16 p-2" id="accounts">
             {accounts &&
@@ -131,7 +138,18 @@ const TransferModal = () => {
             list="toAccount"
             placeholder="На счет"
             className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
-            {...register("toAccount", { required: true })}
+            {...register("toAccount", {
+              required: true,
+              setValueAs: (value) => value?.trim(),
+              validate: (value) => {
+                const isAccount = accounts?.some(
+                  (item) => value?.trim() === item.account
+                );
+                console.log(isAccount);
+
+                return isAccount || "Аккаунт не найден";
+              },
+            })}
           />
           <datalist className=" bg-white w-16 p-2" id="toAccount">
             {accounts &&
@@ -158,43 +176,8 @@ const TransferModal = () => {
               valueAsNumber: true,
               required: true,
               validate: (value) => {
-                if (value === null) return false;
-
-                const isNumPlus = value && +value < 0 ? true : false;
-                // Проверка на отрицательное значение
-                if (isNumPlus) {
-                  setAmountError("Число не должно быть отрицательным");
-                  return false;
-                } else {
-                  setAmountError("");
-                }
-
-                // Поиск аккаунта
-                const formAccount = accounts?.find(
-                  (item) => item.account === getValues("fromAccount")
-                );
-
-                // Защита от undefined
-                if (!formAccount) return "Аккаунт не найден";
-
-                // Проверка баланса
-                if (value > formAccount.allAmount) {
-                  setIsTransferAmountCorrect(
-                    "Сумма перевода превышает доступный баланс"
-                  );
-                  return false;
-                } else {
-                  setIsTransferAmountCorrect("");
-                }
-
-                if (isNumPlus) {
-                  setAmountError("Число не может быть отрецательным");
-                  return false;
-                } else {
-                  setAmountError("");
-                }
-
-                return true; // Валидация пройдена
+                const isNumPlus = value && value < 0 ? true : false;
+                return !isNumPlus || "Число не может быть отрецательным";
               },
             })}
           />
@@ -239,8 +222,16 @@ const TransferModal = () => {
           errors.date ? (
             <span>Заполните все поля</span>
           ) : null}
-
-          <span>{isTransferAmountCorrect || amountError}</span>
+          <span>
+            {errors.fromAccount?.type === "validate"
+              ? errors.fromAccount.message
+              : errors.toAccount?.type === "validate"
+              ? errors.toAccount?.message
+              : null}
+          </span>
+          <span>
+            {errors.amount?.type === "validate" ? errors.amount.message : null}
+          </span>
         </div>
         <Button className="w-full  py-2 bg-gradient-to-r from-blue-400 to-green-400 text-white font-semibold rounded-lg cursor-pointer">
           Добавить перевод

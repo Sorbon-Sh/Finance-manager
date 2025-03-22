@@ -22,8 +22,14 @@ const CreateDeposit = () => {
   const [id] = depositId;
   const depositDataById = deposits?.find((deposit) => deposit.id === id);
   const dispatch = useAppDispatch();
-  const { register, handleSubmit, control, reset, setValue } =
-    useForm<Inputs>();
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    setValue,
+    formState: { errors },
+  } = useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     dispatch(openModal(["createDeposit", false]));
     try {
@@ -44,6 +50,7 @@ const CreateDeposit = () => {
   const onClose = () => {
     dispatch(openModal(["createDeposit", false]));
     dispatch(setDepositId([]));
+    reset();
   };
 
   useEffect(() => {
@@ -63,9 +70,9 @@ const CreateDeposit = () => {
         <h2 className="text-3xl font-bold">
           {id ? "Редактировать" : "Добавить вклад"}
         </h2>
-        <button className="cursor-pointer" onClick={onClose}>
+        <Button className="cursor-pointer" submitHandler={onClose}>
           <img src={closeIcon} />
-        </button>
+        </Button>
       </div>
       <form
         className="space-y-4 flex flex-col"
@@ -76,17 +83,22 @@ const CreateDeposit = () => {
           type="number"
           placeholder="Сумма"
           className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
-          {...register("investment", { valueAsNumber: true })}
+          {...register("investment", {
+            required: true,
+            valueAsNumber: true,
+            validate: (value) => {
+              const isNumPlus = value && value < 0 ? true : false;
+              return !isNumPlus || false;
+            },
+          })}
         />
 
         <select
           className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
-          {...register("currency")}
+          {...(register("currency"), { required: true })}
         >
           <option selected>Валюта</option>
-          <option value="TJS" selected>
-            TJS
-          </option>
+          <option value="TJS">TJS</option>
         </select>
 
         <input
@@ -94,14 +106,11 @@ const CreateDeposit = () => {
           placeholder="В год"
           className="w-full p-3 bg-gray-200 rounded-lg border border-gray-300 mb-4"
           {...register("annualInterest", {
+            required: true,
             valueAsNumber: true,
             validate: (value) => {
-              // Проверка на корректность формата числа с двумя знаками после запятой
-              const regex = /^\d+(\.\d{1,2})?$/;
-              return (
-                regex.test(String(value)) ||
-                "Введите число с не более чем двумя знаками после запятой"
-              );
+              const isNumPlus = value && value < 0 ? true : false;
+              return !isNumPlus || false;
             },
           })}
         />
@@ -110,14 +119,30 @@ const CreateDeposit = () => {
           type="number"
           placeholder="Налог"
           className="w-full p-3 bg-gray-200 rounded-lg border border-gray-300 mb-4"
-          {...register("taxes", { valueAsNumber: true })}
+          {...register("taxes", {
+            required: true,
+            valueAsNumber: true,
+            validate: (value) => {
+              const isNumPlus = value && value < 0 ? true : false;
+              return !isNumPlus || false;
+            },
+          })}
         />
 
         <input
           type="text"
           placeholder="Категория"
           className="w-full p-3 bg-gray-200 rounded-lg border border-gray-300 mb-4"
-          {...register("category")}
+          {...register("category", {
+            required: true,
+            maxLength: {
+              value: 15,
+              message: "Максимум 15 символов",
+            },
+            validate: (value) => {
+              return (value && value.length >= 15) || true;
+            },
+          })}
         />
 
         <div>
@@ -125,10 +150,7 @@ const CreateDeposit = () => {
             control={control}
             name="date"
             rules={{ required: true }}
-            render={({
-              field: { onChange, name, value },
-              formState: { errors },
-            }) => (
+            render={({ field: { onChange, value } }) => (
               <div className="bg-gray-100 rounded-lg ">
                 <p className="text-xs text-gray-500">Дата поступления денег</p>
                 <DatePicker
@@ -142,16 +164,30 @@ const CreateDeposit = () => {
                   inputClass="p-4 flex items-center justify-between"
                   containerClassName="w-full "
                 />
-
-                {errors && errors[name] && errors[name].type === "required" && (
-                  //if you want to show an error message
-                  <span>Введите дата и время</span>
-                )}
               </div>
             )}
           />
         </div>
-        <div className="flex items-center space-x-2"></div>
+        <div className="flex flex-col text-center  text-red-600">
+          {errors.investment ||
+          errors.annualInterest ||
+          errors.taxes ||
+          errors.category ||
+          errors.currency ||
+          errors.date ? (
+            <span>Заполните все поля</span>
+          ) : null}
+
+          <span>{errors.category?.message}</span>
+          <span>
+            {errors.investment?.type === "validate" ||
+            errors.annualInterest?.type === "validate" ||
+            errors.taxes?.type === "validate" ||
+            errors.category?.type === "validate"
+              ? "Число не должно быть отрицательным"
+              : null}
+          </span>
+        </div>
         <Button className="w-full  py-2 bg-gradient-to-r from-blue-400 to-green-400 text-white font-semibold rounded-lg cursor-pointer">
           Создать план
         </Button>

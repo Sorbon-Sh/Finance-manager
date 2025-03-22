@@ -13,15 +13,23 @@ import {
   useUpdatePlanMutation,
 } from "../../api/rtk-query/finPlanRequest";
 import Button from "../buttons/Button";
+import { useEffect } from "react";
 
-const FinPlanModal = () => {
+const CreateFinPlan = () => {
   const [createFinPlan] = useCreateFinPlanMutation();
   const [updatePlan] = useUpdatePlanMutation();
   const { data: finPlans, refetch: refetchFinPlan } = useGetFinPlanQuery();
   const planRowsId = useAppSelector((state) => state.stateAndData.planId);
+  const planDataById = finPlans?.find((plan) => plan.id === planRowsId);
   const dispatch = useAppDispatch();
-  const { register, handleSubmit, control, reset, setValue } =
-    useForm<Inputs>();
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    setValue,
+    formState: { errors },
+  } = useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     dispatch(openModal(["finplan", false]));
     dispatch(setPlanID(""));
@@ -41,19 +49,21 @@ const FinPlanModal = () => {
 
   const onClose = () => {
     dispatch(openModal(["finplan", false]));
+    reset();
   };
 
-  const planDataById = finPlans?.find((plan) => plan.id === planRowsId);
-  setValue("plan", planDataById?.plan || null);
-  setValue("monthlyAmount", planDataById?.monthlyAmount || null);
-  setValue("annualAmount", planDataById?.annualAmount || null);
-  setValue("maxAmount", planDataById?.maxAmount || null);
+  useEffect(() => {
+    setValue("plan", planDataById?.plan || null);
+    setValue("monthlyAmount", planDataById?.monthlyAmount || null);
+    setValue("annualAmount", planDataById?.annualAmount || null);
+    setValue("maxAmount", planDataById?.maxAmount || null);
+  }, [planDataById, setValue]);
 
   return (
     <SwitchModal
       handleClick={onClose}
       modalID="finplan"
-      className="bg-white rounded-4xl h-[535px] w-[480px]   pt-6 pb-6  px-8 min-w-md"
+      className="bg-white rounded-4xl min-h-[535px] w-[480px]   pt-6 pb-6  px-8 min-w-md"
     >
       <div className="flex justify-between items-center mb-4 ">
         <h2 className="text-3xl font-bold">
@@ -72,28 +82,59 @@ const FinPlanModal = () => {
           type="text"
           placeholder="План"
           className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
-          {...register("plan")}
+          {...register("plan", {
+            required: true,
+            setValueAs: (value) => value?.trim(),
+            maxLength: {
+              value: 15,
+              message: "Максимум 15 символов",
+            },
+            validate: (value) => {
+              return (value && value.length >= 15) || true;
+            },
+          })}
         />
 
         <input
           type="number"
           placeholder="За месяц"
           className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
-          {...register("monthlyAmount", { valueAsNumber: true })}
+          {...register("monthlyAmount", {
+            required: true,
+            valueAsNumber: true,
+            validate: (value) => {
+              const isNumPlus = value && value < 0 ? true : false;
+              return !isNumPlus || false;
+            },
+          })}
         />
 
         <input
           type="number"
           placeholder="За год"
           className="w-full p-3 bg-gray-200 rounded-lg border border-gray-300 mb-4"
-          {...register("annualAmount", { valueAsNumber: true })}
+          {...register("annualAmount", {
+            required: true,
+            valueAsNumber: true,
+            validate: (value) => {
+              const isNumPlus = value && value < 0 ? true : false;
+              return !isNumPlus || false;
+            },
+          })}
         />
 
         <input
           type="number"
           placeholder="Всего"
           className="w-full p-3 bg-gray-200 rounded-lg border border-gray-300 mb-4"
-          {...register("maxAmount", { valueAsNumber: true })}
+          {...register("maxAmount", {
+            required: true,
+            valueAsNumber: true,
+            validate: (value) => {
+              const isNumPlus = value && value < 0 ? true : false;
+              return !isNumPlus || false;
+            },
+          })}
         />
 
         <div>
@@ -101,10 +142,7 @@ const FinPlanModal = () => {
             control={control}
             name="date"
             rules={{ required: true }}
-            render={({
-              field: { onChange, name, value },
-              formState: { errors },
-            }) => (
+            render={({ field: { onChange, value } }) => (
               <div className="bg-gray-100 rounded-lg ">
                 <p className="text-xs text-gray-500">Дата поступления денег</p>
                 <DatePicker
@@ -118,16 +156,30 @@ const FinPlanModal = () => {
                   inputClass="p-4 flex items-center justify-between"
                   containerClassName="w-full "
                 />
-
-                {errors && errors[name] && errors[name].type === "required" && (
-                  //if you want to show an error message
-                  <span>Введите дата и время</span>
-                )}
               </div>
             )}
           />
         </div>
-        <div className="flex items-center space-x-2"></div>
+
+        <div className="flex flex-col text-center  text-red-600">
+          {errors.plan ||
+          errors.monthlyAmount ||
+          errors.annualAmount ||
+          errors.maxAmount ||
+          errors.date ? (
+            <span>Заполните все поля</span>
+          ) : null}
+
+          <span>{errors.plan?.message}</span>
+          <span>
+            {errors.plan?.type === "validate" ||
+            errors.monthlyAmount?.type === "validate" ||
+            errors.annualAmount?.type === "validate" ||
+            errors.maxAmount?.type === "validate"
+              ? "Число не должно быть  ss отрицательным"
+              : null}
+          </span>
+        </div>
         <Button className="w-full mt-4 py-2 bg-gradient-to-r from-blue-400 to-green-400 text-white font-semibold rounded-lg cursor-pointer">
           Создать план
         </Button>
@@ -136,4 +188,4 @@ const FinPlanModal = () => {
   );
 };
 
-export default FinPlanModal;
+export default CreateFinPlan;

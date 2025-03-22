@@ -95,7 +95,7 @@ const Deposits = () => {
           <h2 className="text-xl font-semibold">Deposits</h2>
           <Button
             submitHandler={handleAddDeposit}
-            className="px-3 py-2 cursor-pointer rounded-xl bg-green-600 text-white font-medium"
+            className="px-3 py-2 cursor-pointer rounded-xl bg-green-500 text-white font-medium"
           >
             Добавить
           </Button>

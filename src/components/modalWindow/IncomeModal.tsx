@@ -20,9 +20,8 @@ import {
   useUpdateTransactionMutation,
 } from "../../api/rtk-query/updateTranData";
 import Button from "../buttons/Button";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 const IncomeModal = () => {
-  const [amountError, setAmountError] = useState<string>("");
   const { data: accounts, refetch: accountRefetch } =
     useGetAccountQuery("accounts");
   const { data: transactions, refetch: tranRefetch } =
@@ -105,7 +104,7 @@ const IncomeModal = () => {
   const onClose = () => {
     dispatch(openModal(["income", false]));
     dispatch(setTransactionId(""));
-    setAmountError("");
+
     reset();
   };
 
@@ -135,7 +134,17 @@ const IncomeModal = () => {
             list="accounts"
             id="country"
             className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
-            {...register("account", { required: true })}
+            {...register("account", {
+              required: true,
+              setValueAs: (value) => value?.trim(),
+              validate: (value) => {
+                const isAccount = accounts?.some(
+                  (item) => value?.trim() === item.account
+                );
+
+                return isAccount || "Аккаунт не найден";
+              },
+            })}
           />
           <datalist className=" bg-white w-16 p-2" id="accounts">
             {accounts &&
@@ -158,15 +167,8 @@ const IncomeModal = () => {
               required: true,
               valueAsNumber: true,
               validate: (value) => {
-                const isNumPlus = value && +value < 0 ? true : false;
-                if (isNumPlus) {
-                  setAmountError("Число не может быть отрецательным");
-                  return false;
-                } else {
-                  setAmountError("");
-                }
-
-                return true;
+                const isNumPlus = value && value < 0 ? true : false;
+                return !isNumPlus || "Число не может быть отрецательным";
               },
             })}
           />
@@ -186,7 +188,16 @@ const IncomeModal = () => {
             list="category"
             placeholder="Категория"
             className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
-            {...register("category", { required: true })}
+            {...register("category", {
+              required: true,
+              maxLength: {
+                value: 15,
+                message: "Максимум 15 символов",
+              },
+              validate: (value) => {
+                return (value && value.length >= 15) || true;
+              },
+            })}
           />
           <datalist className=" bg-white w-16 p-2" id="category">
             {uniqueData &&
@@ -205,7 +216,16 @@ const IncomeModal = () => {
             placeholder="Мой контрагент"
             list="counterParty"
             className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
-            {...register("counterParty", { required: true })}
+            {...register("counterParty", {
+              required: true,
+              maxLength: {
+                value: 15,
+                message: "Максимум 15 символов",
+              },
+              validate: (value) => {
+                return (value && value.length >= 15) || true;
+              },
+            })}
           />
           <datalist className=" bg-white w-16 p-2" id="counterParty">
             {uniqueData &&
@@ -243,7 +263,7 @@ const IncomeModal = () => {
           />
         </div>
 
-        <div className="flex flex-col text-center gap-y-2 text-red-600">
+        <div className="flex flex-col text-center  text-red-600">
           {errors.account ||
           errors.amount ||
           errors.category ||
@@ -252,7 +272,23 @@ const IncomeModal = () => {
             <span>Заполните все поля</span>
           ) : null}
 
-          <span>{amountError && amountError}</span>
+          <span>
+            {errors.account?.type === "validate"
+              ? errors.account.message
+              : null}
+          </span>
+          <span>
+            {errors.amount?.type === "validate" ? errors.amount.message : null}
+          </span>
+
+          {/*
+            //* Берыт значение первого, если нет второе значение,
+            //* если втрое значение есть, но добавлось первое, то второе 
+            //* значение снимается, добавляется перавое значение
+              */}
+          <span>
+            {errors.category?.message ?? errors.counterParty?.message}
+          </span>
         </div>
 
         <Button className="w-full  py-2 bg-gradient-to-r from-blue-400 to-green-400 text-white font-semibold rounded-lg cursor-pointer">

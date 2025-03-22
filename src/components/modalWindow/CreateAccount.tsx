@@ -8,10 +8,8 @@ import { useCreateAccountMutation } from "../../api/rtk-query/insertTranData";
 import { Inputs } from "../../types/types";
 import Button from "../buttons/Button";
 import { useCapitalize } from "../../hooks/useCapitalize";
-import { useState } from "react";
 
 const CreateAccount = () => {
-  const [amountError, setAmountError] = useState<string>("");
   const dispatch = useAppDispatch();
   const [createAccount] = useCreateAccountMutation();
   const { toUpperCase } = useCapitalize();
@@ -37,7 +35,6 @@ const CreateAccount = () => {
   const onClose = () => {
     dispatch(openModal(["createAccount", false]));
     dispatch(setAccountId(""));
-    setAmountError("");
     reset();
   };
 
@@ -70,7 +67,17 @@ const CreateAccount = () => {
             type="text"
             placeholder="Имя счета"
             className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
-            {...register("account", { required: true })}
+            {...register("account", {
+              setValueAs: (value) => value?.trim(),
+              required: true,
+              maxLength: {
+                value: 15,
+                message: "Максимум 15 символов",
+              },
+              validate: (value) => {
+                return (value && value.length >= 15) || true;
+              },
+            })}
           />
         </div>
         <div className="flex space-x-2">
@@ -83,14 +90,7 @@ const CreateAccount = () => {
               valueAsNumber: true,
               validate: (value) => {
                 const isNumPlus = value && value < 0 ? true : false;
-                if (isNumPlus) {
-                  setAmountError("Число не может быть отрецательным");
-                  return false;
-                } else {
-                  setAmountError("");
-                }
-
-                return true;
+                return !isNumPlus || "Число не может быть отрецательным";
               },
             })}
           />
@@ -103,12 +103,20 @@ const CreateAccount = () => {
             manager
           </span>
         </div>
-        <div className="flex flex-col text-center gap-y-2 text-red-600">
-          {errors.account || errors.allAmount || errors.currency ? (
+        <div className="flex flex-col text-center  text-red-600">
+          {errors.currency ||
+          errors.account ||
+          errors.allAmount ||
+          errors.date ? (
             <span>Заполните все поля</span>
           ) : null}
 
-          <span>{amountError && amountError}</span>
+          <span>{errors.account?.message}</span>
+          <span>
+            {errors.allAmount?.type === "validate"
+              ? errors.allAmount.message
+              : null}
+          </span>
         </div>
 
         <Button className="w-full  py-4 bg-gradient-to-r from-blue-400 to-green-400  font-semibold rounded-lg cursor-pointer">

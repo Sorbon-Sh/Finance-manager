@@ -7,16 +7,25 @@ import { Inputs } from "../../types/types";
 import { useUpdateCompanyMutation } from "../../api/rtk-query/updateTranData";
 import { useGetCompanyDataQuery } from "../../api/rtk-query/insertTranData";
 import Button from "../buttons/Button";
+import { useCapitalize } from "../../hooks/useCapitalize";
 
 const EditCompany = () => {
   const dispatch = useAppDispatch();
+  const { toUpperCase } = useCapitalize();
   const [updateCompany] = useUpdateCompanyMutation();
   const { data: companyId } = useGetCompanyDataQuery("company");
   const id = companyId && companyId.map((company) => company.id);
-  const { register, handleSubmit } = useForm<Inputs>();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     try {
-      await updateCompany([data, id]);
+      const currency = toUpperCase(data.mainCurrency || "");
+      await updateCompany([data, id, currency]);
+      reset();
     } catch (err) {
       console.log("Error: ", err);
       throw new Error(`Error to sending data to DataBase`);
@@ -25,6 +34,7 @@ const EditCompany = () => {
 
   const onClose = () => {
     dispatch(openModal(["editCompany", false]));
+    reset();
   };
 
   return (
@@ -49,7 +59,17 @@ const EditCompany = () => {
             type="text"
             placeholder="Название компании"
             className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
-            {...register("companyName")}
+            {...register("companyName", {
+              setValueAs: (value) => value?.trim(),
+              required: true,
+              maxLength: {
+                value: 15,
+                message: "Максимум 15 символов",
+              },
+              validate: (value) => {
+                return (value && value.length >= 15) || true;
+              },
+            })}
           />
         </div>
         <div className="flex space-x-2">
@@ -57,8 +77,16 @@ const EditCompany = () => {
             type="text"
             placeholder="Основная валюта"
             className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
-            {...register("mainCurrency")}
+            {...register("mainCurrency", { required: true })}
           />
+        </div>
+
+        <div className="text-center flex flex-col text-red-600">
+          {errors.companyName || errors.mainCurrency ? (
+            <span>Заполните все поля</span>
+          ) : null}
+
+          <span>{errors.companyName?.message}</span>
         </div>
 
         <Button className="w-full  py-4 bg-gradient-to-r from-blue-400 to-green-400  font-semibold rounded-lg cursor-pointer">

@@ -8,12 +8,12 @@ export const updateTranData = createApi({
   endpoints: (builder) => ({
     updateCompany: builder.mutation({
       queryFn: async (company) => {
-        const [companyData, id] = company;
+        const [companyData, id, currency] = company;
         const { data, error } = await supabase
           .from("company")
           .update({
-            name: companyData.companyName,
-            currency: companyData.mainCurrency,
+            ...companyData,
+            currency,
           })
           .eq("id", id);
         if (error) {

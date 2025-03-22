@@ -2,7 +2,6 @@ import { Link, useParams } from "react-router";
 import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
 import { openModal, setPlanID } from "../../redux/slices/StateAndData";
 import { createPortal } from "react-dom";
-import FinPlanModal from "../modalWindow/FinPlanModal";
 import {
   useDeletePlanMutation,
   useGetFinPlanQuery,
@@ -16,6 +15,7 @@ import {
 } from "../../api/rtk-query/finPlanTransactions";
 import Button from "../buttons/Button";
 import { Loading } from "../Loading";
+import CreateFinPlan from "../modalWindow/CreateFinPlan";
 const FinPlans = () => {
   const { id: urlPlanID } = useParams<{ id: string }>();
   const [deletePlan] = useDeletePlanMutation();
@@ -96,7 +96,7 @@ const FinPlans = () => {
           <h2 className="text-xl font-semibold">Plans</h2>
           <Button
             submitHandler={handleClickCreate}
-            className="px-3 py-2 cursor-pointer rounded-xl bg-green-600 text-white font-medium"
+            className="px-3 py-2 cursor-pointer rounded-xl bg-green-500 text-white font-medium"
           >
             Создать
           </Button>
@@ -184,7 +184,7 @@ const FinPlans = () => {
           )}
         </div>
       </div>
-      {createPortal(<FinPlanModal />, document.body)}
+      {createPortal(<CreateFinPlan />, document.body)}
     </div>
   );
 };

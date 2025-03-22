@@ -18,10 +18,9 @@ import {
 import { useGetFinPlanQuery } from "../../api/rtk-query/finPlanRequest";
 import { useParams } from "react-router";
 import Button from "../buttons/Button";
-import { useState } from "react";
+import { useEffect } from "react";
 
 const AddAmountToPlanModal = () => {
-  const [amountError, setAmountError] = useState<string>("");
   const { id: urlPlanId } = useParams();
   const planTranRowsId = useAppSelector(
     (state) => state.stateAndData.planTranId
@@ -31,6 +30,7 @@ const AddAmountToPlanModal = () => {
   const [planTransactions] = usePlanTransactionsMutation();
   const [updatePlanTransactions] = useUpdatePlanTransactionsMutation();
   const { data: finPlans } = useGetFinPlanQuery();
+  const planTranDataById = dataTran?.find((plan) => plan.id === planTranRowsId);
   const dispatch = useAppDispatch();
   const {
     register,
@@ -46,8 +46,6 @@ const AddAmountToPlanModal = () => {
       const planTran = dataTran
         ? dataTran.find((plan) => plan.id === planTranRowsId)
         : null;
-      console.log("planTranRowsId", planTranRowsId);
-      console.log("plan", planTran);
 
       const plans = finPlans
         ? finPlans.find((plan) => plan.id === urlPlanId)
@@ -70,19 +68,19 @@ const AddAmountToPlanModal = () => {
     dispatch(openModal(["addAmountPlan", false]));
     dispatch(setTransactionId(""));
     dispatch(setPlanTranID(""));
+    reset();
   };
 
-  const planTranDataById = dataTran?.find((plan) => plan.id === planTranRowsId);
-
-  console.log("planTranDataById :", planTranDataById);
-
-  setValue("amount", planTranDataById?.amount || null);
+  useEffect(
+    () => setValue("amount", planTranDataById?.amount || null),
+    [planTranDataById, setValue]
+  );
 
   return (
     <SwitchModal
       handleClick={onClose}
       modalID="addAmountPlan"
-      className="bg-white rounded-4xl min-h-[350px]    pt-6  px-8 min-w-md"
+      className="bg-white rounded-4xl min-h-[350px]  pt-6  px-8 min-w-md"
     >
       <div className="flex justify-between items-center mb-4 ">
         <h2 className="text-3xl font-bold">
@@ -105,14 +103,8 @@ const AddAmountToPlanModal = () => {
             required: true,
             valueAsNumber: true,
             validate: (value) => {
-              const isNumPlus = value && +value < 0 ? true : false;
-              if (isNumPlus) {
-                setAmountError("Число не должно быть отрицательным");
-              } else {
-                setAmountError("");
-              }
-
-              return true;
+              const isNumPlus = value && value < 0 ? true : false;
+              return !isNumPlus || "Число не может быть отрецательным";
             },
           })}
         />
@@ -144,11 +136,13 @@ const AddAmountToPlanModal = () => {
           <span>
             {errors.date || errors.amount ? "Заполните все поля" : null}
           </span>
-          <span>{amountError && amountError}</span>
+          <span>
+            {errors.amount?.type === "validate" ? errors.amount.message : null}
+          </span>
         </div>
-        <button className="w-full mt-2 py-2 bg-gradient-to-r from-blue-400 to-green-400 text-white font-semibold rounded-lg cursor-pointer">
+        <Button className="w-full mt-2 py-2 bg-gradient-to-r from-blue-400 to-green-400 text-white font-semibold rounded-lg cursor-pointer">
           Создать план
-        </button>
+        </Button>
       </form>
     </SwitchModal>
   );
