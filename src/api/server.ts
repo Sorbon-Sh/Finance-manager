@@ -1,10 +1,18 @@
 import express, { Express, Request, Response } from "express";
 import cors from "cors"; // Добавьте cors
 const app: Express = express();
-const port = 3001;
+const port = process.env.PORT || 3001;
 
 // Добавьте middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "https://fin-manager-eta.vercel.app/",
+      "http://localhost:5173", // Для локальной разработки
+    ],
+  }),
+);
+
 // Добавьте запуск сервера (это отсутствовало)
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
