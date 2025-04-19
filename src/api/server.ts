@@ -7,8 +7,8 @@ const port = process.env.PORT || 3001;
 app.use(
   cors({
     origin: [
-      "https://fin-manager-eta.vercel.app/",
-      "http://localhost:5173", // Для локальной разработки
+      "https://fin-manager-eta.vercel.app", // Без слеша в конце
+      "http://localhost:5173",
     ],
   }),
 );
