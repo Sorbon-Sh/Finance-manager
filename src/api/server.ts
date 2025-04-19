@@ -1,40 +1,56 @@
-// server.ts
-import express from 'express';
-import cors from 'cors';
-
-const app = express();
+import express, { Express, Request, Response } from "express";
+import cors from "cors"; // Добавьте cors
+const app: Express = express();
 const port = process.env.PORT || 3001;
 
-// CORS с явными заголовками
-app.use(cors({
-  origin: [
-    /\.vercel\.app$/,
-    /localhost/
-  ],
-  methods: ['GET', 'OPTIONS']
-}));
+// Добавьте middleware
+app.use(
+  cors({
+    origin: [
+      // Основные домены
+      "https://fin-manager-eta.vercel.app",
+      "http://localhost:5173",
 
-// Обязательный хелсчек
-app.get('/', (req, res) => {
-  res.json({ status: 'ok', timestamp: Date.now() });
-});
+      // Шаблон для Vercel Preview
+      /https:\/\/fin-manager-.*-sorbon-workspace-admins-projects\.vercel\.app/,
+    ],
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  }),
+);
 
-// Основной эндпоинт
-app.get('/exchange-rates', async (req, res) => {
-  try {
-    const response = await fetch('https://valuta.tj/parser/echokurs.php');
-    const data = await response.json();
-    res.json(Object.values(data));
-  } catch () {
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+app.options("*", cors());
 
-// Обработка OPTIONS
-app.options('*', (req, res) => {
-  res.status(200).end();
-});
-
+// Добавьте запуск сервера (это отсутствовало)
 app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+  console.log(`Server is running on http://localhost:${port}`);
+});
+app.get("/exchange-rates", async (req: Request, res: Response) => {
+  try {
+    const url = "https://valuta.tj/parser/echokurs.php";
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Error response:", errorText);
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const rawData = await response.text();
+
+    const data = JSON.parse(rawData);
+
+    // Преобразуем объект в массив
+    const ratesArray = Object.values(data);
+
+    if (!Array.isArray(ratesArray)) {
+      throw new Error("Response is not an array");
+    }
+
+    res.json(ratesArray); // Возвращаем массив курсов
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: "Error" });
+  }
 });
