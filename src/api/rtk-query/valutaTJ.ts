@@ -5,7 +5,7 @@ export const valutaApiTJ = createApi({
   reducerPath: "valutaApiTJ",
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.PROD
-      ? "https://https://fin-manager-eta.vercel.app.replit.app/"
+      ? "https://https://fin-manager-eta.vercel.app/"
       : "http://localhost:3001/",
   }),
   endpoints: (builder) => ({
