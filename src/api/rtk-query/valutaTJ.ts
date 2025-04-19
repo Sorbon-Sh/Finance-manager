@@ -7,12 +7,16 @@ export const valutaApiTJ = createApi({
     baseUrl: import.meta.env.PROD
       ? "https://fin-manager-eta.vercel.app/"
       : "http://localhost:3001/",
+    credentials: "include",
   }),
   endpoints: (builder) => ({
     valutatj: builder.query<CurrencyRate[], void>({
       query: () => ({
         url: "exchange-rates",
         method: "GET",
+        headers: {
+          "Vercel-CDN-Cache-Control": "public, max-age=3600",
+        },
       }),
       transformResponse: async (response: CurrencyRate[]) => response,
     }),
