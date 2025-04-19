@@ -1,7 +1,7 @@
 import express, { Express, Request, Response } from "express";
 import cors from "cors"; // Добавьте cors
 const app: Express = express();
-const port = process.env.PORT || 3001;
+const port = 3001;
 
 // Добавьте middleware
 app.use(cors());
