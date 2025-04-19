@@ -7,20 +7,11 @@ const port = process.env.PORT || 3001;
 app.use(
   cors({
     origin: [
-      // Основные домены
-      "https://fin-manager-eta.vercel.app",
+      "https://fin-manager-eta.vercel.app", // Без слеша в конце
       "http://localhost:5173",
-
-      // Шаблон для Vercel Preview
-      /https:\/\/fin-manager-.*-sorbon-workspace-admins-projects\.vercel\.app/,
     ],
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
   }),
 );
-
-app.options("*", cors());
 
 // Добавьте запуск сервера (это отсутствовало)
 app.listen(port, () => {
