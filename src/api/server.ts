@@ -4,21 +4,7 @@ const app: Express = express();
 const port = process.env.PORT || 3001;
 
 // Добавьте middleware
-app.use(
-  cors({
-    origin: [
-      // Основные домены
-      "https://fin-manager-eta.vercel.app",
-      "http://localhost:5173",
-
-      // Шаблон для Vercel Preview
-      /https:\/\/fin-manager-.*-sorbon-workspace-admins-projects\.vercel\.app/,
-    ],
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-  }),
-);
+app.use(cors({ origin: true }));
 
 app.options("*", cors());
 
