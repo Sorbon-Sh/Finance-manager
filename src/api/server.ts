@@ -1,9 +1,9 @@
 import express, { Express, Request, Response } from "express";
 import cors from "cors"; // Добавьте cors
 const app: Express = express();
-const port = 3001;
+const port = process.env.PORT || 3001;
 
-// Добавьте middleware 
+// Добавьте middleware
 app.use(cors());
 // Добавьте запуск сервера (это отсутствовало)
 app.listen(port, () => {
