@@ -1,42 +1,40 @@
-import express, { Express, Request, Response } from "express";
-import cors from "cors"; // Добавьте cors
-const app: Express = express();
+// server.ts
+import express from 'express';
+import cors from 'cors';
+
+const app = express();
 const port = process.env.PORT || 3001;
 
-// Добавьте middleware
-app.use(cors({ origin: true }));
+// CORS с явными заголовками
+app.use(cors({
+  origin: [
+    /\.vercel\.app$/,
+    /localhost/
+  ],
+  methods: ['GET', 'OPTIONS']
+}));
 
-app.options("*", cors());
-
-// Добавьте запуск сервера (это отсутствовало)
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+// Обязательный хелсчек
+app.get('/', (req, res) => {
+  res.json({ status: 'ok', timestamp: Date.now() });
 });
-app.get("/exchange-rates", async (req: Request, res: Response) => {
+
+// Основной эндпоинт
+app.get('/exchange-rates', async (req, res) => {
   try {
-    const url = "https://valuta.tj/parser/echokurs.php";
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Error response:", errorText);
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const rawData = await response.text();
-
-    const data = JSON.parse(rawData);
-
-    // Преобразуем объект в массив
-    const ratesArray = Object.values(data);
-
-    if (!Array.isArray(ratesArray)) {
-      throw new Error("Response is not an array");
-    }
-
-    res.json(ratesArray); // Возвращаем массив курсов
-  } catch (error) {
-    console.error("Error:", error);
-    res.status(500).json({ error: "Error" });
+    const response = await fetch('https://valuta.tj/parser/echokurs.php');
+    const data = await response.json();
+    res.json(Object.values(data));
+  } catch () {
+    res.status(500).json({ error: 'Internal server error' });
   }
+});
+
+// Обработка OPTIONS
+app.options('*', (req, res) => {
+  res.status(200).end();
+});
+
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
