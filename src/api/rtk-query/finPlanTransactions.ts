@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import supabase from "../supabaseClient";
-import { IFinPlanTransaction } from "../../types/types";
+import { IFinPlanTransaction } from "../../types/indexTypes";
+import { prepareDateWithOriginalParts } from "../../utility/prepareDateToServer";
 
 export const finPlanTransactionsApi = createApi({
   reducerPath: "finplanTransactionsApi",
@@ -22,26 +23,24 @@ export const finPlanTransactionsApi = createApi({
 
     planTransactions: builder.mutation({
       queryFn: async (data) => {
-        const [formData, planData] = data;
-
+        const [amountData, amount, planData] = data;
         const planId = planData.id;
         const planName = planData.plan;
-        console.log("PlanID: ", planId);
-        console.log("PlanName: ", planName);
 
         const { data: Supadata, error } = await supabase
           .from("finplanTransactions")
           .insert({
-            ...formData,
+            ...amountData,
+            amount,
             planId: planId,
             fromPlan: planName,
             date: {
-              day: formData.date.day,
-              month: formData.date.month,
-              year: formData.date.year,
-              hour: formData.date.hour,
-              minute: formData.date.minute,
-              weekDay: formData.date.weekDay,
+              day: amountData.date.day,
+              month: amountData.date.month,
+              year: amountData.date.year,
+              hour: amountData.date.hour,
+              minute: amountData.date.minute,
+              weekDay: amountData.date.weekDay,
             },
           });
         if (error) {
@@ -54,68 +53,40 @@ export const finPlanTransactionsApi = createApi({
     }),
     deletePlanTransactions: builder.mutation({
       queryFn: async (rowsId) => {
-        console.log("RowsID planTran: ", rowsId);
-
-        const deleteRequest = supabase
+        const { data, error } = await supabase
           .from("finplanTransactions")
           .delete()
           .in("id", rowsId);
 
-        Promise.all([deleteRequest])
-          .then((results) => {
-            const isError = results.find((result) => result.error);
-            if (isError) {
-              throw new Error(`${isError.error?.message}`);
-            } else {
-              console.log(
-                "✅ Данные успешно удалены из базы данных!: ",
-                results
-              );
-            }
-          })
-          .catch((error) => {
-            throw new Error(`❌ Ошибка: ${error.message}`);
-          });
+        if (error) {
+          console.log(error.message);
+          throw new Error(error.message);
+        }
 
-        return { data: deleteRequest || [] };
+        return { data: data || [] };
       },
     }),
     updatePlanTransactions: builder.mutation({
-      queryFn: async (data) => {
-        const [formData, rowId] = data;
-
-        const updateRequest = supabase
+      queryFn: async (formData) => {
+        const [amountData, planData, amount, dateIsString, rowId] = formData;
+        const date = prepareDateWithOriginalParts(planData, dateIsString);
+        console.log(date);
+        console.log(amountData);
+        const { data, error } = await supabase
           .from("finplanTransactions")
           .update({
-            ...formData,
-            date: {
-              day: formData.date.day,
-              month: formData.date.month,
-              year: formData.date.year,
-              hour: formData.date.hour,
-              minute: formData.date.minute,
-              weekDay: formData.date.weekDay,
-            },
+            ...amountData,
+            amount,
+            date,
           })
           .eq("id", rowId.id);
 
-        Promise.all([updateRequest])
-          .then((results) => {
-            const isError = results.find((result) => result.error);
-            if (isError) {
-              throw new Error(`${isError.error?.message}`);
-            } else {
-              console.log(
-                "✅ Данные успешно обновлены из базы данных!: ",
-                results
-              );
-            }
-          })
-          .catch((error) => {
-            throw new Error(`❌ Ошибка: ${error.message}`);
-          });
+        if (error) {
+          console.log(error.message);
+          throw new Error(error.message);
+        }
 
-        return { data: updateRequest || [] };
+        return { data: data || [] };
       },
     }),
   }),

@@ -8,7 +8,6 @@ import {
 } from "../../api/rtk-query/finPlanRequest";
 import { useCapitalize } from "../../hooks/useCapitalize";
 import { ChangeEvent, useState } from "react";
-
 import {
   useDeletePlanTransactionsMutation,
   useGetPlanTransactionsQuery,
@@ -16,7 +15,14 @@ import {
 import Button from "../buttons/Button";
 import { Loading } from "../Loading";
 import CreateFinPlan from "../modalWindow/CreateFinPlan";
+import useMainCurrency from "../../hooks/useMainCurrency";
+import { truncateDecimal } from "../../utility/truncateDecimal";
+import { toast } from "react-toastify";
+import { NoTransactions } from "../NoTransactions";
+import Tooltip from "./Tooltip";
 const FinPlans = () => {
+  const [id, setId] = useState<{ colId: string; boxId: string } | null>(null);
+  const mainCurrency = useMainCurrency();
   const { id: urlPlanID } = useParams<{ id: string }>();
   const [deletePlan] = useDeletePlanMutation();
   const { data: planTransactions } = useGetPlanTransactionsQuery();
@@ -72,6 +78,7 @@ const FinPlans = () => {
 
   const handleClickDelete = async () => {
     //? Фильтруем ID метод some в этом поможет
+    const toastId = toast.loading("Удаление данных...");
     const planTranId =
       rowsId?.filter((id) => planTransactions?.some((t) => t.planId === id)) ||
       null;
@@ -79,6 +86,12 @@ const FinPlans = () => {
     if (planTranId) {
       await deletePlan(rowsId);
       await deletePlanTransactions(planTranId);
+      toast.update(toastId, {
+        render: "План успешно удален!",
+        type: "success",
+        isLoading: false,
+        autoClose: 2000,
+      });
       refetchPlan();
       setRowsId([]);
     }
@@ -86,14 +99,19 @@ const FinPlans = () => {
 
   const handleClickCreate = () => {
     if (!urlPlanID) dispatch(setPlanID(""));
-    dispatch(openModal(["finplan", true]));
+    if (rowsId.length !== 0) dispatch(openModal(["finplan", true]));
+    toast(
+      <span className="text-red-500">
+        Нажмите на кнопку изменить или удалить!
+      </span>,
+    );
   };
 
   return (
-    <div className=" rounded-lg  w-full max-w-4xl">
+    <div className=" rounded-lg  w-full max-w-4xl ">
       <div className="flex justify-between items-center mb-6">
         <div className="flex justify-between w-full">
-          <h2 className="text-xl font-semibold">Plans</h2>
+          <h2 className="text-xl font-semibold">Планы</h2>
           <Button
             submitHandler={handleClickCreate}
             className="px-3 py-2 cursor-pointer rounded-xl bg-green-500 text-white font-medium"
@@ -102,31 +120,31 @@ const FinPlans = () => {
           </Button>
         </div>
       </div>
-      <div className="overflow-x-auto">
-        <div
-          className={`bg-[#00b28e] w-full px-5  ease-in-out transition-all duration-700 ${
-            rowsId.length !== 0 ? "h-9" : "h-0"
-          } font-bold text-[15px] text-slate-100 flex justify-between  items-center rounded-xl`}
+      <div
+        className={`bg-[#00b28e] w-full px-5  ease-in-out transition-all duration-700 ${
+          rowsId.length !== 0 ? "h-9" : "h-0"
+        } font-bold text-[15px] text-slate-100 flex justify-between  items-center rounded-xl`}
+      >
+        <span
+          onClick={handleClickDelete}
+          className={`cursor-pointer  ${
+            rowsId.length !== 0 ? "visible" : "hidden"
+          } hover:bg-slate-50/30 px-2 py-1 rounded-xl`}
         >
+          Удалить запись
+        </span>
+        {rowsId.length <= 1 && (
           <span
-            onClick={handleClickDelete}
-            className={`cursor-pointer  ${
+            onClick={() => dispatch(openModal(["finplan", true]))}
+            className={`cursor-pointer ${
               rowsId.length !== 0 ? "visible" : "hidden"
             } hover:bg-slate-50/30 px-2 py-1 rounded-xl`}
           >
-            Удалить запись
+            Изменить
           </span>
-          {rowsId.length <= 1 && (
-            <span
-              onClick={() => dispatch(openModal(["finplan", true]))}
-              className={`cursor-pointer ${
-                rowsId.length !== 0 ? "visible" : "hidden"
-              } hover:bg-slate-50/30 px-2 py-1 rounded-xl`}
-            >
-              Изменить
-            </span>
-          )}
-        </div>
+        )}
+      </div>
+      <div className="h-[500px] overflow-y-auto">
         <div className="min-w-full  rounded-lg ">
           <div className="flex py-2  border-b-gray-400 border-b text-gray-500">
             <input
@@ -134,11 +152,11 @@ const FinPlans = () => {
               className="size-5 mx-4"
               onChange={(event) => handleSelectAll(event)}
             />
-            <span className="w-1/5 font-semibold">Date</span>
-            <span className="w-1/5 font-semibold">Month</span>
-            <span className="w-1/5 font-semibold">Annual</span>
-            <span className="w-1/5 font-semibold">Max plan</span>
-            <span className="w-1/5 font-semibold">Plan</span>
+            <span className="w-1/5 font-semibold">Дата</span>
+            <span className="w-1/5 font-semibold">Весь план</span>
+            <span className="w-1/5 font-semibold">В месяц</span>
+            <span className="w-1/5 font-semibold">В год</span>
+            <span className="w-1/5 font-semibold">План</span>
           </div>
 
           {finPlans ? (
@@ -156,7 +174,7 @@ const FinPlans = () => {
                 <Link to={`/finplans/${plan.id}`} className="w-full">
                   <div className="flex items-center h-[70px] ">
                     <div className="w-1/5">
-                      <div className="">
+                      <div>
                         {plan.date.day}.{toLowerCase(plan.date.month.shortName)}
                         .{plan.date.year}
                       </div>
@@ -165,14 +183,59 @@ const FinPlans = () => {
                         {plan.date.minute}
                       </div>
                     </div>
-                    <div className="w-1/5 text-green-500 font-medium">
-                      {plan.monthlyAmount}
+                    <div className=" w-1/5 text-green-600 flex gap-1 relative">
+                      <Tooltip
+                        number={plan.maxAmount}
+                        className={"left-10 top-7"}
+                        isActive={
+                          id?.boxId === "maxAmount" && id?.colId === plan.id
+                        }
+                      />
+                      <span
+                        onMouseEnter={() =>
+                          setId({ colId: plan.id, boxId: "maxAmount" })
+                        }
+                        onMouseLeave={() => setId(null)}
+                      >
+                        {truncateDecimal(plan.maxAmount)}
+                      </span>
+                      <span className="text-gray-500">{mainCurrency}</span>
                     </div>
-                    <div className=" w-1/5 text-green-500 font-medium">
-                      {plan.annualAmount}
+                    <div className="w-1/5 text-green-600 flex gap-1 relative">
+                      <Tooltip
+                        number={plan.monthlyAmount}
+                        className={"left-10 top-7"}
+                        isActive={
+                          id?.boxId === "monthlyAmount" && id?.colId === plan.id
+                        }
+                      />
+                      <span
+                        onMouseEnter={() =>
+                          setId({ colId: plan.id, boxId: "monthlyAmount" })
+                        }
+                        onMouseLeave={() => setId(null)}
+                      >
+                        {truncateDecimal(plan.monthlyAmount)}
+                      </span>
+                      <span className="text-gray-500">{mainCurrency}</span>
                     </div>
-                    <div className=" w-1/5 text-green-500 font-medium">
-                      {plan.maxAmount}
+                    <div className=" w-1/5 text-green-600 flex gap-1 relative">
+                      <Tooltip
+                        number={plan.annualAmount}
+                        className={"  left-10 top-7"}
+                        isActive={
+                          id?.boxId === "annualAmount" && id?.colId === plan.id
+                        }
+                      />
+                      <span
+                        onMouseEnter={() =>
+                          setId({ colId: plan.id, boxId: "annualAmount" })
+                        }
+                        onMouseLeave={() => setId(null)}
+                      >
+                        {truncateDecimal(plan.annualAmount)}
+                      </span>
+                      <span className="text-gray-500">{mainCurrency}</span>
                     </div>
                     <div className=" w-1/5">{plan.plan}</div>
                   </div>
@@ -182,6 +245,17 @@ const FinPlans = () => {
           ) : (
             <Loading error={error} onReload={refetchPlan} />
           )}
+          <div className="w-full min-h-96 grid place-items-center ">
+            {finPlans
+              ? finPlans.length === 0 && (
+                  <NoTransactions
+                    header="Создайте свои планы!"
+                    btnText="Создать"
+                    modal={["finplan", true]}
+                  />
+                )
+              : null}
+          </div>
         </div>
       </div>
       {createPortal(<CreateFinPlan />, document.body)}

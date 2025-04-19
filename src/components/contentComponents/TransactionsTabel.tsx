@@ -9,6 +9,7 @@ import {
   GridReadyEvent,
   ICellRendererParams,
   ModuleRegistry,
+  ProcessCellForExportParams,
   RowClickedEvent,
   RowSelectionModule,
   RowSelectionOptions,
@@ -24,7 +25,7 @@ import {
   ExcelExportModule,
   QuickFilterModule,
 } from "ag-grid-enterprise";
-import { GridAndTransaction } from "../../types/types";
+import { GridAndTransaction } from "../../types/indexTypes";
 import { useGetSumQuery } from "../../api/rtk-query/insertTranData";
 import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
 import { openModal, setTransactionId } from "../../redux/slices/StateAndData";
@@ -32,6 +33,10 @@ import { useDeleteTransactionMutation } from "../../api/rtk-query/deleteTranData
 import Button from "../buttons/Button";
 import { Loading } from "../Loading";
 import { NoTransactions } from "../NoTransactions";
+import useMainCurrency from "../../hooks/useMainCurrency";
+import { toast } from "react-toastify";
+import { truncateDecimal } from "../../utility/truncateDecimal";
+import { useCapitalize } from "../../hooks/useCapitalize";
 ModuleRegistry.registerModules([
   RowSelectionModule,
   ClientSideRowModelModule,
@@ -50,13 +55,14 @@ const TransactionsTable = () => {
   const gridRef = useRef<AgGridReact<GridAndTransaction>>(null);
   const [deleteTransaction] = useDeleteTransactionMutation();
   const [selectRows, setSelecRows] = useState<GridAndTransaction[]>([]);
-
+  const { toLowerCase } = useCapitalize();
+  const mainCurrency = useMainCurrency();
   const containerStyle = useMemo(
     () => ({
       width: "100%",
       height: "100%",
     }),
-    []
+    [],
   );
   const gridStyle = useMemo(() => ({ height: "500px", width: "100%" }), []);
   const { data: transactions, refetch, error } = useGetSumQuery("transactions");
@@ -74,30 +80,43 @@ const TransactionsTable = () => {
         valueFormatter: (params) => {
           const date = params.value;
           return date
-            ? `${date.day}.${date.month.shortName}.${date.year} ${date.hour}:${date.minute}`
+            ? `${date.day}.${toLowerCase(date.month.shortName)}.${date.year} ${date.hour}:${date.minute}`
             : "";
         },
       },
       {
         field: "amount",
+        tooltipField: "amount",
         headerName: "Сумма",
         cellRenderer: (params: ICellRendererParams) => {
+          const amount = truncateDecimal(params.value);
           if (params.data.tranCategory === "transfer") {
             return (
-              <div className="flex items-center">
+              <div className="flex gap-x-1 items-center">
                 <img
                   src={transferIcon}
                   title="icon from Icons8"
-                  className="size-5 mr-2"
+                  className="size-5 "
                 />
-                <span>{params.value}</span>
+                <span>{amount}</span>
+                <span className="text-gray-500">{mainCurrency}</span>
               </div>
             );
           }
           if (params.data.tranCategory === "income") {
-            return `+${params.value}`;
+            return (
+              <>
+                <span>+{amount}</span>{" "}
+                <span className="text-gray-500">{mainCurrency}</span>
+              </>
+            );
           } else {
-            return `-${params.value}`;
+            return (
+              <>
+                <span>-{amount}</span>{" "}
+                <span className="text-gray-500">{mainCurrency}</span>
+              </>
+            );
           }
         },
         cellStyle: (params) => ({
@@ -105,8 +124,8 @@ const TransactionsTable = () => {
             params.data.tranCategory === "income"
               ? "green"
               : params.data.tranCategory === "transfer"
-              ? "black"
-              : "red",
+                ? "black"
+                : "red",
         }),
       },
       {
@@ -120,10 +139,31 @@ const TransactionsTable = () => {
           }
         },
       },
-      { field: "counterParty", headerName: "Контрагент" },
-      { field: "category", headerName: "Категория" },
+      {
+        field: "counterParty",
+        headerName: "Контрагент",
+        cellRenderer: (params: ICellRendererParams) => {
+          if (params.data.counterParty !== "") {
+            return params.data.counterParty;
+          } else {
+            return "Указать";
+          }
+        },
+      },
+
+      {
+        field: "category",
+        headerName: "Категория",
+        cellRenderer: (params: ICellRendererParams) => {
+          if (params.data.category !== "") {
+            return params.data.category;
+          } else {
+            return "Указать";
+          }
+        },
+      },
     ],
-    []
+    [],
   );
 
   const defaultColDef = useMemo<ColDef>(() => {
@@ -173,12 +213,42 @@ const TransactionsTable = () => {
   const onFilterTextBoxChanged = useCallback(() => {
     gridRef.current!.api.setGridOption(
       "quickFilterText",
-      (document.getElementById("filter-text-box") as HTMLInputElement).value
+      (document.getElementById("filter-text-box") as HTMLInputElement).value,
     );
   }, []);
   const onExportClick = () => {
     gridRef.current?.api.exportDataAsExcel({
       fileName: "FinManager.xlsx",
+      processCellCallback: (params: ProcessCellForExportParams) => {
+        if (!params) return "No data";
+        const data = params.node?.data;
+        const colId = params.column.getColId();
+        const currency = data.currency;
+        const d = data.date;
+
+        try {
+          switch (colId) {
+            case "account":
+              if (data.tranCategory === "transfer") {
+                const parsed = JSON.parse(data.account);
+                return `${parsed.fromAccount} → ${parsed.toAccount}`;
+              }
+              return data.account;
+            case "currency":
+              return currency.namebank || "—";
+            case "date":
+              return `${d.day}.${d.month.number}.${d.year} ${d.hour}:${String(
+                d.minute,
+              ).padStart(2, "0")}`;
+
+            default:
+              return params.value;
+          }
+        } catch (error) {
+          console.log("Excel error: ", error);
+          return params.value;
+        }
+      },
     });
   };
 
@@ -194,6 +264,10 @@ const TransactionsTable = () => {
       dispatch(setTransactionId(rowsId.id));
       dispatch(openModal(["transfer", true]));
     }
+    if (rowsId.tranCategory === "expense") {
+      dispatch(setTransactionId(rowsId.id));
+      dispatch(openModal(["expense", true]));
+    }
   };
 
   const handleRowClick = useCallback((event: RowClickedEvent) => {
@@ -205,11 +279,22 @@ const TransactionsTable = () => {
       dispatch(setTransactionId(event.data.id));
       dispatch(openModal(["transfer", true]));
     }
+    if (event.data.tranCategory === "expense") {
+      dispatch(setTransactionId(event.data.id));
+      dispatch(openModal(["expense", true]));
+    }
   }, []);
 
   const deleteTran = async () => {
+    const toastId = toast.loading("Удаление данных...");
     const ids = selectRows.map((elem) => elem.id);
     await deleteTransaction(ids);
+    toast.update(toastId, {
+      render: "Транзакция успешно удалена!",
+      type: "success",
+      isLoading: false,
+      autoClose: 2000,
+    });
     refetch();
   };
 
@@ -236,7 +321,9 @@ const TransactionsTable = () => {
           <div>
             <div
               className={`bg-[#00b28e] w-full px-5  ease-in-out transition-all duration-700 ${
-                selectRows.length !== 0 ? "h-9" : "h-0 [&>span]:hidden"
+                selectRows.length !== 0
+                  ? "h-9"
+                  : "h-0 [&>span]:hidden [&>button]:hidden"
               } font-bold text-[15px] text-slate-100 flex justify-between  items-center rounded-xl`}
             >
               <Button
@@ -253,15 +340,13 @@ const TransactionsTable = () => {
                   Изменить
                 </Button>
               )}
-              <span
-                className={`cursor-pointer ${
-                  selectRows.length !== 0 ? "visible" : "hidden"
-                }`}
-              >
+              <span className="cursor-pointer">
                 Доход * {selectRows.length} платеж *{" "}
-                {selectRows
-                  .filter((elem) => elem.tranCategory === "income")
-                  .reduce((acc, amount) => acc + amount.amount, 0)}
+                {truncateDecimal(
+                  selectRows
+                    .filter((elem) => elem.tranCategory === "income")
+                    .reduce((acc, amount) => acc + amount.amount, 0),
+                )}
               </span>
             </div>
           </div>

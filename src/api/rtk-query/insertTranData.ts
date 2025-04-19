@@ -1,26 +1,31 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import supabase from "../supabaseClient";
-import { IAccounts, ICompnay, ITransactions } from "../../types/types";
+import { ITransactions } from "../../types/indexTypes";
 
 export const insertTranData = createApi({
   reducerPath: "insertTranData",
   baseQuery: fetchBaseQuery({}),
-  tagTypes: ["Accounts"],
   endpoints: (builder) => ({
     insertTransaction: builder.mutation({
       queryFn: async (formData) => {
-        const [table, insertData, category] = formData;
+        const [table, currencyData, insertData, amount, category] = formData;
+        
+      
         const { data, error } = await supabase.from(table).insert({
           ...insertData,
+          amount,
           tranCategory: category,
+          currency: currencyData,
           date: {
-            day: insertData.date.day,
-            month: insertData.date.month,
-            year: insertData.date.year,
-            hour: insertData.date.hour,
-            minute: insertData.date.minute,
-            weekDay: insertData.date.weekDay,
-          },
+              day: insertData.date.day,
+              month: insertData.date.month,
+              year: insertData.date.year,
+              hour: insertData.date.hour,
+              minute: insertData.date.minute,
+              second: insertData.date.second,
+              weekDay: insertData.date.weekDay,
+            }
+          
         });
         if (error) {
           console.log(error.message);
@@ -55,37 +60,7 @@ export const insertTranData = createApi({
         return { data: sumData || [] };
       },
     }),
-    createAccount: builder.mutation<IAccounts[], [object, string]>({
-      queryFn: async (formData) => {
-        const [account, currency] = formData;
-        const { data, error } = await supabase.from("accounts").insert({
-          ...account,
-          currency,
-        });
 
-        if (error) {
-          console.log(error.message);
-          throw new Error(error.message);
-        }
-
-        return { data: data || [] };
-      },
-      invalidatesTags: [{ type: "Accounts" }],
-    }),
-    getAccount: builder.query<IAccounts[], string>({
-      queryFn: async (table) => {
-        const { data: accounts, error } = await supabase
-          .from(table)
-          .select("*");
-        if (error) {
-          console.log(error.message);
-          throw new Error(error.message);
-        }
-
-        return { data: accounts || [] };
-      },
-      providesTags: [{ type: "Accounts" }],
-    }),
     getSingleDataTransactions: builder.query({
       queryFn: async (sqlFn) => {
         const { data: uniqueData, error } = await supabase.rpc(sqlFn);
@@ -98,20 +73,6 @@ export const insertTranData = createApi({
         return { data: uniqueData || [] };
       },
     }),
-    getCompanyData: builder.query<ICompnay[], string>({
-      queryFn: async (table) => {
-        if (!table) {
-          throw new Error("Table name is undefined");
-        }
-        const { data: company, error } = await supabase.from(table).select("*");
-        if (error) {
-          console.log(error.message);
-          throw new Error(error.message);
-        }
-
-        return { data: company || [] };
-      },
-    }),
   }),
 });
 
@@ -119,9 +80,5 @@ export const {
   useInsertTransactionMutation,
   useGetSumQuery,
   useLazyGetTransactionsQuery,
-  useGetAccountQuery,
-  useGetCompanyDataQuery,
   useGetSingleDataTransactionsQuery,
-  useCreateAccountMutation,
-  useLazyGetAccountQuery,
 } = insertTranData;

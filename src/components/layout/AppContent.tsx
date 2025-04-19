@@ -11,16 +11,16 @@ const AppContent: React.FC = () => {
         <ul className="flex  mb-6 mt-8 text-lg font-bold text-gray-500 [&>a>li]:px-5 [&>a>li]:py-2 [&>a>li]:rounded-full">
           <Link to="/">
             <li className="hover:text-slate-100 hover:bg-black">
-              Transactions
+            Транзакция
             </li>
           </Link>
           <Link to="/finplans">
             <li className="hover:text-slate-100 hover:bg-black">
-              Create Fin Plans
+              Создать план
             </li>
           </Link>
           <Link to="/deposits">
-            <li className="hover:text-slate-100 hover:bg-black">Deposits</li>
+            <li className="hover:text-slate-100 hover:bg-black">Депозиты</li>
           </Link>
         </ul>
       </nav>

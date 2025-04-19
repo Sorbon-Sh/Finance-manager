@@ -22,7 +22,7 @@ import {
   ExcelExportModule,
   QuickFilterModule,
 } from "ag-grid-enterprise";
-import { GridAndTransaction } from "../../types/types";
+import { GridAndTransaction } from "../../types/indexTypes";
 
 import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
 import { openModal, setPlanTranID } from "../../redux/slices/StateAndData";
@@ -37,6 +37,10 @@ import { useParams } from "react-router";
 import Button from "../buttons/Button";
 import { Loading } from "../Loading";
 import { NoTransactions } from "../NoTransactions";
+import { filterArr } from "../../utility/filterArr";
+import { truncateDecimal } from "../../utility/truncateDecimal";
+import { useCapitalize } from "../../hooks/useCapitalize";
+import { toast } from "react-toastify";
 ModuleRegistry.registerModules([
   RowSelectionModule,
   ClientSideRowModelModule,
@@ -56,13 +60,13 @@ const PlanTable = () => {
   const gridRef = useRef<AgGridReact<GridAndTransaction>>(null);
   const [deletePlanTransactions] = useDeletePlanTransactionsMutation();
   const [selectRows, setSelecRows] = useState<GridAndTransaction[]>([]);
-
+  const { toLowerCase } = useCapitalize();
   const containerStyle = useMemo(
     () => ({
       width: "100%",
       height: "100%",
     }),
-    []
+    [],
   );
   const gridStyle = useMemo(() => ({ height: "500px", width: "100%" }), []);
   const { data: transactions, refetch, error } = useGetPlanTransactionsQuery();
@@ -80,21 +84,21 @@ const PlanTable = () => {
         valueFormatter: (params) => {
           const date = params.value;
           return date
-            ? `${date.day}.${date.month.shortName}.${date.year} ${date.hour}:${date.minute}`
+            ? `${date.day}.${toLowerCase(date.month.shortName)}.${date.year} ${date.hour}:${date.minute}`
             : "";
         },
       },
       {
         field: "amount",
-        headerName: "Amount",
+        headerName: "Сумма",
+        tooltipField: "amount",
         cellRenderer: (params: ICellRendererParams) => {
-          return <span>{params.value}</span>;
+          return <span>{truncateDecimal(params.value)}</span>;
         },
-        // cellStyle: (params) => ({}),
       },
-      { field: "fromPlan", headerName: "Plan" },
+      { field: "fromPlan", headerName: "План" },
     ],
-    []
+    [],
   );
 
   const defaultColDef = useMemo<ColDef>(() => {
@@ -128,18 +132,16 @@ const PlanTable = () => {
   }, []);
 
   useEffect(() => {
-    if (gridApi && transactions) {
-      const showDataById = transactions.filter(
-        (elem) => elem.planId === urlPlanId
-      );
-      gridApi.setGridOption("rowData", showDataById);
+    if (urlPlanId && transactions) {
+      const showDataById = filterArr(transactions, "planId", urlPlanId);
+      gridApi?.setGridOption("rowData", showDataById);
     }
   }, [transactions, gridApi]);
 
   const onFilterTextBoxChanged = useCallback(() => {
     gridRef.current!.api.setGridOption(
       "quickFilterText",
-      (document.getElementById("filter-text-box") as HTMLInputElement).value
+      (document.getElementById("filter-text-box") as HTMLInputElement).value,
     );
   }, []);
 
@@ -164,8 +166,15 @@ const PlanTable = () => {
   }, []);
 
   const deleteTran = async () => {
+    const toastId = toast.loading("Удаление данных...");
     const ids = selectRows.map((elem) => elem.id);
     await deletePlanTransactions(ids);
+    toast.update(toastId, {
+      render: "Сумма успешно удален!",
+      type: "success",
+      isLoading: false,
+      autoClose: 2000,
+    });
     refetch();
   };
 
@@ -179,7 +188,7 @@ const PlanTable = () => {
               id="filter-text-box"
               autoComplete="off"
               onInput={onFilterTextBoxChanged}
-              placeholder="Поиск по счетам, контрагентам, категориям"
+              placeholder="Поиск по счетам"
               className="py-2 rounded-xl col-span-4  bg-[#edf4f7] ml-2 mr-9 outline-green-300 pl-4 search"
             />
             <Button
@@ -192,7 +201,9 @@ const PlanTable = () => {
           <div>
             <div
               className={`bg-[#00b28e] w-full px-5  ease-in-out transition-all duration-700 ${
-                selectRows.length !== 0 ? "h-9" : "h-0 [&>span]:hidden"
+                selectRows.length !== 0
+                  ? "h-9"
+                  : "h-0 [&>span]:hidden [&>button]:hidden"
               } font-bold text-[15px] text-slate-100 flex justify-between  items-center rounded-xl`}
             >
               <Button
@@ -211,7 +222,9 @@ const PlanTable = () => {
               )}
               <span>
                 Доход * {selectRows.length} платеж *{" "}
-                {selectRows.reduce((acc, amount) => acc + amount.amount, 0)}
+                {truncateDecimal(
+                  selectRows.reduce((acc, amount) => acc + amount.amount, 0),
+                )}
               </span>
             </div>
           </div>

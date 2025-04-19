@@ -1,73 +1,42 @@
 @import "tailwindcss";
 
 /* * {
-  outline: 2px solid orange;
+    outline: 2px solid orange;
 } */
 
 body {
-  background-color: #121212;
+    background-color: #121212;
 }
 
 @layer components {
-  .headerButton {
-    @apply px-8 py-[10px] rounded-xl  flex gap-x-2 items-center;
-  }
+    .headerButton {
+        @apply px-8 py-[10px] rounded-xl  flex gap-x-2 items-center;
+    }
 }
 
 .companyDetails > summary::after {
-  content: "";
-  width: 0;
-  height: 0;
-  border-top: 5px solid transparent;
-  border-bottom: 5px solid transparent;
-  border-left: 5px solid #817a7a;
-  margin-left: 8px;
-  transition: transform 0.2s ease;
+    content: "";
+    width: 0;
+    height: 0;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-left: 5px solid #817a7a;
+    margin-left: 8px;
+    transition: transform 0.2s ease;
 }
 
 .companyDetails[open] summary::after {
-  transform: rotate(90deg);
-  -ms-transform: rotate(90deg);
-  /* IE 9 */
+    transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    /* IE 9 */
 
-  -webkit-transform: rotate(90deg);
-  /* Chrome, Safari, Opera */
-}
-
-.triangleTimeFilter {
-  position: relative;
-}
-
-.triangleTimeFilter::after {
-  content: "";
-  position: absolute;
-  right: 16px; /* Позиция треугольника */
-  top: 50%; /* Центрирование по вертикали */
-  transform: translateY(-50%); /* Центрирование по вертикали */
-  border-top: 5px solid transparent;
-  border-bottom: 5px solid transparent;
-  border-left: 5px solid #000;
-}
-
-.triangleFilterBy {
-  position: relative;
-}
-
-.triangleFilterBy::after {
-  content: "";
-  position: absolute;
-  right: -18px; /* Позиция треугольника */
-  top: 50%; /* Центрирование по вертикали */
-  transform: translateY(-50%); /* Центрирование по вертикали */
-  border-top: 5px solid transparent;
-  border-bottom: 5px solid transparent;
-  border-left: 5px solid #000;
+    -webkit-transform: rotate(90deg);
+    /* Chrome, Safari, Opera */
 }
 
 .search::placeholder {
-  background: url("assets/search-icon.svg") no-repeat;
-  display: flex;
-  background-position: 3px;
-  padding-left: 25px;
+    background: url("assets/search-icon.svg") no-repeat;
+    display: flex;
+    background-position: 3px;
+    padding-left: 25px;
 }
-

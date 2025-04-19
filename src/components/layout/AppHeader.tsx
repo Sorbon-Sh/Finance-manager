@@ -1,4 +1,5 @@
 import Button from "../buttons/Button";
+import { ToastContainer } from "react-toastify";
 import arrowTransfer from "../../assets/arrow-transfer-header.svg";
 import stroke from "../../assets/stroke.svg";
 import union from "../../assets/union.svg";
@@ -7,16 +8,16 @@ import IncomeModal from "../modalWindow/IncomeModal";
 import { createPortal } from "react-dom";
 import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
 import { openModal } from "../../redux/slices/StateAndData";
-import { ICompnay } from "../../types/types";
+import { ICompnay } from "../../types/indexTypes";
 import EditCompany from "../modalWindow/EditCompany";
-import { useGetCompanyDataQuery } from "../../api/rtk-query/insertTranData";
 import ExpenseModal from "../modalWindow/ExpenseModal";
 import TransferModal from "../modalWindow/TransferModal";
+import { useGetCompanyDataQuery } from "../../api/rtk-query/companyRequest";
 const AppHeader = () => {
   const { data: company } = useGetCompanyDataQuery("company");
   const dispatch = useAppDispatch();
   const companyName = company
-    ? company.map((company: ICompnay) => company.name)
+    ? company.map((company: ICompnay) => company.companyName)
     : null;
 
   return (
@@ -33,9 +34,9 @@ const AppHeader = () => {
             </summary>
             {/* Этот absolute должен быть left-0 по контейнету который нужно
             задать relative */}
-            <div className="absolute w-72 mt-2 bg-white rounded-xl left-10">
-              <div className="py-2">
-                <Button className="py-3  text-start block px-3 mx-auto rounded-md hover:bg-gray-200 w-[95%]">
+            <div className="absolute z-10 w-72 mt-2 bg-white rounded-xl left-10">
+              <div className="py-2 px-3">
+                <Button className="py-3  text-start block mx-auto rounded-md hover:bg-gray-200 w-[95%]">
                   {companyName}
                 </Button>
                 <hr className="my-2 bg-gray-200" />
@@ -43,7 +44,7 @@ const AppHeader = () => {
                   submitHandler={() =>
                     dispatch(openModal(["editCompany", true]))
                   }
-                  className="py-3 w-[95%] cursor-pointer block mx-auto px-3 rounded-md text-green-400 text-start hover:bg-gray-200"
+                  className="py-3 w-full cursor-pointer block mx-auto rounded-md text-green-400 text-start hover:bg-gray-200"
                 >
                   Edit
                 </Button>
@@ -60,7 +61,7 @@ const AppHeader = () => {
           <span>
             <img src={union} />
           </span>
-          <span>Income</span>
+          <span>Доход</span>
         </Button>
 
         <Button
@@ -70,7 +71,7 @@ const AppHeader = () => {
           <span>
             <img src={stroke} />
           </span>
-          <span>Expense</span>
+          <span>Расход</span>
         </Button>
         <Button
           submitHandler={() => dispatch(openModal(["transfer", true]))}
@@ -79,7 +80,7 @@ const AppHeader = () => {
           <span>
             <img src={arrowTransfer} />
           </span>
-          <span>Transfer</span>
+          <span>Перевод</span>
         </Button>
       </div>
 
@@ -87,6 +88,7 @@ const AppHeader = () => {
       {createPortal(<ExpenseModal />, document.body)}
       {createPortal(<TransferModal />, document.body)}
       {createPortal(<EditCompany />, document.body)}
+      {createPortal(<ToastContainer />, document.body)}
     </header>
   );
 };

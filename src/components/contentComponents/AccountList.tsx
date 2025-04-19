@@ -1,10 +1,10 @@
-import { useGetAccountQuery } from "../../api/rtk-query/insertTranData";
 import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
 import { openModal, setAccountId } from "../../redux/slices/StateAndData";
 import closeIcon from "../../assets/closeIcon.svg";
 import editIconList from "../../assets/edit-icon-list.svg";
 import burgerIcon from "../../assets/burger-icon.svg";
 import Button from "../buttons/Button";
+import { useGetAccountQuery } from "../../api/rtk-query/accountRequest";
 
 const AccountList = () => {
   const { data: accouts, isSuccess } = useGetAccountQuery("accounts");
@@ -15,7 +15,7 @@ const AccountList = () => {
     dispatch(setAccountId(""));
   };
   return (
-    <div>
+    <div className="h-80 overflow-auto">
       <div className="flex justify-between items-center mb-4 ">
         <h2 className="text-3xl font-bold">Выбрать аккаунт</h2>
         <Button className="cursor-pointer" submitHandler={onClose}>

@@ -1,12 +1,11 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { initTypes } from "../../types/sliceStateAndData";
+import { initTypes } from "../../types/sliceStateAndDataTypes";
 
 const initialState: initTypes = {
   accountId: "",
   choosedAccount: [],
   transationAccount: "",
   transactionId: "",
-  incomeButton: false,
   planId: "",
   planTranId: "",
   depositId: [],

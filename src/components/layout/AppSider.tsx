@@ -1,5 +1,4 @@
 import { createPortal } from "react-dom";
-import { useGetAccountQuery } from "../../api/rtk-query/insertTranData";
 import editAccount from "../../assets/edit-account.svg";
 import plusAccount from "../../assets/plus-account.svg";
 import plus from "../../assets/plus-gray.svg";
@@ -7,27 +6,56 @@ import Button from "../buttons/Button";
 import CreateAccount from "../modalWindow/CreateAccount";
 import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
 import { openModal } from "../../redux/slices/StateAndData";
-import { IAccounts } from "../../types/types";
+import { IAccounts } from "../../types/indexTypes";
 import EditAccount from "../modalWindow/EditAccount";
+import useMainCurrency from "../../hooks/useMainCurrency";
+import { useGetAccountQuery } from "../../api/rtk-query/accountRequest";
+import { truncateDecimal } from "../../utility/truncateDecimal";
+import Tooltip from "../contentComponents/Tooltip";
+import { useState } from "react";
 
 const AppSider = () => {
   //* Хук useState обновляется Асинхронно
-  // const { data: company } = useGetCompanyDataQuery("company");
-
+  const [id, setId] = useState<{ colId?: string; boxId: string } | null>(null);
   const { data: accountsData, isSuccess } = useGetAccountQuery("accounts");
+  const mainCurrency = useMainCurrency();
   const dispatch = useAppDispatch();
 
   return (
     <aside className=" col-start-1 col-end-4 bg-[#edf4f7] rounded-tl-3xl">
       <article className="w-64 mx-auto">
         <div className="flex justify-between flex-col mt-[22px] ">
-          <span className="mb-1 text-sm text-gray-500">Всего на счетах </span>
-          <span className="text-3xl font-bold">
-            TJS{" "}
-            {accountsData
-              ? accountsData.reduce((acc, item) => acc + item.allAmount, 0)
-              : 0}
-          </span>
+          <span className="mb-1 text-sm text-gray-500">Всего на счетах</span>
+          <div className="text-3xl font-bold flex gap-1.5">
+            <span>{mainCurrency}</span>
+            <span>
+              {accountsData ? (
+                <div className="relative">
+                  <Tooltip
+                    number={accountsData.reduce(
+                      (acc, item) => acc + item.allAmount,
+                      0,
+                    )}
+                    isActive={id?.boxId === "allAmounts"}
+                    className="absolute top-12 right-12"
+                  />
+                  <span
+                    onMouseEnter={() => setId({ boxId: "allAmounts" })}
+                    onMouseLeave={() => setId(null)}
+                  >
+                    {truncateDecimal(
+                      accountsData.reduce(
+                        (acc, item) => acc + item.allAmount,
+                        0,
+                      ),
+                    )}
+                  </span>
+                </div>
+              ) : (
+                0
+              )}
+            </span>
+          </div>
         </div>
         <hr className="border-gray-400  mt-5" />
         <div>
@@ -53,10 +81,24 @@ const AppSider = () => {
                 ? accountsData.map((account: IAccounts) => (
                     <li key={account.id}>
                       <span>{account.account}</span>
-                      <span>
-                        {account.currency} {account.allAmount}
-                        .0
-                      </span>
+                      <div
+                        onMouseEnter={() =>
+                          setId({ boxId: account.account, colId: account.id })
+                        }
+                        onMouseLeave={() => setId(null)}
+                        className="relative flex gap-1"
+                      >
+                        <span>{mainCurrency}</span>
+                        <span>{truncateDecimal(account.allAmount)}</span>
+                        <Tooltip
+                          number={account.allAmount}
+                          className={"absolute bottom-10 left-0"}
+                          isActive={
+                            id?.boxId === account.account &&
+                            id?.colId === account.id
+                          }
+                        />
+                      </div>
                     </li>
                   ))
                 : "No accounts found"}

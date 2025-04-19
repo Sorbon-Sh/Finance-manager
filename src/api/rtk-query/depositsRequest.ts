@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import supabase from "../supabaseClient";
-import { IDeposits } from "../../types/types";
+import { IDeposits } from "../../types/indexTypes";
+import { prepareDateWithOriginalParts } from "../../utility/prepareDateToServer";
 
 export const depositsApi = createApi({
   reducerPath: "depositsApi",
@@ -24,17 +25,21 @@ export const depositsApi = createApi({
 
     createDeposit: builder.mutation({
       queryFn: async (formData) => {
+        const [depositData, investment, annualInterest, taxes] = formData;
         const { data: Supadata, error } = await supabase
           .from("deposits")
           .insert({
-            ...formData,
+            ...depositData,
+            investment,
+            annualInterest,
+            taxes,
             date: {
-              day: formData.date.day,
-              month: formData.date.month,
-              year: formData.date.year,
-              hour: formData.date.hour,
-              minute: formData.date.minute,
-              weekDay: formData.date.weekDay,
+              day: depositData.date.day,
+              month: depositData.date.month,
+              year: depositData.date.year,
+              hour: depositData.date.hour,
+              minute: depositData.date.minute,
+              weekDay: depositData.date.weekDay,
             },
           });
         if (error) {
@@ -48,67 +53,49 @@ export const depositsApi = createApi({
     }),
     deleteDeposit: builder.mutation({
       queryFn: async (rowsId) => {
-        const deleteRequest = supabase
+        const { data, error } = await supabase
           .from("deposits")
           .delete()
           .in("id", rowsId);
 
-        Promise.all([deleteRequest])
-          .then((results) => {
-            const isError = results.find((result) => result.error);
-            if (isError) {
-              throw new Error(`${isError.error?.message}`);
-            } else {
-              console.log(
-                "✅ Данные успешно удалены из базы данных!: ",
-                results
-              );
-            }
-          })
-          .catch((error) => {
-            throw new Error(`❌ Ошибка: ${error.message}`);
-          });
+        if (error) {
+          console.log(error.message);
+          throw new Error(error.message);
+        }
 
-        return { data: deleteRequest || [] };
+        return { data: data || [] };
       },
       invalidatesTags: ["Deposits"],
     }),
     updateDeposit: builder.mutation({
-      queryFn: async (data) => {
-        const [formData, rowId] = data;
-
-        const updateRequest = supabase
+      queryFn: async (form) => {
+        const [
+          formData,
+          depositData,
+          dateIsString,
+          investment,
+          annualInterest,
+          taxes,
+          rowId,
+        ] = form;
+        const date = prepareDateWithOriginalParts(depositData, dateIsString);
+        const { data, error } = await supabase
           .from("deposits")
           .update({
             ...formData,
-            date: {
-              day: formData.date.day,
-              month: formData.date.month,
-              year: formData.date.year,
-              hour: formData.date.hour,
-              minute: formData.date.minute,
-              weekDay: formData.date.weekDay,
-            },
+            investment,
+            annualInterest,
+            taxes,
+            date,
           })
           .eq("id", rowId);
 
-        Promise.all([updateRequest])
-          .then((results) => {
-            const isError = results.find((result) => result.error);
-            if (isError) {
-              throw new Error(`${isError.error?.message}`);
-            } else {
-              console.log(
-                "✅ Данные успешно обновлены из базы данных!: ",
-                results
-              );
-            }
-          })
-          .catch((error) => {
-            throw new Error(`❌ Ошибка: ${error.message}`);
-          });
+        if (error) {
+          console.log(error.message);
+          throw new Error(error.message);
+        }
 
-        return { data: updateRequest || [] };
+        return { data: data || [] };
       },
       invalidatesTags: ["Deposits"],
     }),

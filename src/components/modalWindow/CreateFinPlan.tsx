@@ -5,7 +5,7 @@ import closeIcon from "../../assets/closeIcon.svg";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import TimePicker from "react-multi-date-picker/plugins/time_picker";
 import DatePicker from "react-multi-date-picker";
-import { Inputs } from "../../types/types";
+import { Inputs } from "../../types/indexTypes";
 
 import {
   useCreateFinPlanMutation,
@@ -13,12 +13,17 @@ import {
   useUpdatePlanMutation,
 } from "../../api/rtk-query/finPlanRequest";
 import Button from "../buttons/Button";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { numberValid } from "../../utility/numberValid";
+import { toast } from "react-toastify";
+import { safeToString } from "../../utility/safeToString";
+import { parseDateFromServer } from "../../utility/parseDateFromServer";
 
 const CreateFinPlan = () => {
+  const [isButtonClicked, setIsButtonClicked] = useState<boolean>(false);
   const [createFinPlan] = useCreateFinPlanMutation();
   const [updatePlan] = useUpdatePlanMutation();
-  const { data: finPlans, refetch: refetchFinPlan } = useGetFinPlanQuery();
+  const { data: finPlans } = useGetFinPlanQuery();
   const planRowsId = useAppSelector((state) => state.stateAndData.planId);
   const planDataById = finPlans?.find((plan) => plan.id === planRowsId);
   const dispatch = useAppDispatch();
@@ -28,20 +33,63 @@ const CreateFinPlan = () => {
     control,
     reset,
     setValue,
+    trigger,
+    watch,
     formState: { errors },
   } = useForm<Inputs>();
+  const annualAmount = watch("annualAmount");
+  const monthlyAmount = watch("monthlyAmount");
+  const maxAmount = watch("maxAmount");
+  const dateIsString = watch("date");
+  const annualToNumber = parseFloat(annualAmount || "0");
+  const monthlyAmountNumber = parseFloat(monthlyAmount || "0");
+  const maxAmountNumber = parseFloat(maxAmount || "0");
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    const toastId = toast.loading("Сохранение данных...");
     dispatch(openModal(["finplan", false]));
-    dispatch(setPlanID(""));
     try {
       if (planRowsId) {
-        updatePlan([data, planRowsId]);
+        await updatePlan([
+          data,
+          planDataById,
+          dateIsString,
+          annualToNumber,
+          monthlyAmountNumber,
+          maxAmountNumber,
+          planRowsId,
+        ]).unwrap();
+        toast.update(toastId, {
+          render: "План успешно обновлен!",
+          type: "success",
+          isLoading: false,
+          autoClose: 2000,
+        });
       } else {
-        createFinPlan(data);
+        await createFinPlan([
+          data,
+          annualToNumber,
+          monthlyAmountNumber,
+          maxAmountNumber,
+        ]).unwrap();
+        toast.update(toastId, {
+          render: "План успешно создан!",
+          type: "success",
+          isLoading: false,
+          autoClose: 2000,
+        });
       }
-      refetchFinPlan();
+      dispatch(setPlanID(""));
+      console.log("Plan ID reset: ", planRowsId);
       reset();
     } catch (err) {
+      toast.update(toastId, {
+        render: (
+          <span className="text-red-600">Ошибка при сохранении данных!</span>
+        ),
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+      });
       console.log("Error", err);
       throw new Error(`Error to sending data to DataBase`);
     }
@@ -49,15 +97,59 @@ const CreateFinPlan = () => {
 
   const onClose = () => {
     dispatch(openModal(["finplan", false]));
+    dispatch(setPlanID(""));
     reset();
   };
 
   useEffect(() => {
-    setValue("plan", planDataById?.plan || null);
-    setValue("monthlyAmount", planDataById?.monthlyAmount || null);
-    setValue("annualAmount", planDataById?.annualAmount || null);
-    setValue("maxAmount", planDataById?.maxAmount || null);
+    if (planDataById) {
+      setValue("plan", planDataById.plan || null);
+      setValue("monthlyAmount", safeToString(planDataById.monthlyAmount));
+      setValue("annualAmount", safeToString(planDataById.annualAmount));
+      setValue("maxAmount", safeToString(planDataById.maxAmount));
+      setValue("date", parseDateFromServer(planDataById.date));
+    }
   }, [planDataById, setValue]);
+
+  useEffect(() => {
+    (async () => {
+      const formsError = await trigger();
+      if (!formsError) {
+        if (
+          errors.plan ||
+          errors.monthlyAmount ||
+          errors.annualAmount ||
+          errors.maxAmount ||
+          errors.date
+        ) {
+          toast(
+            <div className="text-red-600">
+              <span>Заполните все поля </span>
+            </div>,
+          );
+        }
+
+        if (errors.plan?.message)
+          toast(<span className="text-red-600">{errors.plan?.message}</span>);
+
+        if (
+          errors.monthlyAmount?.message ||
+          errors.annualAmount?.message ||
+          errors.maxAmount?.message
+        ) {
+          toast(
+            <span className="text-red-600">
+              {errors.monthlyAmount?.message ||
+                errors.annualAmount?.message ||
+                errors.maxAmount?.message}
+            </span>,
+          );
+        }
+
+        return;
+      }
+    })();
+  }, [isButtonClicked]);
 
   return (
     <SwitchModal
@@ -69,9 +161,9 @@ const CreateFinPlan = () => {
         <h2 className="text-3xl font-bold">
           {planRowsId ? "Редактировать" : "Создать план"}
         </h2>
-        <button className="cursor-pointer" onClick={onClose}>
+        <Button className="cursor-pointer" submitHandler={onClose}>
           <img src={closeIcon} />
-        </button>
+        </Button>
       </div>
       <form
         className="space-y-4 flex flex-col"
@@ -86,53 +178,53 @@ const CreateFinPlan = () => {
             required: true,
             setValueAs: (value) => value?.trim(),
             maxLength: {
-              value: 15,
-              message: "Максимум 15 символов",
+              value: 10,
+              message: "Максимум 10 символов",
             },
             validate: (value) => {
-              return (value && value.length >= 15) || true;
+              return (value && value.length >= 10) || true;
             },
           })}
         />
 
         <input
-          type="number"
+          type="text"
           placeholder="За месяц"
           className="w-full p-3 bg-gray-100 rounded-lg border border-gray-300"
           {...register("monthlyAmount", {
+            setValueAs: (value) => value?.trim(),
             required: true,
-            valueAsNumber: true,
             validate: (value) => {
-              const isNumPlus = value && value < 0 ? true : false;
-              return !isNumPlus || false;
+              const isNumberValid = numberValid(value || "0");
+              return isNumberValid || true;
             },
           })}
         />
 
         <input
-          type="number"
+          type="text"
           placeholder="За год"
           className="w-full p-3 bg-gray-200 rounded-lg border border-gray-300 mb-4"
           {...register("annualAmount", {
+            setValueAs: (value) => value?.trim(),
             required: true,
-            valueAsNumber: true,
             validate: (value) => {
-              const isNumPlus = value && value < 0 ? true : false;
-              return !isNumPlus || false;
+              const isNumberValid = numberValid(value || "0");
+              return isNumberValid || true;
             },
           })}
         />
 
         <input
-          type="number"
+          type="text"
           placeholder="Всего"
           className="w-full p-3 bg-gray-200 rounded-lg border border-gray-300 mb-4"
           {...register("maxAmount", {
+            setValueAs: (value) => value?.trim(),
             required: true,
-            valueAsNumber: true,
             validate: (value) => {
-              const isNumPlus = value && value < 0 ? true : false;
-              return !isNumPlus || false;
+              const isNumberValid = numberValid(value || "0");
+              return isNumberValid || true;
             },
           })}
         />
@@ -161,26 +253,10 @@ const CreateFinPlan = () => {
           />
         </div>
 
-        <div className="flex flex-col text-center  text-red-600">
-          {errors.plan ||
-          errors.monthlyAmount ||
-          errors.annualAmount ||
-          errors.maxAmount ||
-          errors.date ? (
-            <span>Заполните все поля</span>
-          ) : null}
-
-          <span>{errors.plan?.message}</span>
-          <span>
-            {errors.plan?.type === "validate" ||
-            errors.monthlyAmount?.type === "validate" ||
-            errors.annualAmount?.type === "validate" ||
-            errors.maxAmount?.type === "validate"
-              ? "Число не должно быть  ss отрицательным"
-              : null}
-          </span>
-        </div>
-        <Button className="w-full mt-4 py-2 bg-gradient-to-r from-blue-400 to-green-400 text-white font-semibold rounded-lg cursor-pointer">
+        <Button
+          submitHandler={() => setIsButtonClicked((prev) => !prev)}
+          className="w-full mt-4 py-2 bg-gradient-to-r from-blue-400 to-green-400 text-white font-semibold rounded-lg cursor-pointer"
+        >
           Создать план
         </Button>
       </form>

@@ -12,7 +12,7 @@ export const NoTransactions = ({ header, btnText, modal }: IProps) => {
   const dispatch = useAppDispatch();
 
   return (
-    <div className="pointer-events-auto">
+    <div className="pointer-events-auto text-center">
       <h2 className=" text-2xl mb-4">{header}</h2>
       <Button
         submitHandler={() => dispatch(openModal(modal))}

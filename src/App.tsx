@@ -1,10 +1,8 @@
-import {
-  useGetAccountQuery,
-  useGetCompanyDataQuery,
-} from "./api/rtk-query/insertTranData";
 import AppLayout from "./components/layout/AppLayout";
 import cashIcon from "./assets/cash-icon.gif";
 import { getErrorMessage } from "./utility/reduxErrorsCheck";
+import { useGetAccountQuery } from "./api/rtk-query/accountRequest";
+import { useGetCompanyDataQuery } from "./api/rtk-query/companyRequest";
 const App: React.FC = () => {
   const { isLoading: isCompanyLoading, error: companyError } =
     useGetCompanyDataQuery("company");
@@ -30,6 +28,7 @@ const App: React.FC = () => {
             {getErrorMessage(accountsError || companyError)}
           </span>
         </div>
+       
       </div>
     );
   }

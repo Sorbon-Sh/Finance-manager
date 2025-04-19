@@ -7,12 +7,11 @@ export const deleteTranData = createApi({
   endpoints: (builder) => ({
     deleteTransaction: builder.mutation({
       queryFn: async (ids) => {
-        console.log("deleteTransaction ids: ", ids);
-
         const { data, error } = await supabase
           .from("transactions")
           .delete()
           .in("id", ids);
+
         if (error) {
           console.log(error.message);
           throw new Error(error.message);

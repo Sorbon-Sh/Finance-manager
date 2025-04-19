@@ -14,10 +14,15 @@ import {
 import CreateDeposit from "../modalWindow/CreateDeposit";
 import Button from "../buttons/Button";
 import { truncateDecimal } from "../../utility/truncateDecimal";
-import { getErrorMessage } from "../../utility/reduxErrorsCheck";
 import { Loading } from "../Loading";
+import useMainCurrency from "../../hooks/useMainCurrency";
+import { NoTransactions } from "../NoTransactions";
+import Tooltip from "./Tooltip";
+import { toast } from "react-toastify";
 
 const Deposits = () => {
+  const [id, setId] = useState<{ colId: string; boxId: string } | null>(null);
+  const mainCurrency = useMainCurrency();
   const { data: deposits, error, refetch } = useGetDepositsQuery();
   const [deleteDeposit] = useDeleteDepositMutation();
   const [selectedPlans, setSelectedPlans] = useState<{
@@ -26,7 +31,6 @@ const Deposits = () => {
   const [rowsId, setRowsId] = useState<string[]>([]);
   const dispatch = useAppDispatch();
   const { toLowerCase } = useCapitalize();
-  console.log("RowsID: ", rowsId);
   const handleClickSelect = (id: string) => {
     dispatch(setPlanID(id));
     setRowsId((prev) => {
@@ -68,8 +72,15 @@ const Deposits = () => {
     setRowsId(newRowsId);
   };
 
-  const handleClickDelete = () => {
-    deleteDeposit(rowsId);
+  const handleClickDelete = async () => {
+    const toastId = toast.loading("Удаление данных...");
+    await deleteDeposit(rowsId);
+    toast.update(toastId, {
+      render: "Депозит успешно удален!",
+      type: "success",
+      isLoading: false,
+      autoClose: 2000,
+    });
     setRowsId([]);
   };
 
@@ -92,7 +103,7 @@ const Deposits = () => {
     <div className=" rounded-lg  w-full max-w-4xl">
       <div className="flex justify-between items-center mb-6">
         <div className="flex justify-between w-full">
-          <h2 className="text-xl font-semibold">Deposits</h2>
+          <h2 className="text-xl font-semibold">Депозиты</h2>
           <Button
             submitHandler={handleAddDeposit}
             className="px-3 py-2 cursor-pointer rounded-xl bg-green-500 text-white font-medium"
@@ -101,32 +112,32 @@ const Deposits = () => {
           </Button>
         </div>
       </div>
-      <div className="overflow-x-auto">
-        <div
-          className={`bg-[#00b28e] w-full px-5  ease-in-out transition-all duration-700 ${
-            rowsId.length !== 0 ? "h-9" : "h-0"
-          } font-bold text-[15px] text-slate-100 flex justify-between  items-center rounded-xl`}
+      <div
+        className={`bg-[#00b28e] w-full px-5  ease-in-out transition-all duration-700 ${
+          rowsId.length !== 0 ? "h-9" : "h-0"
+        } font-bold text-[15px] text-slate-100 flex justify-between  items-center rounded-xl`}
+      >
+        <span
+          onClick={handleClickDelete}
+          className={`cursor-pointer  ${
+            rowsId.length !== 0 ? "visible" : "hidden"
+          } hover:bg-slate-50/30 px-2 py-1 rounded-xl`}
         >
+          Удалить запись
+        </span>
+        {rowsId.length <= 1 && (
           <span
-            onClick={handleClickDelete}
-            className={`cursor-pointer  ${
+            onClick={handleClickCheckBox}
+            className={`cursor-pointer ${
               rowsId.length !== 0 ? "visible" : "hidden"
             } hover:bg-slate-50/30 px-2 py-1 rounded-xl`}
           >
-            Удалить запись
+            Изменить
           </span>
-          {rowsId.length <= 1 && (
-            <span
-              onClick={handleClickCheckBox}
-              className={`cursor-pointer ${
-                rowsId.length !== 0 ? "visible" : "hidden"
-              } hover:bg-slate-50/30 px-2 py-1 rounded-xl`}
-            >
-              Изменить
-            </span>
-          )}
-        </div>
-        <div className="w-full h-[400px] overflow-y-auto rounded-lg ">
+        )}
+      </div>
+      <div className="max-h-[500px] overflow-y-auto">
+        <div className="min-w-full  rounded-lg ">
           <div className="flex  py-2 text-center border-b-gray-400 border-b text-gray-500">
             <input
               type="checkbox"
@@ -169,83 +180,157 @@ const Deposits = () => {
                         {deposit.date.minute}
                       </div>
                     </div>
-                    <div className="w-1/5 text-green-600">
-                      {deposit.investment}{" "}
-                      <span className="text-gray-500">{deposit.currency}</span>
+                    <div className="w-1/5 text-green-600 relative">
+                      <Tooltip
+                        number={deposit.investment}
+                        className={"  left-15 top-7"}
+                        isActive={
+                          id?.boxId === "Investment" && id?.colId === deposit.id
+                        }
+                      />
+                      <span
+                        onMouseEnter={() =>
+                          setId({ colId: deposit.id, boxId: "Investment" })
+                        }
+                        onMouseLeave={() => setId(null)}
+                      >
+                        {truncateDecimal(deposit.investment)}
+                      </span>{" "}
+                      <span className="text-gray-500">{mainCurrency}</span>
                     </div>
-                    <div className=" w-1/5 text-green-600  flex flex-col">
-                      <span>
-                        +
-                        {truncateDecimal(
+                    <div className=" w-1/5 text-green-600 relative  flex flex-col">
+                      <Tooltip
+                        number={
+                          (deposit.investment * deposit.annualInterest) /
+                          100 /
+                          12
+                        }
+                        className={" left-15 top-7"}
+                        isActive={
+                          id?.boxId === "mounthly" && id?.colId === deposit.id
+                        }
+                      />
+                      <span
+                        onMouseEnter={() =>
+                          setId({ colId: deposit.id, boxId: "mounthly" })
+                        }
+                        onMouseLeave={() => setId(null)}
+                        className="w-fit mx-auto"
+                      >
+                        {`+${truncateDecimal(
                           (deposit.investment * deposit.annualInterest) /
                             100 /
                             12,
-                          2
-                        )}
+                        )}`}
+                      </span>
+                    </div>
+                    <div className=" flex flex-col relative w-1/5 text-green-600 ">
+                      <Tooltip
+                        number={
+                          (deposit.investment * deposit.annualInterest) / 100
+                        }
+                        className={" left-15 top-7"}
+                        isActive={
+                          id?.boxId === "annualInterest" &&
+                          id?.colId === deposit.id
+                        }
+                      />
+                      <span
+                        onMouseEnter={() =>
+                          setId({ colId: deposit.id, boxId: "annualInterest" })
+                        }
+                        onMouseLeave={() => setId(null)}
+                        className="w-fit mx-auto"
+                      >
+                        {`+${truncateDecimal(
+                          (deposit.investment * deposit.annualInterest) / 100,
+                        )}`}
+                      </span>
+                    </div>
+                    <div className=" w-1/5 text-red-600 relative flex flex-col">
+                      <Tooltip
+                        number={
+                          (((deposit.investment * deposit.annualInterest) /
+                            100) *
+                            deposit.taxes) /
+                          100
+                        }
+                        className={" left-15 top-7"}
+                        isActive={
+                          id?.boxId === "taxesAmount" &&
+                          id?.colId === deposit.id
+                        }
+                      />
+                      <span
+                        onMouseEnter={() =>
+                          setId({ boxId: "taxesAmount", colId: deposit.id })
+                        }
+                        onMouseLeave={() => setId(null)}
+                        className="w-fit mx-auto"
+                      >
+                        {`-${truncateDecimal(
+                          (((deposit.investment * deposit.annualInterest) /
+                            100) *
+                            deposit.taxes) /
+                            100,
+                        )}`}
                       </span>
                       <span
-                        className="text-gray-500"
-                        title={`${deposit.annualInterest / 12}`}
+                        title={`${deposit.taxes}%`}
+                        className="text-gray-500 w-fit mx-auto"
                       >
-                        {truncateDecimal(deposit.annualInterest / 12, 1)}%
+                        {`${truncateDecimal(deposit.taxes)}%`}
                       </span>
                     </div>
-                    <div className=" flex flex-col w-1/5 text-green-600 ">
-                      <span>
-                        +
-                        {truncateDecimal(
-                          (deposit.investment * deposit.annualInterest) / 100,
-                          2
-                        )}
-                      </span>
-                      <span className="text-gray-500">
-                        {truncateDecimal(deposit.annualInterest, 1)}%
-                      </span>
-                    </div>
-                    <div className=" w-1/5 text-red-600  flex flex-col">
-                      <span>
-                        -
-                        {truncateDecimal(
+                    <div className="w-1/5 relative text-green-600">
+                      <Tooltip
+                        number={
+                          (deposit.investment * deposit.annualInterest) / 100 -
                           (((deposit.investment * deposit.annualInterest) /
                             100) *
                             deposit.taxes) /
-                            100,
-                          2
-                        )}
+                            100
+                        }
+                        className={" left-15 top-7"}
+                        isActive={
+                          id?.boxId === "allAmount" && id?.colId === deposit.id
+                        }
+                      />
+                      <span
+                        onMouseEnter={() =>
+                          setId({ boxId: "allAmount", colId: deposit.id })
+                        }
+                        onMouseLeave={() => setId(null)}
+                        className="w-fit mx-auto"
+                      >
+                        {`+${truncateDecimal(
+                          (deposit.investment * deposit.annualInterest) / 100 -
+                            (((deposit.investment * deposit.annualInterest) /
+                              100) *
+                              deposit.taxes) /
+                              100,
+                        )}`}
                       </span>
-                      <span className="text-gray-500">
-                        {truncateDecimal(deposit.taxes, 1)}%
-                      </span>
-                    </div>
-                    <div className="w-1/5 text-green-600">
-                      +
-                      {truncateDecimal(
-                        (deposit.investment * deposit.annualInterest) / 100 -
-                          (((deposit.investment * deposit.annualInterest) /
-                            100) *
-                            deposit.taxes) /
-                            100,
-                        2
-                      )}
                     </div>
                     <div className=" w-1/5">{deposit.category}</div>
                   </div>
                 </div>
               </div>
             ))
-          ) : error ? (
-            <div className="text-red-500 mt-12 font-medium flex justify-center items-center gap-x-4">
-              <span>{getErrorMessage(error)}</span>
-              <span
-                onClick={() => refetch()}
-                className="bg-blue-500 text-white cursor-pointer py-2 px-3 rounded-lg"
-              >
-                Refresh
-              </span>
-            </div>
           ) : (
             <Loading error={error} onReload={refetch} />
           )}
+          <div className="w-full min-h-96 grid place-items-center ">
+            {deposits
+              ? deposits.length === 0 && (
+                  <NoTransactions
+                    header="Добавьте свой депозит!"
+                    btnText="Добавить"
+                    modal={["createDeposit", true]}
+                  />
+                )
+              : null}
+          </div>
         </div>
       </div>
       {createPortal(<CreateDeposit />, document.body)}
