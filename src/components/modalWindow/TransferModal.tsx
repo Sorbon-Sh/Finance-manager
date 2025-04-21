@@ -119,6 +119,7 @@ const TransferModal = () => {
 
       setValue("date", parseDateFromServer(tranData.date));
     }
+    if (!tranId) reset();
   }, [tranData, setValue]);
 
   useEffect(() => {

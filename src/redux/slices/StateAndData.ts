@@ -8,7 +8,7 @@ const initialState: initTypes = {
   transactionId: "",
   planId: "",
   planTranId: "",
-  depositId: [],
+  depositId: "",
 };
 
 // ? Аналог если TypeScript из лишне будет проверять Redux
@@ -49,7 +49,7 @@ export const modalState = createSlice({
     setPlanTranID: (state, action: PayloadAction<string>) => {
       state.planTranId = action.payload;
     },
-    setDepositId: (state, action: PayloadAction<string[]>) => {
+    setDepositId: (state, action: PayloadAction<string>) => {
       state.depositId = action.payload;
     },
   },

@@ -1,12 +1,8 @@
-import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
-import {
-  openModal,
-  setDepositId,
-  setPlanID,
-} from "../../redux/slices/StateAndData";
+import { useAppDispatch, useAppSelector } from "../../hooks/useReduxTypedHooks";
+import { openModal, setDepositId } from "../../redux/slices/StateAndData";
 import { createPortal } from "react-dom";
 import { useCapitalize } from "../../hooks/useCapitalize";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useState, useEffect } from "react";
 import {
   useDeleteDepositMutation,
   useGetDepositsQuery,
@@ -30,18 +26,36 @@ const Deposits = () => {
   }>({});
   const [rowsId, setRowsId] = useState<string[]>([]);
   const dispatch = useAppDispatch();
+  const depositId = useAppSelector((state) => state.stateAndData.depositId);
   const { toLowerCase } = useCapitalize();
-  const handleClickSelect = (id: string) => {
-    dispatch(setPlanID(id));
-    setRowsId((prev) => {
-      const rowsId = prev.includes(id)
-        ? prev.filter((item) => item !== id)
-        : [...prev, id];
-      return rowsId;
-    });
-    setSelectedPlans((prev) => {
-      const newState = { ...prev, [id]: !prev[id] };
+  const handleClickSelect = (
+    event: ChangeEvent<HTMLInputElement>,
+    id: string,
+  ) => {
+    const isChecked = event.target.checked;
 
+    setRowsId((prev) => {
+      const updated = isChecked
+        ? [...prev, id]
+        : prev.filter((item) => item !== id);
+
+      // если чекбокс ставим, обновляем planID
+      if (isChecked) {
+        dispatch(setDepositId(id));
+      } else {
+        // если убираем галочку, и остался хотя бы один — выбираем его как новый planID
+        if (updated.length > 0) {
+          dispatch(setDepositId(updated[0]));
+        } else {
+          dispatch(setDepositId(""));
+        }
+      }
+
+      return updated;
+    });
+
+    setSelectedPlans((prev) => {
+      const newState = { ...prev, [id]: isChecked };
       return newState;
     });
   };
@@ -85,19 +99,35 @@ const Deposits = () => {
   };
 
   const handleClickCheckBox = () => {
+    console.log("rowsId", rowsId);
     dispatch(setDepositId(rowsId));
     dispatch(openModal(["createDeposit", true]));
   };
 
-  const handleClickRow = (id: string[]) => {
+  const handleClickRow = (id: string) => {
     dispatch(setDepositId(id));
     dispatch(openModal(["createDeposit", true]));
   };
 
   const handleAddDeposit = () => {
-    dispatch(setDepositId([]));
+    if (rowsId.length !== 0) {
+      toast.error(
+        <span className="text-red-500">
+          Удалите или измените планы перед созданием нового
+        </span>,
+      );
+      return;
+    }
+    dispatch(setDepositId(""));
     dispatch(openModal(["createDeposit", true]));
   };
+
+  useEffect(() => {
+    if (!depositId) {
+      setSelectedPlans({});
+      setRowsId([]);
+    }
+  }, [depositId]);
 
   return (
     <div className=" rounded-lg  w-full max-w-4xl">
@@ -138,7 +168,7 @@ const Deposits = () => {
       </div>
       <div className="max-h-[500px] overflow-y-auto">
         <div className="min-w-full  rounded-lg ">
-          <div className="flex  py-2 text-center border-b-gray-400 border-b text-gray-500">
+          <div className="flex   py-2 text-center border-b-gray-400 border-b text-gray-500">
             <input
               type="checkbox"
               className="size-7 mx-4 "
@@ -161,12 +191,12 @@ const Deposits = () => {
                 <input
                   type="checkbox"
                   className="size-5 mx-4"
-                  checked={selectedPlans[deposit.id] || false}
-                  onChange={() => handleClickSelect(deposit.id)}
+                  checked={selectedPlans[deposit.id]}
+                  onChange={(event) => handleClickSelect(event, deposit.id)}
                 />
                 <div
                   className="w-full text-center"
-                  onClick={() => handleClickRow([deposit.id])}
+                  onClick={() => handleClickRow(deposit.id)}
                 >
                   <div className="flex items-center h-[70px] ">
                     <div className="w-1/5">
@@ -320,17 +350,17 @@ const Deposits = () => {
           ) : (
             <Loading error={error} onReload={refetch} />
           )}
-          <div className="w-full min-h-96 grid place-items-center ">
-            {deposits
-              ? deposits.length === 0 && (
+          {deposits
+            ? deposits.length === 0 && (
+                <div className="w-full min-h-96 grid place-items-center ">
                   <NoTransactions
                     header="Добавьте свой депозит!"
                     btnText="Добавить"
                     modal={["createDeposit", true]}
                   />
-                )
-              : null}
-          </div>
+                </div>
+              )
+            : null}
         </div>
       </div>
       {createPortal(<CreateDeposit />, document.body)}

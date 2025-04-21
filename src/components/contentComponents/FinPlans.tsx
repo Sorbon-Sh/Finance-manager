@@ -1,5 +1,5 @@
-import { Link, useParams } from "react-router";
-import { useAppDispatch } from "../../hooks/useReduxTypedHooks";
+import { Link } from "react-router";
+import { useAppDispatch, useAppSelector } from "../../hooks/useReduxTypedHooks";
 import { openModal, setPlanID } from "../../redux/slices/StateAndData";
 import { createPortal } from "react-dom";
 import {
@@ -7,7 +7,7 @@ import {
   useGetFinPlanQuery,
 } from "../../api/rtk-query/finPlanRequest";
 import { useCapitalize } from "../../hooks/useCapitalize";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import {
   useDeletePlanTransactionsMutation,
   useGetPlanTransactionsQuery,
@@ -22,8 +22,8 @@ import { NoTransactions } from "../NoTransactions";
 import Tooltip from "./Tooltip";
 const FinPlans = () => {
   const [id, setId] = useState<{ colId: string; boxId: string } | null>(null);
+  const planID = useAppSelector((state) => state.stateAndData.planId);
   const mainCurrency = useMainCurrency();
-  const { id: urlPlanID } = useParams<{ id: string }>();
   const [deletePlan] = useDeletePlanMutation();
   const { data: planTransactions } = useGetPlanTransactionsQuery();
   const [deletePlanTransactions] = useDeletePlanTransactionsMutation();
@@ -35,17 +35,36 @@ const FinPlans = () => {
   const { toLowerCase } = useCapitalize();
   const { data: finPlans, refetch: refetchPlan, error } = useGetFinPlanQuery();
 
-  const handleClickSelect = (id: string) => {
-    dispatch(setPlanID(id));
-    setRowsId((prev) => {
-      const rowsId = prev.includes(id)
-        ? prev.filter((item) => item !== id)
-        : [...prev, id];
-      return rowsId;
-    });
-    setSelectedPlans((prev) => {
-      const newState = { ...prev, [id]: !prev[id] };
+  console.log("rowsIds: ", rowsId);
+  console.log("Selected plan ID:", planID);
+  const handleClickSelect = (
+    event: ChangeEvent<HTMLInputElement>,
+    id: string,
+  ) => {
+    const isChecked = event.target.checked;
 
+    setRowsId((prev) => {
+      const updated = isChecked
+        ? [...prev, id]
+        : prev.filter((item) => item !== id);
+
+      // если чекбокс ставим, обновляем planID
+      if (isChecked) {
+        dispatch(setPlanID(id));
+      } else {
+        // если убираем галочку, и остался хотя бы один — выбираем его как новый planID
+        if (updated.length > 0) {
+          dispatch(setPlanID(updated[0]));
+        } else {
+          dispatch(setPlanID(""));
+        }
+      }
+
+      return updated;
+    });
+
+    setSelectedPlans((prev) => {
+      const newState = { ...prev, [id]: isChecked };
       return newState;
     });
   };
@@ -94,18 +113,28 @@ const FinPlans = () => {
       });
       refetchPlan();
       setRowsId([]);
+      dispatch(setPlanID(""));
     }
   };
 
   const handleClickCreate = () => {
-    if (!urlPlanID) dispatch(setPlanID(""));
-    if (rowsId.length !== 0) dispatch(openModal(["finplan", true]));
-    toast(
-      <span className="text-red-500">
-        Нажмите на кнопку изменить или удалить!
-      </span>,
-    );
+    if (rowsId.length !== 0) {
+      toast.error(
+        <span className="text-red-500">
+          Удалите или измените планы перед созданием нового
+        </span>,
+      );
+      return;
+    }
+    dispatch(openModal(["finplan", true]));
   };
+
+  useEffect(() => {
+    if (!planID) {
+      setSelectedPlans({});
+      setRowsId([]);
+    }
+  }, [planID]);
 
   return (
     <div className=" rounded-lg  w-full max-w-4xl ">
@@ -168,8 +197,8 @@ const FinPlans = () => {
                 <input
                   type="checkbox"
                   className="size-5 mx-4"
-                  checked={selectedPlans[plan.id] || false}
-                  onChange={() => handleClickSelect(plan.id)}
+                  checked={selectedPlans[plan.id]}
+                  onChange={(event) => handleClickSelect(event, plan.id)}
                 />
                 <Link to={`/finplans/${plan.id}`} className="w-full">
                   <div className="flex items-center h-[70px] ">
@@ -245,17 +274,17 @@ const FinPlans = () => {
           ) : (
             <Loading error={error} onReload={refetchPlan} />
           )}
-          <div className="w-full min-h-96 grid place-items-center ">
-            {finPlans
-              ? finPlans.length === 0 && (
+          {finPlans
+            ? finPlans.length === 0 && (
+                <div className="w-full min-h-96 grid place-items-center ">
                   <NoTransactions
                     header="Создайте свои планы!"
                     btnText="Создать"
                     modal={["finplan", true]}
                   />
-                )
-              : null}
-          </div>
+                </div>
+              )
+            : null}
         </div>
       </div>
       {createPortal(<CreateFinPlan />, document.body)}

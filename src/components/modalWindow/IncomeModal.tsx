@@ -148,6 +148,7 @@ const IncomeModal = () => {
       setValue("counterParty", tranData.counterParty);
       setValue("date", parseDateFromServer(tranData.date));
     }
+    if (!tranId) reset();
   }, [tranData, setValue]);
 
   useEffect(() => {

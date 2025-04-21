@@ -109,6 +109,7 @@ const CreateFinPlan = () => {
       setValue("maxAmount", safeToString(planDataById.maxAmount));
       setValue("date", parseDateFromServer(planDataById.date));
     }
+    if (!planRowsId) reset();
   }, [planDataById, setValue]);
 
   useEffect(() => {

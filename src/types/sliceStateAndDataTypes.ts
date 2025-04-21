@@ -7,7 +7,7 @@ type initData = {
   transactionId: string;
   planId: string;
   planTranId: string;
-  depositId: string[];
+  depositId: string;
 };
 
 export interface ICurrencySlices {

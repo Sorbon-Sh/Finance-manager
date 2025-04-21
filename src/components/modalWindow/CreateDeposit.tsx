@@ -24,8 +24,8 @@ const CreateDeposit = () => {
   const [createDeposit] = useCreateDepositMutation();
   const [updateDeposit] = useUpdateDepositMutation();
   const depositId = useAppSelector((state) => state.stateAndData.depositId);
-  const [id] = depositId;
-  const depositDataById = deposits?.find((deposit) => deposit.id === id);
+
+  const depositDataById = deposits?.find((deposit) => deposit.id === depositId);
   const dispatch = useAppDispatch();
   const {
     register,
@@ -48,7 +48,7 @@ const CreateDeposit = () => {
     const toastId = toast.loading("Сохранение данных...");
     dispatch(openModal(["createDeposit", false]));
     try {
-      if (depositId.length !== 0) {
+      if (depositId) {
         await updateDeposit([
           data,
           depositDataById,
@@ -56,7 +56,7 @@ const CreateDeposit = () => {
           investmentToNumber,
           annualInterestToNumber,
           taxesToNumber,
-          depositId,
+          [depositId],
         ]).unwrap();
         toast.update(toastId, {
           render: "Депозит успешно обновлен!",
@@ -78,7 +78,7 @@ const CreateDeposit = () => {
           autoClose: 2000,
         });
       }
-      dispatch(setDepositId([]));
+      dispatch(setDepositId(""));
       reset();
     } catch (err) {
       toast.update(toastId, {
@@ -96,7 +96,7 @@ const CreateDeposit = () => {
 
   const onClose = () => {
     dispatch(openModal(["createDeposit", false]));
-    dispatch(setDepositId([]));
+    dispatch(setDepositId(""));
     reset();
   };
 
@@ -108,6 +108,7 @@ const CreateDeposit = () => {
       setValue("category", depositDataById?.category || null);
       setValue("date", parseDateFromServer(depositDataById.date));
     }
+    if (!depositId) reset();
   }, [depositDataById, setValue]);
 
   useEffect(() => {
@@ -160,7 +161,7 @@ const CreateDeposit = () => {
     >
       <div className="flex justify-between items-center mb-4 ">
         <h2 className="text-3xl font-bold">
-          {id ? "Редактировать" : "Добавить вклад"}
+          {depositId ? "Редактировать" : "Добавить вклад"}
         </h2>
         <Button className="cursor-pointer" submitHandler={onClose}>
           <img src={closeIcon} />
