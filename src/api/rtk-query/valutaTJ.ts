@@ -1,10 +1,10 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { CurrencyRate } from "../../types/valutaTJTypes";
+import { CurrencyRate } from "../types/valutaTJTypes";
 
 export const valutaApiTJ = createApi({
   reducerPath: "valutaApiTJ",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:3001/",
+    baseUrl: "https://fin-manager-eta.vercel.app/api/",
   }),
   endpoints: (builder) => ({
     valutatj: builder.query<CurrencyRate[], void>({
@@ -12,7 +12,8 @@ export const valutaApiTJ = createApi({
         url: "exchange-rates",
         method: "GET",
       }),
-      transformResponse: async (response: CurrencyRate[]) => response,
+      // Добавляем обработку кэширования
+      keepUnusedDataFor: 3600,
     }),
   }),
 });

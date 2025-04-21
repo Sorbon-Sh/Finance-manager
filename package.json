@@ -77,7 +77,7 @@
     "vite": "^6.0.5",
     "vitest": "^3.0.4"
   },
-  "packageManager": "pnpm@10.8.1+sha256.d8b2ebbc65cf02c349eca6b45c9640b910f16b6adebdb7b926e9db440e47cac7",
+  "packageManager": "pnpm@10.9.0+sha256.ea53ab747ac8b7921de63b42eab1adf021e1fe6ded05f62f00885cc33a46118d",
   "pnpm": {
     "ignoredBuiltDependencies": [
       "esbuild",

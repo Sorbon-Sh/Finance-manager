@@ -1,39 +1,45 @@
 import express, { Express, Request, Response } from "express";
-import cors from "cors"; // Добавьте cors
+import cors from "cors";
+
+// Создаем Express-приложение
 const app: Express = express();
-const port = 3001;
+const port = process.env.PORT || 3001;
 
-// Добавьте middleware
-app.use(cors());
-// Добавьте запуск сервера (это отсутствовало)
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+// Middleware
+app.use(
+  cors({
+    origin: ["https://fin-manager-eta.vercel.app", "http://localhost:3000"],
+    methods: ["GET", "OPTIONS"],
+  }),
+);
+
+// Роуты
+app.get("/api/health", (req: Request, res: Response) => {
+  res.status(200).json({ status: "OK" });
 });
-app.get("/exchange-rates", async (req: Request, res: Response) => {
+
+app.get("/api/exchange-rates", async (req: Request, res: Response) => {
   try {
-    const url = "https://valuta.tj/parser/echokurs.php";
-    const response = await fetch(url);
+    const response = await fetch("https://valuta.tj/parser/echokurs.php");
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Error response:", errorText);
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const rawData = await response.text();
-
-    const data = JSON.parse(rawData);
-
-    // Преобразуем объект в массив
+    const data = await response.json();
     const ratesArray = Object.values(data);
 
-    if (!Array.isArray(ratesArray)) {
-      throw new Error("Response is not an array");
-    }
-
-    res.json(ratesArray); // Возвращаем массив курсов
+    res.setHeader("Cache-Control", "s-maxage=3600").json(ratesArray);
   } catch (error) {
-    console.error("Error:", error);
-    res.status(500).json({ error: "Error" });
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
+// Решение для Vercel
+const vercelHandler = (req: Request, res: Response) => app(req, res);
+export default vercelHandler;
+
+// Локальный сервер
+if (process.env.NODE_ENV !== "production") {
+  app.listen(port, () => {
+    console.log(`Server started on http://localhost:${port}`);
+  });
+}
