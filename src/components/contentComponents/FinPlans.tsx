@@ -35,8 +35,6 @@ const FinPlans = () => {
   const { toLowerCase } = useCapitalize();
   const { data: finPlans, refetch: refetchPlan, error } = useGetFinPlanQuery();
 
-  console.log("rowsIds: ", rowsId);
-  console.log("Selected plan ID:", planID);
   const handleClickSelect = (
     event: ChangeEvent<HTMLInputElement>,
     id: string,

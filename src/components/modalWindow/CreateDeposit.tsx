@@ -47,7 +47,6 @@ const CreateDeposit = () => {
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     const toastId = toast.loading("Сохранение данных...");
     dispatch(openModal(["createDeposit", false]));
-    console.log("depositId", depositId);
     try {
       if (depositId) {
         await updateDeposit([

@@ -99,7 +99,6 @@ const Deposits = () => {
   };
 
   const handleClickCheckBox = () => {
-    console.log("rowsId", rowsId);
     dispatch(setDepositId(rowsId[0]));
     dispatch(openModal(["createDeposit", true]));
   };

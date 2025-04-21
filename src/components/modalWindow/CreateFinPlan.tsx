@@ -79,7 +79,6 @@ const CreateFinPlan = () => {
         });
       }
       dispatch(setPlanID(""));
-      console.log("Plan ID reset: ", planRowsId);
       reset();
     } catch (err) {
       toast.update(toastId, {
