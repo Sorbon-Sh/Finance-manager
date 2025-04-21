@@ -100,7 +100,7 @@ const Deposits = () => {
 
   const handleClickCheckBox = () => {
     console.log("rowsId", rowsId);
-    dispatch(setDepositId(rowsId));
+    dispatch(setDepositId(rowsId[0]));
     dispatch(openModal(["createDeposit", true]));
   };
 
@@ -166,7 +166,7 @@ const Deposits = () => {
           </span>
         )}
       </div>
-      <div className="max-h-[500px] overflow-y-auto">
+      <div className="h-[500px] overflow-y-auto">
         <div className="min-w-full  rounded-lg ">
           <div className="flex   py-2 text-center border-b-gray-400 border-b text-gray-500">
             <input
