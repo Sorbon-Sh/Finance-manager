@@ -18,6 +18,7 @@
     "@supabase/supabase-js": "^2.48.1",
     "@tailwindcss/vite": "^4.0.0",
     "@types/npm-paths": "^2.0.2",
+    "@vercel/node": "^5.1.14",
     "add": "^2.0.6",
     "ag-grid-community": "^33.1.1",
     "ag-grid-enterprise": "^33.1.1",
