@@ -35,7 +35,7 @@ app.get("/exchange-rates", async (req: Request, res: Response) => {
   }
 });
 
-// Запуск сервера на порту, предоставленному Vercel
+// Запуск сервера на порту, предоставленном Vercel
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);

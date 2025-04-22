@@ -9,7 +9,7 @@ export const valutaApiTJ = createApi({
   endpoints: (builder) => ({
     valutatj: builder.query<CurrencyRate[], void>({
       query: () => ({
-        url: "exchange-rates",
+        url: "exchange-rates", // Это будет /api/exchange-rates
         method: "GET",
       }),
       transformResponse: async (response: CurrencyRate[]) => response,
