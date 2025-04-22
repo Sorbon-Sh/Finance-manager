@@ -4,15 +4,19 @@ import { CurrencyRate } from "../../types/valutaTJTypes";
 export const valutaApiTJ = createApi({
   reducerPath: "valutaApiTJ",
   baseQuery: fetchBaseQuery({
-    baseUrl: "/api/", // Используйте относительный путь
+    baseUrl: "https://valuta.tj/parser/",
   }),
   endpoints: (builder) => ({
     valutatj: builder.query<CurrencyRate[], void>({
       query: () => ({
-        url: "exchange-rates", // Это будет /api/exchange-rates
+        url: "echokurs.php",
         method: "GET",
       }),
-      transformResponse: async (response: CurrencyRate[]) => response,
+      transformResponse: async (response: CurrencyRate[]) => {
+        const result = response;
+
+        return result;
+      },
     }),
   }),
 });
