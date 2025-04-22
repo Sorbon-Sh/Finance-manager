@@ -4,7 +4,7 @@ import { CurrencyRate } from "../../types/valutaTJTypes";
 export const valutaApiTJ = createApi({
   reducerPath: "valutaApiTJ",
   baseQuery: fetchBaseQuery({
-    baseUrl: "./api/", // Используйте относительный путь
+    baseUrl: "/api/", // Используйте относительный путь
   }),
   endpoints: (builder) => ({
     valutatj: builder.query<CurrencyRate[], void>({
