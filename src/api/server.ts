@@ -1,25 +1,42 @@
-import { VercelRequest, VercelResponse } from "@vercel/node";
+import express, { Express, Request, Response } from "express";
+import cors from "cors";
 
-export default async (req: VercelRequest, res: VercelResponse) => {
+const app: Express = express();
+
+// Добавление middleware
+app.use(cors());
+
+// Основной маршрут
+app.get("/exchange-rates", async (req: Request, res: Response) => {
   try {
-    const response = await fetch("https://valuta.tj/parser/echokurs.php");
+    const url = "https://valuta.tj/parser/echokurs.php";
+    const response = await fetch(url);
 
     if (!response.ok) {
-      return res
-        .status(response.status)
-        .json({ error: "Failed to fetch rates" });
+      const errorText = await response.text();
+      console.error("Error response:", errorText);
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const data = await response.json();
-    const rates = Object.values(data);
+    const rawData = await response.text();
+    const data = JSON.parse(rawData);
 
-    res
-      .setHeader("Access-Control-Allow-Origin", "*")
-      .setHeader("Cache-Control", "s-maxage=3600, stale-while-revalidate")
-      .status(200)
-      .json(rates);
+    // Преобразуем объект в массив
+    const ratesArray = Object.values(data);
+
+    if (!Array.isArray(ratesArray)) {
+      throw new Error("Response is not an array");
+    }
+
+    res.json(ratesArray); // Возвращаем массив курсов
   } catch (error) {
     console.error("Error:", error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: "Error" });
   }
-};
+});
+
+// Запуск сервера на порту, предоставленному Vercel
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
+});
