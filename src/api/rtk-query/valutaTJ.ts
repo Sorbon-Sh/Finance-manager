@@ -4,7 +4,7 @@ import { CurrencyRate } from "../../types/valutaTJTypes";
 export const valutaApiTJ = createApi({
   reducerPath: "valutaApiTJ",
   baseQuery: fetchBaseQuery({
-    baseUrl: "https://fin-manager-eta.vercel.app/api/",
+    baseUrl: "https://finance-manager-three-lake.vercel.app/api/",
   }),
   endpoints: (builder) => ({
     valutatj: builder.query<CurrencyRate[], void>({
