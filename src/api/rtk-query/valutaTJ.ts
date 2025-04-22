@@ -15,7 +15,7 @@ export const valutaApiTJ = createApi({
       transformResponse: async (response: CurrencyRate[]) => {
         const result = response;
 
-        return result;
+        return [result];
       },
     }),
   }),
