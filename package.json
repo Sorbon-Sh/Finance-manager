@@ -4,8 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"vite\" \"pnpm server:dev\"",
-    "server:dev": "nodemon --exec \"node --loader ts-node/esm src/api/server.ts\"",
+    "dev": "concurrently vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "lint": "eslint .",
