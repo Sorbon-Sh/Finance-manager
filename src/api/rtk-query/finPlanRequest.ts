@@ -61,7 +61,7 @@ export const finplanApi = createApi({
           rowsId,
         ] = form;
         const date = prepareDateWithOriginalParts(planData, dateIsString);
-        const { data, error } = await supabase
+        const { data, error: planError } = await supabase
           .from("finplans")
           .update({
             ...formData,
@@ -71,12 +71,24 @@ export const finplanApi = createApi({
             date,
           })
           .eq("id", rowsId);
-        if (error) {
-          console.log(error.message);
-          throw new Error(error.message);
-        }
+
+        const { data: updatePlanTran, error: planTranError } = await supabase
+          .from("finplanTransactions")
+          .update({
+            fromPlan: formData.plan,
+          })
+          .eq("planId", rowsId);
+
+        Promise.all([data, updatePlanTran]).then(() => {
+          if (planError || planTranError) {
+            console.log(planError?.message || planTranError?.message);
+            throw new Error(planError?.message || planTranError?.message);
+          }
+        });
+
         return { data: data || [] };
       },
+
       invalidatesTags: [{ type: "finPlans" }],
     }),
     deletePlan: builder.mutation({

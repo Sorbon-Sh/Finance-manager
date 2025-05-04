@@ -18,10 +18,12 @@ import { numberValid } from "../../utility/numberValid";
 import { toast } from "react-toastify";
 import { safeToString } from "../../utility/safeToString";
 import { parseDateFromServer } from "../../utility/parseDateFromServer";
+import { useGetPlanTransactionsQuery } from "../../api/rtk-query/finPlanTransactions";
 
 const CreateFinPlan = () => {
   const [isButtonClicked, setIsButtonClicked] = useState<boolean>(false);
   const [createFinPlan] = useCreateFinPlanMutation();
+  const { refetch: refetchPlanTran } = useGetPlanTransactionsQuery();
   const [updatePlan] = useUpdatePlanMutation();
   const { data: finPlans } = useGetFinPlanQuery();
   const planRowsId = useAppSelector((state) => state.stateAndData.planId);
@@ -64,6 +66,7 @@ const CreateFinPlan = () => {
           isLoading: false,
           autoClose: 2000,
         });
+        refetchPlanTran();
       } else {
         await createFinPlan([
           data,
