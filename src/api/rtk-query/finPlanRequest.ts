@@ -79,7 +79,7 @@ export const finplanApi = createApi({
           })
           .eq("planId", rowsId);
 
-        Promise.all([data, updatePlanTran]).then(() => {
+        Promise.all([data, updatePlanTran]).catch(() => {
           if (planError || planTranError) {
             console.log(planError?.message || planTranError?.message);
             throw new Error(planError?.message || planTranError?.message);
