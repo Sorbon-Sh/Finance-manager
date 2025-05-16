@@ -1,4 +1,4 @@
-import { ChangeEvent } from "react";
+import { ChangeEvent, useEffect } from "react";
 import { useCapitalize } from "../../hooks/useCapitalize";
 import { ITransactions } from "../../types/indexTypes";
 import { isObjectValid } from "../../utility/isObjectValid";
@@ -20,12 +20,24 @@ const SelectCurrency = ({
   tranData,
   amount,
 }: IProps) => {
-  const { data: valutaTJ } = useValutatjQuery();
+  const { data: valutaTJ, refetch, isSuccess } = useValutatjQuery();
   const bankName = valutaTJ ? getUniqueByProperty(valutaTJ, "namebank") : [];
   const { toUpperCase } = useCapitalize();
   const currencyTableData = useAppSelector(
     (state) => state.currencySlice.currency,
   );
+
+  useEffect(() => {
+    if (isSuccess && valutaTJ && valutaTJ.length > 0) return;
+
+    const interval = setInterval(() => {
+      console.log("🔁 Повторный запрос...");
+      refetch();
+    }, 10000);
+
+    return () => clearInterval(interval); // очистка
+  }, [isSuccess, valutaTJ, refetch]);
+
   return (
     <select
       value=""
