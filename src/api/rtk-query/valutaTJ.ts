@@ -15,6 +15,9 @@ export const valutaApiTJ = createApi({
         return Array.isArray(response) ? response : Object.values(response);
       },
       keepUnusedDataFor: 3600,
+      extraOptions: {
+        maxRetries: 3,
+      },
     }),
   }),
 });
