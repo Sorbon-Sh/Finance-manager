@@ -29,7 +29,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).json(result);
   } catch (err) {
     clearTimeout(timeout);
-    console.error("Ошибка в proxy-valuta:", err.message);
-    return res.status(500).json({ error: "Не удалось получить данные валют" });
+    console.error("Ошибка в proxy-valuta:", err);
+    return res
+      .status(500)
+      .json({ error: err.message || "Не удалось получить данные валют" });
   }
 }
