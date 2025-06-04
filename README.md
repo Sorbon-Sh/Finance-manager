@@ -92,7 +92,6 @@ Finance-manager/
    ```bash
    pnpm run dev
    ```
-   Приложение доступно по адресу: [https://finance-manager-three-lake.vercel.app/]
 
 ## ✅ Пользовательские возможности
 
