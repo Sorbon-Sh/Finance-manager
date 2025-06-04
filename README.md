@@ -1,32 +1,120 @@
+# 💰 Finance Manager
 
-# Fin manager
+**Finance Manager** — это полнофункциональное веб-приложение для управления личными финансами. Оно предоставляет пользователю возможность отслеживать доходы и расходы, анализировать финансовые данные и управлять бюджетом с помощью интуитивно понятного интерфейса.
 
-В этом приложении используется стек из:
+## 🚀 Демо
 
-Языки JavaScript, TypeScript, HTML5, CSS3, Node.js
-Библиотеки: React, Redux Toolkit, RTK-Query, AG-Grids, Tailwindcss, UUID, useHookForm, Toastify
-Базы данных: Supabase
+Приложение доступно по адресу: [finance-manager-three-lake.vercel.app](https://finance-manager-three-lake.vercel.app)
 
+## 🛠️ Технологии и инструменты
 
+- **Frontend:**
+  - React
+  - TypeScript
+  - Tailwind CSS
+  - AG Grid
+  - React Hook Form
+  - React Toastify
+  - UUID
 
-## Структура проекта
+- **State Management:**
+  - Redux Toolkit
+  - RTK Query
 
- - api -> Глобальный API в котором находится Node.js  запрос чтобы    Vercel мог запускать его     
- - public -> Обычная папка public
- -  src:  -> api    -> Вся API логика приложение 
-  - assets -> Иконки приложения  ->  components:
- -  Buttons -> Кнопки сайта
- - ContentComponents  -> Все компоненты контента
- - Layout  -> Структура вёрстки сайта
- - ModalWindows  -> Модальные окна
- - Contaier -> Контейнер вёрстки
- - FetchError  -> Обработка ошибок запроса и сообщение 
- - Loading  ->  Вёрстка загрузки контента
- - NoTransactions  -> Сообщение если нет транзакций
- -> Hooks -> Хуки приложения
- -> Redux -> State manager
- -> Types  -> TypeScript приложения
- -> Utility  -> Необходимые утилиты приложения
+- **Backend:**
+  - Node.js
+  - Express.js
 
+- **Сборка и инструменты разработки:**
+  - Vite
+  - ESLint
+  - Prettier
+  - pnpm
 
+- **Деплой:**
+  - Vercel
+
+## 📁 Структура проекта
+
+```bash
+Finance-manager/
+├── api/                      # Серверная часть (Express.js)
+│   ├── controllers/          # Контроллеры API
+│   ├── models/               # Модели данных
+│   ├── routes/               # Маршруты API
+│   └── index.ts              # Точка входа сервера
+│
+├── public/                   # Публичные файлы
+│   └── index.html
+│
+├── src/                      # Исходный код клиентской части
+│   ├── components/           # Переиспользуемые компоненты
+│   ├── features/             # Слайсы Redux и связанные компоненты
+│   ├── hooks/                # Кастомные хуки
+│   ├── pages/                # Страницы приложения
+│   ├── services/             # RTK Query сервисы
+│   ├── styles/               # Стили Tailwind
+│   ├── utils/                # Утилиты и вспомогательные функции
+│   ├── App.tsx               # Главный компонент приложения
+│   └── main.tsx              # Точка входа клиентской части
+│
+├── .eslintrc.cjs             # Конфигурация ESLint
+├── .prettierrc               # Конфигурация Prettier
+├── package.json              # Скрипты и зависимости
+├── pnpm-lock.yaml            # Лок-файл pnpm
+├── tailwind.config.js        # Конфигурация Tailwind CSS
+├── tsconfig.json             # Конфигурация TypeScript
+└── vite.config.ts            # Конфигурация Vite
+```
+
+## 📦 Установка и запуск
+
+1. Клонируйте репозиторий:
+
+   ```bash
+   git clone https://github.com/Sorbon-Sh/Finance-manager.git
+   cd Finance-manager
+   ```
+
+2. Установите зависимости:
+
+   ```bash
+   pnpm install
+   ```
+
+3. Запустите серверную часть:
+
+   ```bash
+   pnpm run server
+   ```
+
+4. Запустите клиентскую часть:
+
+   ```bash
+   pnpm run dev
+   ```
+
+Приложение будет доступно по адресу: [http://localhost:5173](http://localhost:5173)
+
+## ✅ Возможности
+
+- Добавление, редактирование и удаление транзакций
+- Категоризация доходов и расходов
+- Визуализация данных с помощью таблиц и графиков
+- Валидация форм и отображение уведомлений
+- Обработка ошибок и загрузок
+- Адаптивный дизайн для различных устройств
+
+## 📌 Планы на будущее
+
+- Реализация аутентификации и авторизации пользователей
+- Интеграция с внешними API для получения курсов валют
+- Добавление возможности экспорта данных в CSV/Excel
+- Улучшение аналитики и отчетности
+
+## 📝 Лицензия
+
+Этот проект распространяется под лицензией MIT.
+
+---
 
